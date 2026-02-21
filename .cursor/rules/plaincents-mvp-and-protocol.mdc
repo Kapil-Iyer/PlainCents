@@ -1,0 +1,35 @@
+---
+description: PlainCents MVP gate, resume-safe definition, and Cursor Session 1 protocol
+alwaysApply: true
+---
+
+# PlainCents: MVP Gate & Cursor Protocol
+
+## Build order
+- Build up to **MVP stage first** (Cursor Pro = main IDE/coder), then complete polish. Get structure right before pipeline/UI.
+
+## Cursor Session 1 (every project)
+1. Create repo + open in Cursor
+2. Create the **exact folder tree** from PRD/BuildPlan
+3. Add: `requirements.txt`, `.gitignore`, `config.py` skeleton, DB schema file skeleton
+4. **Do not build models or UI yet**
+5. First prompt: *"Read the attached PRD + BuildPlan. Do not write code yet. Summarize the architecture in 8–12 bullets and list the Phase 0 files we must create first. Wait for my go-ahead before generating any pipeline/model code."*
+6. Prevents architectural drift.
+
+## MVP = Resume-safe definition
+- GitHub link is clean and reproducible
+- Demo/deployed link works publicly
+- Metrics are reproducible and defensible in 2 sentences
+- Bullets can safely move to past tense
+- **Metrics must be explainable under questioning:** What does this metric measure? What are its limitations? Why is it still meaningful?
+
+## PlainCents MVP gate (End of Phase 6)
+Flip to "Built" when **all** are true:
+- `python main.py` runs clean
+- All 6 SQLite tables populated
+- UPSERT is idempotent (run twice, no duplicates)
+- `forecast_vs_actual` has rows
+- PowerBI export CSVs generated
+- K-Means held-out accuracy printed
+- Random Forest forecast metric printed
+- README explains 3-step run process

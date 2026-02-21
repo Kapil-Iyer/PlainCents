@@ -1,0 +1,18 @@
+# Data Privacy
+data/raw/
+plaincents.db
+
+# Generated exports
+data/exports/*.pdf
+data/exports/*.csv
+
+# Models
+*.pkl
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Virtual environment
+venv/

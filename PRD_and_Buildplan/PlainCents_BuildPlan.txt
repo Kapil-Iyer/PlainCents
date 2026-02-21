@@ -1,0 +1,279 @@
+PlainCents
+Complete Build Plan — Scratch to Deployment
+v1.0  |  February 2026  |  All audit fixes applied  |  Seed script in Phase 4
+Tools: Cursor Pro  |  Claude Pro  |  ChatGPT Plus  |  Gemini 3.0 Pro  |  No Claude Code  |  No Antigravity
+
+Audit Fixes Applied in This Plan
+All 6 ChatGPT TPM audit fixes plus seed script rules are incorporated. No further PRD changes needed.
+
+• Fix 1: requirements.txt created first, then pip install -r requirements.txt. .pkl excluded only if > 100MB.
+• Fix 2: 200 labeled transactions shuffled once before 160/40 split to prevent category imbalance. Shuffle never applied to time-series forecasting data.
+• Fix 3: Walk-forward uses expanding window (not rolling). Explicit loop enforced in forecast.py.
+• Fix 4: seed_synthetic_data.py is idempotent — clears tables before inserting. Never auto-runs from main.py.
+• Fix 5: PowerBI sharing tested in incognito window before claiming public access. Screenshot fallback if anonymous sharing blocked.
+• Fix 6: Phase 3 and Phase 8 are the two most likely to overrun. Fallback scopes defined.
+• Seed script: Lives in Phase 4. Named seed_synthetic_data.py explicitly. Inserts 12mo transactions, 12mo monthly_summary, 3mo forecast_vs_actual, synthetic portfolio. main.py has zero awareness of its existence.
+• Color palette pre-step: CHART_COLORS defined in config.py before any Phase 7 code is written.
+
+Tool Roles — One Job Each
+• Cursor Pro — primary coding environment every session. All file creation, editing, multi-file context, autocomplete.
+• Claude Pro (Sonnet 4.6) — ML correctness reviewer. Walk-forward validation, SQLite logic, architecture decisions, final resume bullets.
+• ChatGPT Plus (5.2) — PowerBI owner. All DAX measures, M queries, visual formatting. Phase 8 only.
+• Gemini 3.0 Pro — fast scaffolding. Matplotlib chart boilerplate in Phase 7. Quick utility code generation.
+
+Pre-Build Setup
+Complete before touching any pipeline code. One session, ~2 hrs.
+
+Step 1 — GitHub + Cursor
+[Cursor Pro]  Create repo, folder structure, workspace
+
+• Create GitHub repo PlainCents, clone locally, open in Cursor Pro — this is your permanent workspace for all 15 sessions
+• Create full folder structure from PRD v4 file tree — all empty folders and __init__.py placeholders
+• Create requirements.txt first with pinned versions, then run: pip install -r requirements.txt
+? pandas==2.2.0, numpy==1.26.4, scikit-learn==1.4.0, yfinance==0.2.36, matplotlib==3.8.2, joblib==1.3.2
+• Create .gitignore — exclude data/raw/, plaincents.db, and any .pkl files over 100MB (small models are fine to commit)
+
+? AUDIT FIX APPLIED: requirements.txt is created FIRST. pip install -r requirements.txt runs AFTER. Never install ad-hoc then try to pin later.
+Step 2 — Config + Schema
+[Claude Pro]  Generate config.py and schema.sql
+
+• Ask Claude Pro to generate complete config.py — category labels (8), bank date format strings (TD/RBC/Scotiabank), all file paths, CHART_COLORS placeholder (will be filled in Phase 7 pre-step)
+• Ask Claude Pro to generate complete schema.sql — all 6 tables with correct types, constraints, UPSERT note on monthly_summary
+• Review both files in Cursor, commit to GitHub as initial scaffold
+
+? NOTE: Read PRD v4 end-to-end before writing a single line of pipeline code. Know the full system before building any part of it.
+Phase 1 — CSV Ingestion + Cleaning
+Sessions 1-2  |  ~7 hrs  |  Files: pipeline/ingest.py, data/synthetic_12mo.csv
+
+Build
+[Cursor Pro]  Build pipeline/ingest.py
+
+• Implement CSV loading with automatic column detection for TD, RBC, Scotiabank formats using config.py format strings
+• Date parsing: pd.to_datetime(df['date'], infer_datetime_format=True, errors='coerce')
+• After parsing: drop rows where date is NaT, log count with logger.warning(f'Dropped {n} rows with unparseable dates')
+• Normalize all internal dates to YYYY-MM-DD string format for SQLite consistency
+• Strip whitespace, normalize merchant names (upper/lowercase, remove special characters), remove duplicates
+
+[Claude Pro]  Review + generate synthetic data
+
+• Paste ingest.py to Claude Pro — ask to verify date parsing handles DD/MM vs MM/DD edge cases for all 3 bank formats
+• Ask Claude Pro to generate data/synthetic_12mo.csv — 12 months of realistic transactions across all 8 categories
+? Higher amounts in December (holiday spending), lower in summer, realistic merchant names per category
+? Minimum 300 rows — enough for K-Means clustering to be meaningful
+
+? TEST: Run python pipeline/ingest.py on synthetic_12mo.csv. Confirm: clean DataFrame, no NaT dates, all columns normalized, row count logged.
+Phase 2 — K-Means Clustering
+Sessions 3-4  |  ~10 hrs  |  Files: pipeline/features.py, pipeline/cluster.py
+
+Build
+[Cursor Pro]  Build features.py and cluster.py
+
+• features.py: StandardScaler on transaction amount + TF-IDF (top 50 terms) on merchant name + day-of-week (0-6) + is_weekend flag
+• cluster.py: Fit KMeans(n_clusters=8) on full transaction feature matrix
+• Label mapping: manually label 200 transactions, shuffle the 200 rows ONCE before splitting 160/40
+? 160 transactions: majority vote per cluster to assign category label
+? 40 transactions: held-out evaluation set — compute mapped label accuracy here
+• Compute silhouette score as diagnostic only — do not report as resume metric
+• Save KMeans + StandardScaler + TfidfVectorizer together in models/kmeans_model.pkl via joblib
+
+? AUDIT FIX APPLIED: Shuffle the 200 labeled rows ONCE before the 160/40 split. This prevents category imbalance from ordered synthetic data. Never shuffle time-series forecasting data.
+[Claude Pro]  Review clustering logic
+
+• Paste cluster.py to Claude Pro — ask to verify majority-vote mapping logic has no subtle bugs
+• Ask Claude Pro to confirm 160/40 split is correct and no label information leaks into the 40-transaction eval set
+• If accuracy < 80%: paste silhouette scores + cluster sizes to Claude Pro for diagnosis
+? Fallback: try n_clusters=6 or n_clusters=10, expand TF-IDF vocabulary
+
+? TEST: Run cluster.py. Print accuracy on 40-transaction held-out set. Must be 80%+. Print silhouette score for diagnostic reference only.
+Phase 3 — Random Forest Forecasting
+Sessions 5-6  |  ~12 hrs  |  File: pipeline/forecast.py  |  Most complex phase — take it slow
+
+Build
+[Cursor Pro]  Build forecast.py
+
+• Features: month number (1-12), label-encoded category, rolling 3-month average, rolling 6-month average, rolling std deviation, is_december flag, is_summer flag
+• Minimum data check: if transaction history < 12 months, use synthetic_12mo.csv fallback and log warning
+• Walk-forward validation — expanding window only:
+? for i in range(min_train_size, len(months)-1):
+?     train = months[:i]  # expanding — grows each iteration
+?     test = months[i]    # always one month ahead
+?     # refit model on train only, predict test, compute MAPE
+• Compute MAPE per category. Log per-category breakdown to console. Write to forecast_vs_actual table.
+• Starting hyperparameters: n_estimators=100, max_depth=10, min_samples_leaf=5
+• Run GridSearchCV if overall MAPE > 15%
+
+? AUDIT FIX APPLIED: Expanding window, NOT rolling window. Train set grows each iteration — never drops old months. This is non-negotiable to prevent data leakage.
+[Claude Pro]  Validate walk-forward loop
+
+• Paste your walk-forward loop to Claude Pro — ask to verify zero data leakage. This is the highest-risk code in the project.
+• If MAPE > 15%: paste feature set + MAPE breakdown to Claude Pro for diagnosis
+[ChatGPT]  Financial sense check
+
+• Ask ChatGPT 'does this feature make financial sense for monthly spending prediction?' for any feature you're unsure about
+
+? TEST: MAPE < 15% on held-out months. Per-category MAPE logged to console. Predictions written to SQLite predictions table correctly.Fallback if Phase 3 overruns: simplify to 1-month forecast only. Add +2/+3 months after core pipeline works.
+
+Phase 4 — SQLite Schema + Seed Script
+Session 7  |  ~8 hrs  |  Files: db/schema.sql, db/database.py, db/seed_synthetic_data.py
+
+Part A — Database Helpers
+[Cursor Pro]  Build db/database.py
+
+• Implement SQLite connection helper with context manager
+• INSERT functions for all 6 tables
+• UPSERT for monthly_summary: INSERT OR REPLACE INTO monthly_summary ... — prevents UNIQUE constraint error on re-runs
+• Query helpers: get_transactions(), get_predictions(), get_portfolio(), get_monthly_summary(), get_forecast_accuracy()
+
+[Claude Pro]  Review UPSERT logic
+
+• Paste UPSERT implementation to Claude Pro — confirm INSERT OR REPLACE handles all edge cases correctly
+
+Part B — Seed Script
+[Claude Pro]  Generate seed_synthetic_data.py
+
+• Ask Claude Pro to generate db/seed_synthetic_data.py with the following spec:
+? Idempotent: clears all 6 tables before inserting (DELETE FROM each table at script start)
+? Inserts 12 months of synthetic transactions across all 8 categories with realistic seasonal patterns
+? Higher amounts in December, lower in June-August, recurring subscriptions every month
+? Inserts 12 rows in monthly_summary (one per month) with total_spend and portfolio_value
+? Inserts 3 months of forecast_vs_actual with pct_error in 8-14% range
+? Inserts synthetic portfolio: 4 tickers (AAPL, MSFT, SPY, BNS.TO) with realistic shares and avg_cost
+? Never called by main.py — standalone script only
+
+? AUDIT FIX APPLIED: seed_synthetic_data.py is IDEMPOTENT. Runs DELETE FROM all tables before inserting. Running it twice produces identical clean state, not doubled data. main.py has zero awareness this file exists.
+? NOTE: README must include: 'Run python db/seed_synthetic_data.py to populate the database with synthetic demo data before connecting PowerBI. All synthetic data is clearly labelled and must not be reported as real model performance metrics.'
+? TEST: Run python db/seed_synthetic_data.py. Open plaincents.db in DB Browser for SQLite (free tool). Verify all 6 tables populated with realistic data. Run script a second time — confirm no duplicate rows.
+Phase 5 — yfinance Portfolio + Cache
+Session 8  |  ~6 hrs  |  File: pipeline/portfolio.py
+
+[Cursor Pro]  Build portfolio.py
+
+• Cache-first logic: before every yfinance call, query price_cache for ticker + today's date
+• TTL check: if fetched_at is within 1 hour of now, use cached current_price — do NOT call yfinance
+• If cache miss or stale: call yfinance.Ticker(ticker).fast_info['lastPrice'], store in price_cache, return price
+• Compute P&L: (current_price - avg_cost) * shares per ticker, write to portfolio table
+• Empty portfolio guard: if no tickers provided or portfolio table empty, return empty DataFrame and log warning — do not throw exception
+
+[Claude Pro]  Review cache-first TTL logic
+
+• Paste portfolio.py to Claude Pro — ask to verify TTL conditional is correct and covers all edge cases (first run, stale cache, API error)
+
+? TEST: Run with AAPL, MSFT, SPY, BNS.TO. Confirm first run calls yfinance and populates price_cache. Run again within 1 hour — confirm no yfinance call made, cached prices used. Confirm P&L calculated correctly.
+Phase 6 — main.py Integration + Monitoring
+Session 9  |  ~5 hrs  |  File: main.py
+
+[Cursor Pro]  Build main.py orchestration
+
+• Correct module execution order: ingest ? features ? cluster ? forecast ? portfolio ? monthly_summary write ? forecast monitoring check ? report
+• Monthly snapshot: at end of every run, compute and UPSERT into monthly_summary (total_spend, category_spend_json, forecast_next_month, portfolio_value)
+• Forecast monitoring: when new month data arrives, compare transactions table actuals against prior predictions table — write result to forecast_vs_actual
+• main.py has zero imports from db/seed_synthetic_data.py — no awareness of seed script
+
+[Claude Pro]  Review orchestration + monitoring
+
+• Paste main.py to Claude Pro — ask to verify module dependency order is correct
+• Ask Claude Pro to verify forecast monitoring logic correctly matches prediction rows to actual monthly totals
+
+? TEST: Run python main.py twice. Confirm: monthly_summary has no duplicate rows (UPSERT working). Confirm forecast_vs_actual populated with error calculations. Confirm all 6 SQLite tables have data after each run.
+Phase 7 — Matplotlib PDF Report
+Sessions 10-11  |  ~8 hrs  |  Files: config.py (color update), viz/report.py
+
+Pre-Step — Color Palette (Do Before Writing Any Chart Code)
+[Cursor Pro]  Define CHART_COLORS in config.py
+
+• Add CHART_COLORS dict to config.py with 8 category colors + accent colors before opening report.py
+• All 5 charts in report.py must import from config.CHART_COLORS — no hardcoded hex values anywhere in report.py
+
+Build
+[Gemini 3.0 Pro]  Scaffold viz/report.py with 5 chart functions
+
+• Paste PRD v4 Section 8 chart specs to Gemini — ask it to scaffold report.py with all 5 chart functions using matplotlib.backends.backend_pdf.PdfPages
+• Gemini is fast at Matplotlib boilerplate — use it for the scaffold, not for logic
+
+[Cursor Pro]  Clean up + add guards
+
+• Wire all charts to config.CHART_COLORS — replace any Gemini hardcoded colors
+• Add empty DataFrame guard to every chart function:
+? if df.empty: generate placeholder axes with 'No Data Available' text, do not throw exception
+• Chart 1 — Monthly Spending Trend (Line): monthly_summary.total_spend over time + 3-month rolling average. Guard: min 2 rows.
+• Chart 2 — Category Distribution (Horizontal Bar): transactions group by category sum amount, latest month. Guard: empty check.
+• Chart 3 — Forecast Projection (Grouped Bar): predictions.predicted_amount per category per month_offset. Guard: empty check.
+• Chart 4 — Portfolio Performance (Line): monthly_summary.portfolio_value over time. Guard: all-null check.
+• Chart 5 — Forecast Accuracy (Bar): forecast_vs_actual.pct_error per category. Guard: min 2 rows, else 'Insufficient History'.
+
+[Claude Pro]  Review empty guards
+
+• Paste report.py to Claude Pro — ask to confirm no chart can throw an exception on empty input
+
+? TEST: Run python viz/report.py. Open PDF — all 5 charts render with seed data. Run again after clearing portfolio table — Chart 4 shows 'No Data Available' placeholder cleanly.
+Phase 8 — PowerBI Dashboard
+Sessions 12-13  |  ~9 hrs  |  Files: viz/powerbi_export.py, powerbi/PlainCents.pbix
+
+Part A — CSV Export
+[Cursor Pro]  Build viz/powerbi_export.py
+
+• Generate 4 CSVs from SQLite queries:
+? transactions_clean.csv — date, merchant, amount, category from transactions table
+? forecasts.csv — category, month_offset, predicted_amount from predictions table
+? portfolio.csv — all columns from portfolio table
+? forecast_accuracy.csv — category, forecast_month, predicted_value, actual_value, pct_error from forecast_vs_actual table
+• Export to data/exports/ folder. All 4 CSVs must be generated even if source table is empty (headers-only CSV for empty tables)
+
+Part B — Dashboard Build
+[ChatGPT]  DAX measures, M queries, visual formatting — ChatGPT owns this phase
+
+• Ask ChatGPT for DAX measures for all 5 visuals before opening PowerBI Desktop
+• Ask ChatGPT for M query to connect CSVs from data/exports/ folder
+• Ask ChatGPT for visual formatting guidance: consistent color theme, axis labels, chart titles
+
+Build in PowerBI Desktop:
+• Import all 4 CSVs via Get Data > Text/CSV
+• Build 5 visuals using ChatGPT's DAX: Category Donut, Forecast Bar, Spending Trend Line, Portfolio P&L Table, Forecast Accuracy Line
+• Apply artifact policy: check PlainCents.pbix file size
+? < 25MB: commit directly to powerbi/ folder in repo
+? >= 25MB: GitHub Release, upload .pbix as asset, commit screenshots + DAX docs to powerbi/docs/ instead
+• Publish to PowerBI Service. Test sharing in incognito window before claiming public access.
+? If anonymous sharing blocked: screenshot all 5 visuals, embed in README and portfolio as fallback
+
+? AUDIT FIX APPLIED: Test PowerBI sharing in incognito window before declaring it public. Free tier sharing depends on tenant settings — do not assume it works.
+? TEST: All 5 visuals render with seed data. Sharing link tested in incognito window. Artifact policy applied based on file size.Fallback if Phase 8 overruns: Ship 3 visuals minimum (Category Donut, Forecast Bar, Portfolio Table). Add remaining 2 post-submission.
+
+Phase 9 — Polish + Deploy
+Session 14  |  ~4 hrs  |  Files: tests/test_pipeline.py, README.md
+
+[Cursor Pro]  Tests + README
+
+• Write tests/test_pipeline.py — basic unit tests for ingest, cluster, forecast modules
+? test_ingest: confirm clean DataFrame output, no NaT dates, correct column names
+? test_cluster: confirm 8 unique category labels assigned, accuracy above 70% threshold
+? test_forecast: confirm predictions DataFrame has correct shape and month_offset values 1/2/3
+• Write final README.md including:
+? Project overview + architecture summary
+? Setup instructions (requirements.txt install)
+? Demo data section: 'Run python db/seed_synthetic_data.py before connecting PowerBI'
+? Data privacy warning: 'Never commit real bank data. data/raw/ is gitignored.'
+? PowerBI published link (or screenshots if anonymous sharing blocked)
+? Metrics: actual K-Means accuracy % and MAPE % from your run
+
+[Claude Pro]  README review + final resume bullets
+
+• Paste README to Claude Pro — ask to review for clarity, professionalism, and data privacy coverage
+• Ask Claude Pro to generate final resume bullets using your actual measured metrics from forecast_vs_actual table and held-out evaluation
+• Ask Claude Pro for final architecture review — confirm nothing drifted from PRD v4
+
+GitHub final steps:
+• Confirm .gitignore working: data/raw/ excluded, no real bank CSVs in repo
+• Tag release v1.0 in GitHub
+• Add PowerBI published link (or screenshot embed) to repo description
+• Add live demo link to portfolio website kapil-iyer-portfolio.vercel.app
+
+? TEST: Run python -m pytest tests/. All tests pass. README renders correctly on GitHub. PowerBI link opens in incognito. .gitignore verified — no real data committed.
+Complete Summary
+PhaseFocusTool LeadHrsKey OutputPre-BuildGitHub, folder structure, requirements.txt, config.py, schema.sqlCursor + Claude2Repo scaffold committedPhase 1CSV ingestion + date parsing (ingest.py)Cursor + Claude7Clean DataFrame, synthetic CSVPhase 2K-Means clustering + label mapping (cluster.py)Cursor + Claude1080%+ accuracy on 40-row held-outPhase 3Random Forest + walk-forward validation (forecast.py)Cursor + Claude12MAPE < 15%, predictions in DBPhase 4SQLite schema + database.py + seed_synthetic_data.pyCursor + Claude8All 6 tables live, seed runs cleanlyPhase 5yfinance cache-first portfolio (portfolio.py)Cursor + Claude6P&L working, TTL cache validatedPhase 6main.py orchestration + monitoringCursor + Claude5UPSERT working, monitoring populatedPhase 7Matplotlib PDF report — 5 charts (report.py)Gemini + Cursor + Claude8PDF renders, empty guards testedPhase 8PowerBI 4 CSVs + dashboard + publishChatGPT + self95 visuals live, sharing link verifiedPhase 9Tests, README, GitHub polish, deployCursor + Claude4v1.0 tagged, demo link live
+Total: ~71 hrs  |  ~15 sessions  |  No Claude Code. No Antigravity. No Streamlit. No Tableau.
+
+One rule above all: No new features after Phase 6. If something feels 'cool', ask — does it map to a resume signal? If no, do not add it.
+
+PlainCents Build Plan  |  Kapil Iyer  |  University of Waterloo  |  2026
+PlainCents Build Plan  |  Kapil Iyer  |  Page 1
+

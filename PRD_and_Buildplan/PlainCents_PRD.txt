@@ -1,0 +1,156 @@
+PlainCents
+Personal Finance Analytics Dashboard
+Product Requirements Document  |  v4.0  |  February 2026
+Final agent-ready build document — all audit fixes applied
+
+Versionv4.0 — Final. Agent-ready for Cursor Pro.StatusAll critical + stability audit fixes applied. Green signal to build.Scope65-75 hrs. Polished internship-tier project, not MVP.ArchitecturePython ML pipeline + SQLite + PowerBI + Matplotlib PDF. No Streamlit. No Tableau. No web hosting.Resume alignmentEvery feature maps to a specific resume signal. No cosmetic additions.
+1. Project Identity (Locked — Do Not Drift)
+What PlainCents Is
+• A Python ML pipeline that processes raw bank CSV exports end-to-end
+• An automated spending intelligence system using K-Means clustering and Random Forest forecasting
+• A local analytics platform with SQLite as a structured 6-table data warehouse
+• A business intelligence product using PowerBI for interactive exploration
+• An automated reporting tool generating static PDF financial summaries via Matplotlib
+
+What PlainCents Is NOT
+• Not a Streamlit web app or any web-hosted application — no exceptions
+• Not a multi-user SaaS platform or authentication system
+• Not a quant research or portfolio optimization tool — that is RiskFecta
+• Not a Tableau project — Tableau belongs to RiskFecta only
+• Not an MVP — this is a polished, internship-tier build with monitoring and persistence
+
+2. Problem Statement & Solution
+Problem
+Most budgeting apps display historical spending but cannot predict future expenses or automatically categorize raw bank CSV exports using ML. Manual categorization is inconsistent and time-consuming. Retail users lack a free, intelligent tool combining ML-driven spending intelligence, investment portfolio tracking, model performance monitoring, and automated financial reporting in one cohesive system.
+
+Solution
+PlainCents is a Python ML pipeline that ingests raw bank CSV exports, categorizes transactions via K-Means clustering (evaluated at 80%+ accuracy on a 40-transaction held-out set), forecasts 3-month spending via Random Forest regression (<15% MAPE with walk-forward validation), persists all outputs in a structured 6-table SQLite schema including model monitoring and API rate-limit caching, generates automated PDF financial reports via Matplotlib, and presents interactive analytics through a published PowerBI dashboard.
+
+3. Tech Stack & Roles
+Every tool has a specific, non-overlapping role. Stack matches resume exactly.
+
+TechnologySpecific RolePythonCore language — all pipeline logic, ML, DB operations, report generationPandasCSV ingestion, cleaning, date normalization, feature engineering, rolling statisticsNumPyNumerical operations, array manipulation, statistical computations in pipelinescikit-learnK-Means clustering (categorization) + Random Forest regression (forecasting)SQLite6-table local data warehouse: transactions, predictions, portfolio, price_cache, monthly_summary, forecast_vs_actualyfinanceReal-time price fetching for portfolio P&L; all calls gated by price_cache TTL checkMatplotlibAutomated static PDF financial report — 5 charts via PdfPages backend. NOT for interactive use.PowerBIPrimary interactive dashboard: 5+ visuals from SQLite CSV exports, published to PowerBI Service
+4. System Architecture
+End-to-End Data Flow
+• Input: Raw bank CSV (TD/RBC/Scotiabank) placed in data/raw/. Minimum 12 months of history required for forecasting stability. Synthetic dataset provided as fallback in repo.
+• ETL (ingest.py): Pandas reads CSV. Date parsing uses pd.to_datetime(..., infer_datetime_format=True, errors='coerce'). Invalid rows logged and dropped. DD/MM vs MM/DD ambiguity resolved via bank-specific format config in config.py. Column names normalized across bank formats.
+• Feature Engineering (features.py): Normalized amount, TF-IDF merchant keywords (top 50 terms), day-of-week (0-6), month number (1-12), is_weekend flag, is_recurring flag.
+• K-Means Clustering (cluster.py): 8-category assignment. Cluster-to-label mapping via majority vote on 160-transaction mapping set. Accuracy evaluated on separate 40-transaction held-out set. Silhouette score computed as diagnostic only.
+• Random Forest Regression (forecast.py): Walk-forward validation. Train on months 1 through N, test on N+1. Never shuffle. Predict +1, +2, +3 months per category. MAPE computed per category and logged.
+• SQLite Layer (database.py): All 6 tables written in correct order. monthly_summary uses UPSERT (INSERT OR REPLACE). price_cache checked before every yfinance call — fetch only if fetched_at > 1 hour ago.
+• yfinance Portfolio (portfolio.py): Cache-first logic enforced. If ticker + today's date exists in price_cache and fetched_at is within 1 hour, use cached current_price. Else fetch, store, return. Explicit 'No Holdings' guard for empty portfolio state.
+• Forecast Monitoring (database.py): When new month data arrives, compare against prior prediction in predictions table. Write result to forecast_vs_actual. For demo, synthetic 3-month history pre-populated.
+• Config pre-step: Color palette defined in config.py before Phase 7. All Matplotlib charts use shared palette for visual consistency across PDF report.
+• PDF Report (report.py): Pull from SQLite. Generate 5 charts via matplotlib.backends.backend_pdf.PdfPages. Guard all queries against empty DataFrames — show 'No Data Available' placeholder chart if needed. Export to data/exports/PlainCents_Report_[YYYY-MM].pdf.
+• PowerBI Export (powerbi_export.py): Generate 4 CSVs — transactions_clean.csv, forecasts.csv, portfolio.csv, forecast_accuracy.csv — all from SQLite queries.
+• PowerBI Dashboard: Import 4 CSVs, build 5+ visuals, save as powerbi/PlainCents.pbix. If file < 25MB commit to repo. If >= 25MB use GitHub Release + screenshots + DAX documentation in repo.
+
+File Structure
+plaincents/ ??? main.py                        # Entry point — full pipeline + monitoring + report ??? config.py                      # Paths, bank format configs, category labels, ?                                  # Matplotlib color palette (defined pre-Phase 7) ??? data/ ?   ??? raw/                       # Drop bank CSV exports here ?   ??? synthetic_12mo.csv         # Synthetic 12-month fallback dataset (committed) ?   ??? processed/                 # Cleaned + categorized DataFrames ?   ??? exports/                   # PowerBI CSVs + PDF reports ??? pipeline/ ?   ??? ingest.py                  # CSV loading, date normalization, cleaning ?   ??? features.py                # Feature engineering ?   ??? cluster.py                 # K-Means + majority-vote label mapping ?   ??? forecast.py                # Random Forest + walk-forward validation ?   ??? portfolio.py               # yfinance + cache-first logic + empty guard ??? db/ ?   ??? schema.sql                 # All 6 table definitions with UPSERT notes ?   ??? database.py                # SQLite helpers, UPSERT logic, monitoring writes ??? models/ ?   ??? kmeans_model.pkl           # KMeans + StandardScaler + TfidfVectorizer ?   ??? rf_model.pkl               # Random Forest model ??? viz/ ?   ??? report.py                  # Matplotlib PDF report (5 charts, PdfPages) ?   ??? powerbi_export.py          # 4 CSV exports from SQLite ??? powerbi/ ?   ??? PlainCents.pbix            # PowerBI file (<25MB) or GitHub Release link ??? tests/ ?   ??? test_pipeline.py           # Unit tests per module ??? requirements.txt               # All deps with pinned versions ??? README.md                      # Setup, usage, data privacy warning
+
+5. Database Schema (SQLite — 6 Tables)
+All 6 tables must be actively written to and queried during normal pipeline execution. No table is cosmetic.
+
+Table 1: transactions — Primary spending store
+ColumnTypeConstraintsPurposeidINTEGERPRIMARY KEY AUTOINCREMENTUnique row IDsession_idTEXTNOT NULLBatch upload identifierdateDATENOT NULLNormalized transaction datemerchantTEXTNOT NULLCleaned merchant nameamountREALNOT NULLTransaction amount (CAD)categoryTEXTNOT NULLK-Means mapped labelcluster_idINTEGERRaw cluster integer 0-7created_atDATETIMEDEFAULT CURRENT_TIMESTAMPInsert timestamp
+Table 2: predictions — RF forecast output
+ColumnTypeConstraintsPurposeidINTEGERPRIMARY KEY AUTOINCREMENTUnique row IDsession_idTEXTNOT NULLLinks to session batchcategoryTEXTNOT NULLSpending category labelmonth_offsetINTEGERNOT NULL — values 1, 2, or 3Months ahead predictedpredicted_amountREALNOT NULLRF forecast (CAD)created_atDATETIMEDEFAULT CURRENT_TIMESTAMPInsert timestamp
+Table 3: portfolio — Holdings and live P&L
+ColumnTypeConstraintsPurposeidINTEGERPRIMARY KEY AUTOINCREMENTUnique row IDsession_idTEXTNOT NULLLinks to session batchtickerTEXTNOT NULLStock/ETF ticker symbolsharesREALNOT NULLShares heldavg_costREALNOT NULLAverage cost per share (CAD)current_priceREALFrom cache or live yfinance fetchpnlREALComputed (current_price - avg_cost) x shares
+Table 4: price_cache — yfinance API rate-limit mitigation
+Cache-first logic: check this table before every yfinance call. Fetch from API only if fetched_at > 1 hour ago. Stores latest intraday price, not end-of-day close.
+ColumnTypeConstraintsPurposeidINTEGERPRIMARY KEY AUTOINCREMENTUnique row IDtickerTEXTNOT NULLStock/ETF ticker symbolcurrent_priceREALNOT NULLLatest intraday price from yfinancefetched_atDATETIMENOT NULLTimestamp of last API call
+Table 5: monthly_summary — Historical snapshot store
+Written automatically at end of every main.py run. Uses UPSERT: INSERT OR REPLACE INTO monthly_summary ... to prevent UNIQUE constraint errors on re-runs.
+ColumnTypeConstraintsPurposeidINTEGERPRIMARY KEY AUTOINCREMENTUnique row IDmonthTEXTNOT NULL, UNIQUE (YYYY-MM format)Month identifier — UPSERT keytotal_spendREALNOT NULLTotal CAD spending that monthcategory_spend_jsonTEXTJSON dict of spend per categoryforecast_next_monthREALRF predicted total for next monthportfolio_valueREALTotal portfolio value at snapshot timecreated_atDATETIMEDEFAULT CURRENT_TIMESTAMPInsert timestamp
+Table 6: forecast_vs_actual — Model monitoring
+Written when actual month data arrives to compare against prior predictions table. Enables continuous model performance tracking. For demo: pre-populate with synthetic 3-month history so table is never empty.
+ColumnTypeConstraintsPurposeidINTEGERPRIMARY KEY AUTOINCREMENTUnique row IDcategoryTEXTNOT NULLSpending category labelforecast_monthTEXTNOT NULL (YYYY-MM)Month that was predictedpredicted_valueREALNOT NULLRF forecast amount (CAD)actual_valueREALNOT NULLActual spend that monthabsolute_errorREALABS(predicted_value - actual_value)pct_errorREALabsolute_error / actual_value x 100
+6. ML Implementation Details
+K-Means Clustering — Expense Categorization
+• 8 categories: Food & Dining, Transport, Rent & Utilities, Entertainment, Healthcare, Shopping, Subscriptions, Other
+• Features: StandardScaler on transaction amount + TF-IDF top 50 terms on merchant name + day-of-week (0-6) + is_weekend flag
+• K-Means is unsupervised — clusters carry no inherent labels. Label mapping uses majority vote: 200 labeled transactions total, 160 used for mapping set, 40 held-out for evaluation
+• Accuracy metric: mapped label accuracy on the 40-transaction held-out set. Target 80%+. This is what appears in resume bullets — not silhouette score
+• Silhouette score is diagnostic only — computed to validate cluster separation (target > 0.4), never reported as a primary KPI or resume metric
+• Persistence: KMeans + StandardScaler + TfidfVectorizer saved together in models/kmeans_model.pkl via joblib
+
+Random Forest Regression — Spending Forecast
+• Target: Predicted CAD spending per category per month — 3 separate outputs (+1, +2, +3 months)
+• Minimum data requirement: 12 months of transaction history. Use synthetic_12mo.csv fallback if real data is insufficient
+• Features: month number (1-12), label-encoded category, rolling 3-month average, rolling 6-month average, rolling std deviation, is_december flag, is_summer flag
+• Walk-forward validation only: train on months 1-N, evaluate on month N+1. Never shuffle time series. No exceptions — shuffling causes data leakage and invalidates MAPE
+• Hyperparameters (starting): n_estimators=100, max_depth=10, min_samples_leaf=5. Run GridSearchCV if MAPE > 15% on validation set
+• Primary evaluation metric: MAPE per category. Target < 15% overall. Log per-category MAPE to console and write to forecast_vs_actual table
+• Persistence: fitted model saved to models/rf_model.pkl via joblib. Loaded in forecast.py and report.py
+
+7. Robustness Specifications (Audit Fixes)
+Date Parsing — ingest.py
+• Use pd.to_datetime(df['date'], infer_datetime_format=True, errors='coerce') for all date columns
+• Bank-specific date format strings stored in config.py (e.g., TD: '%m/%d/%Y', RBC: '%Y-%m-%d', Scotiabank: '%d %b %Y')
+• After parsing, drop rows where date is NaT with logging: logger.warning(f'Dropped {n} rows with unparseable dates')
+• All internal dates stored as YYYY-MM-DD strings in SQLite for consistency
+
+Empty State Guards
+• portfolio.py: If no tickers provided or portfolio table is empty, return empty DataFrame and log warning. PDF report and PowerBI export handle this with 'No Portfolio Data Available' placeholder
+• report.py: Every chart wrapped in empty-check. If source DataFrame is empty, generate placeholder axes with 'No Data Available' text instead of throwing error
+• powerbi_export.py: If any source table is empty, export CSV with headers only — PowerBI handles empty CSVs gracefully
+
+monthly_summary UPSERT Logic
+• Use INSERT OR REPLACE INTO monthly_summary (month, total_spend, ...) VALUES (?, ?, ...) — SQLite UPSERT syntax
+• This prevents UNIQUE constraint violation when pipeline runs multiple times in same month
+• On replace, all fields update to latest values — old snapshot is overwritten, not duplicated
+
+PowerBI Artifact Policy
+• If PlainCents.pbix file size < 25MB: commit directly to powerbi/ folder in repo
+• If PlainCents.pbix >= 25MB: create GitHub Release, upload .pbix as release asset, add link in README. Commit screenshots of all 5 visuals + DAX measure documentation to powerbi/docs/ folder instead
+
+Color Palette Pre-Definition
+• Before Phase 7 begins: define CHART_COLORS dict in config.py with 8 category colors + accent colors
+• All 5 Matplotlib charts in report.py import from config.CHART_COLORS — no hardcoded colors anywhere in report.py
+• This ensures visual consistency across all PDF pages and matches PowerBI color scheme
+
+8. Automated PDF Report (Matplotlib)
+PowerBI vs Matplotlib — Separation of Concerns
+PowerBI: interactive exploration, filtering, drill-down by the user in real time. Matplotlib PDF: static, automated financial intelligence summary generated at end of every pipeline run without user interaction. These are distinct deliverables with different use cases.
+
+5 Required Charts
+ChartData Source + Empty GuardMonthly Spending Trend (Line)monthly_summary table — total_spend over time with 3-month rolling average. Guard: min 2 rows required.Category Distribution (Horizontal Bar)transactions table — sum amount group by category for latest month. Guard: show 'No Transactions' if empty.Forecast Projection (Grouped Bar)predictions table — predicted_amount per category for +1/+2/+3 months. Guard: show 'No Forecast' if empty.Portfolio Performance (Line)monthly_summary — portfolio_value over time. Guard: show 'No Portfolio Data' if all null.Forecast Accuracy by Category (Bar)forecast_vs_actual — pct_error per category. Guard: show 'Insufficient History' if < 2 rows.
+Implementation Rules
+• Use matplotlib.backends.backend_pdf.PdfPages exclusively — no reportlab, no extra dependencies
+• All charts use config.CHART_COLORS — no hardcoded hex values in report.py
+• Output: data/exports/PlainCents_Report_[YYYY-MM].pdf — auto-called at end of main.py
+• For demo: pre-populate forecast_vs_actual with synthetic 3-month data so Chart 5 is never empty
+
+9. PowerBI Dashboard
+Export Pipeline — 4 CSVs
+CSV FileSQLite Source + Contentstransactions_clean.csvtransactions table — date, merchant, amount, categoryforecasts.csvpredictions table — category, month_offset, predicted_amountportfolio.csvportfolio table — ticker, shares, avg_cost, current_price, pnlforecast_accuracy.csvforecast_vs_actual table — category, forecast_month, predicted_value, actual_value, pct_error
+5 Required Dashboard Visuals
+VisualSource CSVSpending by Category (Donut Chart)transactions_clean.csv — group by category, sum amount3-Month Forecast (Clustered Bar)forecasts.csv — predicted_amount per category per month_offsetMonthly Spending Trend (Line)transactions_clean.csv — sum amount group by monthPortfolio P&L Tableportfolio.csv — all columns displayedForecast Accuracy Over Time (Line)forecast_accuracy.csv — pct_error by category over forecast_month
+Publishing
+• Save as powerbi/PlainCents.pbix. Apply artifact policy (section 7) for file size.
+• Publish to PowerBI Service (free account) for shareable public URL
+• Embed published link in portfolio website and GitHub README
+
+10. Build Phases & Timeline
+PhaseTaskToolsHrsOutputPhase 1Repo setup, config.py (incl. bank date formats), synthetic_12mo.csv, ingest.py with robust date parsingCursor Pro7clean_df, date parsing tested on 3 bank formatsPhase 2features.py + cluster.py — K-Means, majority-vote mapping, 160/40 split evaluationCursor Pro + Claude Pro1080%+ accuracy on 40-transaction held-out setPhase 3forecast.py — Random Forest, walk-forward validation, per-category MAPE loggingCursor Pro + Claude Pro12MAPE < 15%, predictions written to SQLitePhase 4schema.sql (all 6 tables) + database.py (UPSERT logic, all helpers)Cursor Pro8plaincents.db with all 6 tables livePhase 5portfolio.py — cache-first yfinance logic, empty portfolio guardCursor Pro6P&L working, price_cache validatedPhase 6main.py integration — monthly_summary UPSERT + forecast monitoring writesCursor Pro + Claude Pro5monthly_summary + forecast_vs_actual populatedPhase 7config.py color palette pre-step + report.py — 5 Matplotlib charts with empty guardsCursor Pro + Gemini8PlainCents_Report_[YYYY-MM].pdf generated cleanlyPhase 8powerbi_export.py (4 CSVs) + PowerBI dashboard build + artifact policyChatGPT + self9PlainCents.pbix + published PowerBI Service linkPhase 9tests, README, .gitignore (data/raw/ excluded), portfolio embedClaude Pro4Clean repo, live demo link, no real data committed
+Total: ~69 hrs  |  No Streamlit. No Tableau. No web hosting. PowerBI Service + PDF report = deployment.
+
+11. AI Tool Delegation
+ToolRole in PlainCentsWhen to UseCursor ProPrimary coding env — all file creation, editing, multi-file context, autocompleteEvery session — always openClaude Pro (Sonnet 4.6)ML correctness, walk-forward validation, SQLite schema, architecture review, resume bulletsWhen ML output looks wrong or architecture decision neededChatGPT Plus (5.2)PowerBI DAX measures, M query language, calculated columns, visual layoutPhase 8 — entire PowerBI buildGemini 3.0 ProFast Matplotlib chart scaffolding, quick utility script boilerplatePhase 7 — report.py scaffolding
+No Claude Code. No Antigravity. Redundant cost at this scale.
+
+12. Target Resume Bullets (Post-Build)
+All metrics must be measured, reproducible, and logged in forecast_vs_actual or evaluation output. Replace placeholders with actual values before using on resume.
+
+• Implemented K-Means clustering pipeline categorizing 8 expense types from raw bank CSV exports, achieving [X]% label-mapping accuracy on a 40-transaction held-out evaluation set
+• Trained Random Forest model forecasting 3-month category spending with [X]% MAPE using walk-forward cross-validation, with continuous model monitoring persisted in SQLite
+• Designed relational schema in SQLite supporting transaction persistence, forecast history tracking, and local price caching to mitigate external API rate limits
+• Generated automated monthly financial intelligence reports using Matplotlib-based statistical visualizations, exporting static PDF summaries of spending trends and forecast projections
+• Built interactive PowerBI dashboard with 5+ visuals for spending analytics and portfolio P&L, published to PowerBI Service for shareable demo link
+
+13. Risks & Mitigations
+RiskMitigationK-Means accuracy below 80% on held-out setTry k=6 or k=10, expand TF-IDF vocabulary, relabel ambiguous boundary transactions in mapping setRandom Forest MAPE above 15%Add rolling 12-month lag features, try XGBoost, reduce horizon to 1 month, verify walk-forward is correctly implementedforecast_vs_actual empty at demoPre-populate with 3-month synthetic data before demo. Document in README as synthetic.yfinance API down during demoprice_cache provides offline fallback. Show fetched_at timestamp in PowerBI to confirm cache is being used.monthly_summary UNIQUE constraint errorUPSERT (INSERT OR REPLACE) defined in Phase 4. Test by running main.py twice in Phase 6.PowerBI .pbix > 25MBApply artifact policy: GitHub Release + screenshots + DAX docs committed to repo instead.Real bank data committed to GitHub.gitignore excludes data/raw/. README has explicit data privacy warning. Only synthetic CSV in repo.Matplotlib charts visually inconsistentconfig.CHART_COLORS defined in Phase 7 pre-step. All 5 charts import from shared palette. No hardcoded colors.Scope creep during buildPRD v4 is locked. No new features after Phase 6. Any suggested addition evaluated against: does it map to a resume signal?
+PlainCents PRD v4  |  Final  |  Kapil Iyer  |  University of Waterloo  |  2026
+PlainCents PRD v4  |  Kapil Iyer  |  Page 1
+
