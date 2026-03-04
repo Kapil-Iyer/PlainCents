@@ -170,4 +170,9 @@ PlainCents/
 **Kapil Iyer**  
 Bachelor of Honors Mathematics, University of Waterloo 
 Applied Mathematics (Scientific ML) and Statistics, Computing Minor 
+
+---
+
 [GitHub](https://github.com/Kapil-Iyer) · [LinkedIn](https://github.com/Kapil-Iyer) · [Portfolio](https://kapil-iyer-portfolio.vercel.app/)
+
+---
