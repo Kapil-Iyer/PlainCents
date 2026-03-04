@@ -14,14 +14,58 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 OUT_PATH = BASE_DIR / "data" / "raw" / "synthetic_12mo.csv"
 
 MERCHANTS = {
-    "Food & Dining": ["Tim Hortons", "McDonald's", "Subway", "Loblaws", "Metro"],
-    "Transport": ["Uber", "Presto", "Shell", "Esso", "GO Transit"],
-    "Rent & Utilities": ["Rogers", "Bell", "Hydro One", "Enbridge", "Toronto Hydro"],
-    "Entertainment": ["Netflix", "Spotify", "Steam", "Cineplex", "Amazon Prime"],
-    "Healthcare": ["Shoppers Drug Mart", "Rexall", "Maple", "Telehealth"],
-    "Shopping": ["Amazon", "Zara", "H&M", "IKEA", "Best Buy"],
-    "Subscriptions": ["Adobe", "Microsoft 365", "iCloud", "YouTube Premium"],
-    "Other": ["ATM Withdrawal", "Miscellaneous", "Bank Fee"],
+    "Food & Dining": [
+        "TIM HORTONS COFFEE DRIVE THRU",
+        "MCDONALDS BURGER FAST FOOD",
+        "SUBWAY SANDWICH FRESH",
+        "LOBLAWS GROCER WEEKLY",
+        "METRO GROCER FRESH PRODUCE",
+    ],
+    "Transport": [
+        "UBER RIDESHARE TRIP",
+        "PRESTO TRANSIT RELOAD",
+        "SHELL GASOLINE FUEL PUMP",
+        "ESSO PETRO FUEL PUMP",
+        "GO TRANSIT RAIL PASS",
+    ],
+    "Rent & Utilities": [
+        "ROGERS WIRELESS PHONE",
+        "BELL INTERNET BROADBAND",
+        "HYDRO ONE ELECTRICITY GRID",
+        "ENBRIDGE GAS HEAT",
+        "TORONTO HYDRO ELECTRICITY",
+    ],
+    "Entertainment": [
+        "NETFLIX STREAMING CINEMA",
+        "SPOTIFY MUSIC STREAMING",
+        "STEAM GAMING DOWNLOAD",
+        "CINEPLEX CINEMA TICKET",
+        "AMAZON PRIME STREAMING",
+    ],
+    "Healthcare": [
+        "SHOPPERS PHARMACY PRESCRIPTION",
+        "REXALL PHARMACY PRESCRIPTION",
+        "MAPLE TELEHEALTH VIRTUAL",
+        "TELEHEALTH VIRTUAL PRESCRIPTION",
+    ],
+    "Shopping": [
+        "AMAZON RETAIL APPAREL",
+        "ZARA APPAREL FASHION",
+        "HM APPAREL CLOTHING",
+        "IKEA FURNITURE RETAIL",
+        "BESTBUY ELECTRONICS RETAIL",
+    ],
+    "Subscriptions": [
+        "ADOBE CREATIVE SUITE",
+        "MICROSOFT OFFICE SUITE",
+        "ICLOUD BACKUP SUITE",
+        "YOUTUBE PREMIUM SUITE",
+    ],
+    "Other": [
+        "ATM CASH WITHDRAWAL",
+        "MISCELLANEOUS EXPENSE",
+        "BANK FEE PENALTY",
+    ],
 }
 
 AMOUNT_RANGES = {
@@ -44,22 +88,18 @@ MONTH_MULTIPLIER = {
 
 
 def random_date_in_month(year: int, month: int) -> str:
-    """Return MM/DD/YYYY for a random day in the month."""
     if month in (4, 6, 9, 11):
         day = random.randint(1, 30)
     elif month == 2:
-        day = random.randint(1, 29)
+        day = random.randint(1, 28)
     else:
         day = random.randint(1, 31)
-    d = datetime(year, month, day)
-    return d.strftime("%m/%d/%Y")
+    return datetime(year, month, day).strftime("%m/%d/%Y")
 
 
-def amount_for_category(cat: str, month: int, is_recurring: bool = False) -> float:
+def amount_for_category(cat: str, month: int) -> float:
     lo, hi = AMOUNT_RANGES[cat]
-    base = random.uniform(lo, hi) if not is_recurring else random.uniform(lo, hi)
-    if is_recurring and cat == "Subscriptions":
-        base = round(base, 2)
+    base = random.uniform(lo, hi)
     mult = MONTH_MULTIPLIER.get(month, 1.0)
     if cat in ("Rent & Utilities", "Subscriptions"):
         mult = 1.0
@@ -69,34 +109,38 @@ def amount_for_category(cat: str, month: int, is_recurring: bool = False) -> flo
 rows = []
 year = 2024
 
-# Recurring: Rent & Utilities 3-4 per month, Subscriptions same each month
 rent_merchants = MERCHANTS["Rent & Utilities"]
 sub_merchants = MERCHANTS["Subscriptions"]
 rent_amounts = [round(random.uniform(80, 180), 2) for _ in range(4)]
 sub_amounts = [round(random.uniform(10, 20), 2) for _ in range(4)]
+
 for month in range(1, 13):
     for _ in range(random.randint(3, 4)):
         m = random.choice(rent_merchants)
         amt = rent_amounts[len(rows) % 4]
-        rows.append({"Date": random_date_in_month(year, month), "Description": m, "Amount": amt})
+        rows.append({"Date": random_date_in_month(year, month),
+                     "Description": m, "Amount": amt})
     for i, m in enumerate(sub_merchants):
-        rows.append({"Date": random_date_in_month(year, month), "Description": m, "Amount": sub_amounts[i]})
+        rows.append({"Date": random_date_in_month(year, month),
+                     "Description": m, "Amount": sub_amounts[i]})
 
-# Fill to 300-400 with other categories
-categories_for_random = ["Food & Dining", "Transport", "Entertainment", "Healthcare", "Shopping", "Other"]
+categories_for_random = [
+    "Food & Dining", "Transport", "Entertainment",
+    "Healthcare", "Shopping", "Other"
+]
 target_total = random.randint(300, 400)
 while len(rows) < target_total:
     cat = random.choice(categories_for_random)
     merchant = random.choice(MERCHANTS[cat])
     month = random.randint(1, 12)
-    amt = amount_for_category(cat, month, is_recurring=False)
-    rows.append({"Date": random_date_in_month(year, month), "Description": merchant, "Amount": amt})
+    amt = amount_for_category(cat, month)
+    rows.append({"Date": random_date_in_month(year, month),
+                 "Description": merchant, "Amount": amt})
 
 random.shuffle(rows)
-df = pd.DataFrame(rows)
-df = df[["Date", "Description", "Amount"]]
+df = pd.DataFrame(rows)[["Date", "Description", "Amount"]]
 OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 df.to_csv(OUT_PATH, index=False)
 print(f"Wrote {len(df)} rows to {OUT_PATH}")
-print("\nFirst 10 rows:")
-print(df.head(10).to_string(index=False))
+print("\nFirst 5 rows:")
+print(df.head(5).to_string(index=False))
