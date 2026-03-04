@@ -1,92 +1,174 @@
 # PlainCents
 
-Personal finance and investment analytics: ML-driven spending intelligence and reporting from your bank CSV exports.
+**Personal Finance Analytics Dashboard**
 
-## Goals
+A Python ML pipeline that ingests raw bank CSV exports, categorizes transactions via K-Means clustering, forecasts 3-month spending via Random Forest regression, and presents analytics through a 6-table SQLite data warehouse and PowerBI dashboard.
 
-- **Ingest** raw bank CSV exports (TD, RBC, Scotiabank) and normalize dates/columns.
-- **Categorize** transactions with K-Means clustering (8 categories, label mapping, held-out evaluation).
-- **Forecast** 3-month spending per category with Random Forest and walk-forward validation.
-- **Persist** everything in a local SQLite data warehouse (6 tables), with price caching for portfolio P&L.
-- **Report** via an automated Matplotlib PDF and an interactive PowerBI dashboard.
+**Python 3.11+** · **scikit-learn** · **SQLite** · **PowerBI**
 
-Python pipeline + SQLite + PowerBI + PDF. Local Python ML pipeline, no web hosting.
+---
+
+## What It Does
+
+PlainCents loads bank CSV exports (TD, RBC, Scotiabank), normalizes dates and columns, and assigns each transaction to one of eight expense categories using unsupervised K-Means clustering. A Random Forest model then forecasts spending for the next three months per category using walk-forward validation. Results are written to a local SQLite warehouse; portfolio holdings are tracked with cache-first yfinance price lookups. The same data supports an automated Matplotlib PDF report and a PowerBI dashboard for interactive exploration.
+
+---
+
+## Architecture
+
+```
+Raw Bank CSV
+  → ingest.py       (clean, normalize dates)
+  → cluster.py      (K-Means, 8 categories)
+  → forecast.py     (Random Forest, 3-month)
+  → portfolio.py    (yfinance, cache-first TTL)
+  → database.py     (6-table SQLite warehouse)
+  → report.py       (Matplotlib PDF — Phase 7)
+  → powerbi_export  (CSVs → PowerBI — Phase 8)
+```
+
+---
 
 ## Tech Stack
 
-Python, Pandas, NumPy, scikit-learn, SQLite, yfinance, Matplotlib, joblib, PowerBI.
+| Tool | Role |
+|------|------|
+| Python | Pipeline, ML, DB operations |
+| pandas / NumPy | Ingestion, feature engineering |
+| scikit-learn | K-Means clustering, Random Forest |
+| SQLite | 6-table local data warehouse |
+| yfinance | Portfolio price fetching (cache-first) |
+| Matplotlib | PDF report — Phase 7 |
+| PowerBI | Interactive dashboard — Phase 8 |
 
-## Current Progress
+---
 
-### Phase 0 — Pre-Build (Complete)
-Folder structure, `config.py` (paths, categories, bank date formats), `db/schema.sql` (6-table SQLite schema), `requirements.txt`, `.gitignore`.
+## Model Performance
 
-### Phase 1 — Ingestion + Synthetic Data (Complete)
-`pipeline/ingest.py` loads bank CSVs, detects bank format (TD/RBC/Scotiabank), standardizes columns (date, merchant, amount), parses dates via `config.BANK_DATE_FORMATS`, cleans merchant names (uppercase, strip, remove special chars), and deduplicates.
+- **K-Means categorization:** 90% accuracy on 40-transaction held-out set (ARI = 0.81 on 779 transactions).
+- **Pipeline MAPE:** 29.4% (predictions use K-Means-assigned labels).
+- **Forecast model MAPE:** 15.7% (ground-truth labels) — 13.7pp gap is quantified clustering contamination, not model error.
+- **Walk-forward validation:** Expanding window, no shuffle, 24-month dataset.
+- **GridSearchCV best params:** max_depth=5, n_estimators=50, min_samples_leaf=3.
 
-Synthetic dataset: `data/raw/synthetic_24mo.csv` — 779 transactions across 24 months (Jan 2023–Dec 2024), TD format, 8 expense categories with category-distinct merchant descriptions. Generated deterministically (seed 42) via `scripts/generate_synthetic_24mo.py`.
+Pipeline MAPE reflects real-world K-Means label noise. The true forecast model MAPE of 15.7% was measured by separating clustering contamination from model error (diagnostic in `forecast.py`).
 
-### Phase 2 — K-Means Clustering (Complete)
-`pipeline/features.py` builds a feature matrix: StandardScaler on amount, TF-IDF on merchant names (bigrams, L2-normalized, alpha-only tokens, domain stop words), day-of-week, is_weekend.
+---
 
-`pipeline/cluster.py` fits K-Means (n_clusters=12, n_init=50), builds a cluster-to-category mapping via majority vote on 160 labeled rows, evaluates on 40 held-out rows.
+## Challenges & Measures (Phases 1–6)
 
-**Metrics:**
-- Held-out accuracy: 90% (40 rows)
-- Silhouette score: 0.5437
-- Adjusted Rand Index: 0.8073 (all 779 rows)
-- Categories assigned: 7/8 ("Other" has no cluster — catch-all categories lack coherent TF-IDF signature)
+- **Clustering (Phase 2):** Initial accuracy ~22%. Improved via L2-normalized TF-IDF, category-distinct synthetic merchants, bigrams, and n_clusters=12. ARI (0.81 on 779 rows) added for full-dataset validation.
+- **Forecast (Phase 3):** 68.8% MAPE on 12 months from data scarcity. Addressed by 24-month synthetic data with temporal structure, lag_1_spend feature, and tuned RF in walk-forward. Test-row extraction rewritten to compute features from training history only (no leakage).
+- **Database (Phase 4):** price_cache needed UNIQUE(ticker) for UPSERT; monthly_summary UPSERT key is month only.
+- **Portfolio (Phase 5):** Cache-first with 1-hour TTL; defensive yfinance handling (NaN, None, <=0); datetime.now() only for consistency.
+- **Orchestration (Phase 6):** Single conn and SESSION_ID; 5c one row per month with total next-month forecast; 5d join on (category, forecast_month) with cold-start skip when no prior predictions.
 
-### Phase 3 — Random Forest Forecast (Complete)
-`pipeline/forecast.py` aggregates transactions to monthly category totals, engineers 8 features (month_num, category_encoded, rolling_3m_avg, rolling_6m_avg, rolling_std, is_december, is_summer, lag_1_spend), and trains a Random Forest with walk-forward validation (expanding window, never shuffles time series).
+---
 
-GridSearchCV (TimeSeriesSplit, 27 param combos) runs automatically when MAPE > 15%, per PRD spec. Final model saved to `models/rf_model.pkl`.
+## Setup
 
-**Metrics:**
-- Walk-forward MAPE (end-to-end with clustering): 29.4%
-- Walk-forward MAPE (true labels, isolating forecast model): 15.7%
-- 5 of 8 categories below 15% MAPE on true labels
-- MAPE gap (13.7%) is caused by upstream clustering noise, not forecast model weakness
+### 1. Install dependencies
 
-## PRD Deviations
-
-| Change | Reason |
-|---|---|
-| `lag_1_spend` added as 8th forecast feature | Not in original PRD feature list. Added after empirical testing showed 20.7% → 15.7% MAPE improvement. Standard time series practice, leak-free. |
-| `month_number` and `is_recurring` removed from clustering features | Listed in PRD Section 6 but caused catastrophic accuracy drop (90% → 5%) due to curse of dimensionality in sparse TF-IDF space. Documented deviation. |
-| Synthetic data extended to 24 months | PRD specifies 12 months minimum. Extended to improve walk-forward validation (68.8% → 29.4% MAPE). Generator redesigned with temporal structure for forecasting. |
-| n_clusters=12 instead of 8 | PRD default is 8. Increased to improve category coverage and held-out accuracy (more cluster slots for majority-vote mapping). |
-
-## Key Challenges
-
-**Clustering accuracy (Phase 2):** Initial accuracy was 22.5%. Root cause was TF-IDF vocabulary overlap across categories. Fixed by: L2-normalizing TF-IDF vectors, down-weighting numeric features, regenerating synthetic data with category-distinct merchant descriptions, tuning TF-IDF (bigrams, sublinear_tf, alpha-only tokens, domain stop words). Final: 77.5% on 12mo data → 90% on 24mo data.
-
-**Forecast MAPE (Phase 3):** Initial MAPE was 68.8% on 12-month data — a data scarcity problem (8 training rows in the first walk-forward fold). Fixed by: extending to 24 months with temporal structure, adding lag_1_spend feature, applying GridSearchCV-tuned hyperparameters (max_depth=3) to walk-forward folds. True-label MAPE dropped from 68.8% → 15.7%.
-
-**Walk-forward data leakage risk:** Original test-row extraction used a fragile `iloc` mask alignment that could misalign when `build_forecast_features` dropped rows. Fixed by computing test features directly from training history per category — the same leak-proof pattern used for +1/+2/+3 forecasts.
-
-**Clustering contamination in forecast:** Discovered via diagnostic (true-label vs clustered MAPE). The 13.7% gap is caused by ~48 "Other" transactions with no cluster being misclassified into other categories, creating unpredictable noise in monthly totals. Documented as an inherent limitation of unsupervised clustering on catch-all categories.
-
-## Getting Started
-
-```bash
-# 1. Clone and set up
-git clone <repo-url>
-cd PlainCents
-python -m venv venv
-venv\Scripts\activate        # Windows
-pip install -r requirements.txt
-
-# 2. Generate synthetic data
-python scripts/generate_synthetic_24mo.py
-
-# 3. Run clustering (saves model to models/kmeans_model.pkl)
-python -m pipeline.cluster
-
-# 4. Run forecasting (saves model to models/rf_model.pkl)
-python -m pipeline.forecast
 ```
+pip install -r requirements.txt
+```
+
+### 2. Seed demo data
+
+```
+python db/seed_synthetic_data.py
+```
+
+Populates all 6 SQLite tables with synthetic demo data. Run before connecting PowerBI if you want pre-filled tables. All synthetic data is clearly labelled and must not be reported as real model performance metrics.
+
+**First-time only:** Run `python -m pipeline.cluster` once to train and save the K-Means model (or use an existing `models/kmeans_model.pkl`). Then `python main.py` can run the full pipeline.
+
+### 3. Run the pipeline
+
+```
+python main.py
+```
+
+---
+
+## File Structure
+
+```
+PlainCents/
+├── main.py
+├── config.py
+├── requirements.txt
+├── README.md
+├── data/
+│   ├── raw/                 # Bank CSV exports; synthetic_24mo.csv here
+│   ├── processed/
+│   └── exports/             # PowerBI CSVs + PDF reports (Phase 7/8)
+├── pipeline/
+│   ├── ingest.py
+│   ├── features.py
+│   ├── cluster.py
+│   ├── forecast.py
+│   └── portfolio.py
+├── db/
+│   ├── schema.sql
+│   ├── database.py
+│   └── seed_synthetic_data.py
+├── models/
+│   ├── kmeans_model.pkl     # Generated by pipeline.cluster
+│   └── rf_model.pkl         # Generated by pipeline.forecast / main.py
+├── viz/
+│   ├── report.py            # Matplotlib PDF (Phase 7)
+│   └── powerbi_export.py    # Phase 8
+├── powerbi/                 # PowerBI assets
+├── scripts/
+│   ├── generate_synthetic_24mo.py
+│   └── generate_synthetic_12mo.py
+└── tests/
+    └── test_pipeline.py
+```
+
+---
+
+## Database Schema
+
+6-table SQLite schema (`plaincents.db`):
+
+- **transactions** — Categorized bank rows (session_id, date, merchant, amount, category, cluster_id).
+- **predictions** — RF 3-month forecasts per category (session_id, category, month_offset, forecast_month, predicted_amount).
+- **portfolio** — Holdings snapshots with live P&L (session_id, ticker, shares, avg_cost, current_price, pnl).
+- **price_cache** — yfinance TTL cache (ticker UNIQUE, current_price, fetched_at; 1-hour TTL).
+- **monthly_summary** — Monthly spend + portfolio value (month UNIQUE; UPSERT on re-run).
+- **forecast_vs_actual** — Monitoring: predicted vs actual per category per month.
+
+---
 
 ## Data Privacy
 
-Never commit real bank data. `data/raw/` is gitignored; only synthetic data is included in the repo.
+> ⚠️ **Data Privacy**  
+> Never commit real bank data to this repo. `data/raw/` is gitignored. Only synthetic data (e.g. `synthetic_24mo.csv`) may be committed — for demo use only. `plaincents.db` is gitignored. Seed script data is synthetic and must not be reported as real model performance metrics.
+
+---
+
+## Build Status
+
+| Phase | Status |
+|-------|--------|
+| Phase 1: Ingest | ✅ Complete |
+| Phase 2: K-Means Clustering | ✅ Complete |
+| Phase 3: RF Forecasting | ✅ Complete |
+| Phase 4: SQLite Schema + Seed | ✅ Complete |
+| Phase 5: Portfolio + Cache | ✅ Complete |
+| Phase 6: main.py Orchestration | ✅ Complete |
+| Phase 7: Matplotlib PDF Report | 🔄 In Progress |
+| Phase 8: PowerBI Dashboard | 🔄 In Progress |
+| Phase 9: Tests + Deploy | 🔄 In Progress |
+
+---
+
+## Author
+
+**Kapil Iyer**  
+2A Applied Mathematics (Scientific ML), University of Waterloo  
+[GitHub](https://github.com/) · [LinkedIn](https://linkedin.com/) · [Portfolio](https://)
+
+*(Replace with your URLs.)*
