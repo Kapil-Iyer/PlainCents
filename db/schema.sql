@@ -41,11 +41,12 @@ CREATE TABLE IF NOT EXISTS price_cache (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     ticker          TEXT NOT NULL,
     current_price   REAL NOT NULL,
-    fetched_at      DATETIME NOT NULL
+    fetched_at      DATETIME NOT NULL,
+    UNIQUE(ticker)
 );
 
 -- Table 5: monthly_summary
--- UPSERT: INSERT OR REPLACE to prevent UNIQUE constraint errors on re-runs.
+-- UPSERT: INSERT OR REPLACE to prevent UNIQUE constraint errors on re-running the script.
 CREATE TABLE IF NOT EXISTS monthly_summary (
     id                  INTEGER PRIMARY KEY AUTOINCREMENT,
     month               TEXT NOT NULL UNIQUE,
