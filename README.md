@@ -168,7 +168,6 @@ PlainCents/
 ## Author
 
 **Kapil Iyer**  
-2A Applied Mathematics (Scientific ML), University of Waterloo  
-[GitHub](https://github.com/) · [LinkedIn](https://linkedin.com/) · [Portfolio](https://)
-
-*(Replace with your URLs.)*
+Bachelor of Honors Mathematics, University of Waterloo 
+Applied Mathematics (Scientific ML) and Statistics, Computing Minor 
+[GitHub](https://github.com/Kapil-Iyer) · [LinkedIn](https://github.com/Kapil-Iyer) · [Portfolio](https://kapil-iyer-portfolio.vercel.app/)
