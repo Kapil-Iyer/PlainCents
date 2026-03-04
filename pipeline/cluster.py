@@ -177,7 +177,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     from pipeline.ingest import load_and_clean
 
-    df = load_and_clean("synthetic_12mo.csv", bank="TD")
+    df = load_and_clean("synthetic_24mo.csv", bank="TD")
     df_labeled, accuracy, silhouette = fit_and_evaluate(df)
     cluster_to_category = joblib.load(KMEANS_MODEL_PATH)["cluster_to_category"]
     print("Cluster to category mapping:")
@@ -185,5 +185,11 @@ if __name__ == "__main__":
     print(f"Held-out accuracy (40 transactions): {accuracy:.1%}")
     print(f"Silhouette score (diagnostic):       {silhouette:.4f}")
     print(f"Categories assigned: {df_labeled['category'].nunique()}")
+
+    from sklearn.metrics import adjusted_rand_score
+    true_labels = _get_true_labels(df_labeled)
+    ari = adjusted_rand_score(true_labels, df_labeled["category"])
+    print(f"Adjusted Rand Index (all {len(df_labeled)} rows): {ari:.4f}")
+
     if accuracy < 0.80:
         print("(Target 80%+. If below, try n_clusters=6 or 10, or expand TF-IDF max_features.)")
