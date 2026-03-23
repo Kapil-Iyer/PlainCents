@@ -138,8 +138,15 @@ if __name__ == "__main__":
                 insert_forecast_vs_actual(conn, fva_rows)
                 logger.info("Wrote %d monitoring rows", len(fva_rows))
 
-        # Step 6 — Exports stub
-        print("PowerBI exports: Phase 8")
+        # Phase 8: generate PDF report
+        from viz.report import generate_report
+        report_path = generate_report(conn)
+        logger.info("Report: %s", report_path)
+
+        # Phase 8: export PowerBI CSVs
+        from viz.powerbi_export import export_powerbi_csvs
+        csv_paths = export_powerbi_csvs(conn)
+        logger.info("PowerBI CSVs exported: %d", len(csv_paths))
         logger.info("Pipeline complete. Session: %s", SESSION_ID)
 
         print("\n=== PlainCents Pipeline Complete ===")
@@ -148,6 +155,8 @@ if __name__ == "__main__":
         print(f"Categories:     {df['category'].nunique()}")
         print(f"Forecast MAPE:  {overall_mape:.1f}%")
         print(f"Portfolio rows: {len(portfolio_df)}")
+        print(f"Report:         {report_path}")
+        print(f"PowerBI CSVs:   {len(csv_paths)}")
         print("Tables written: transactions, predictions,")
         print("  monthly_summary, forecast_vs_actual")
 
