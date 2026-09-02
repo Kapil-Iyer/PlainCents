@@ -1,11 +1,10 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
-import { Wallet } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
-import { PlaceholderPage } from "@/pages/Placeholder";
 import { DashboardPage } from "@/pages/Dashboard";
 import { ForecastPage } from "@/pages/Forecast";
 import { ImportPage } from "@/pages/Import";
+import { PortfolioPage } from "@/pages/Portfolio";
 import { TransactionsPage } from "@/pages/Transactions";
 
 /** TRD §9.6: five routes matching PRD §11.1's five sections exactly. */
@@ -19,10 +18,7 @@ export const router = createBrowserRouter([
       { path: "transactions", element: <TransactionsPage /> },
       { path: "import", element: <ImportPage /> },
       { path: "forecast", element: <ForecastPage /> },
-      {
-        path: "portfolio",
-        element: <PlaceholderPage title="Portfolio" icon={Wallet} phase={8} />,
-      },
+      { path: "portfolio", element: <PortfolioPage /> },
     ],
   },
 ]);
