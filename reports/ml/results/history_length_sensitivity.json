@@ -1,0 +1,111 @@
+{
+  "by_truncation_length": {
+    "12": {
+      "n_origins_used": 3,
+      "n_predictions_naive": 48,
+      "n_predictions_rf": 48,
+      "naive": {
+        "mae": 36.306875,
+        "mape_all": 167458333356.19565,
+        "mape_nonzero_only": 26.765698107433575,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_rows": 48,
+        "rmse": 52.353484383404066,
+        "wape": 0.2053970150942462
+      },
+      "random_forest": {
+        "mae": 32.62878039052037,
+        "mape_all": 468686571104.62823,
+        "mape_nonzero_only": 25.13531158502008,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_rows": 48,
+        "rmse": 42.936019190211375,
+        "wape": 0.18458911978457404
+      },
+      "random_forest_note": null
+    },
+    "18": {
+      "n_origins_used": 3,
+      "n_predictions_naive": 48,
+      "n_predictions_rf": 48,
+      "naive": {
+        "mae": 36.306875,
+        "mape_all": 167458333356.19565,
+        "mape_nonzero_only": 26.765698107433575,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_rows": 48,
+        "rmse": 52.353484383404066,
+        "wape": 0.2053970150942462
+      },
+      "random_forest": {
+        "mae": 25.797800230310333,
+        "mape_all": 200483730482.14755,
+        "mape_nonzero_only": 21.078340004939115,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_rows": 48,
+        "rmse": 37.927570594018924,
+        "wape": 0.1459445673389241
+      },
+      "random_forest_note": null
+    },
+    "6": {
+      "n_origins_used": 3,
+      "n_predictions_naive": 48,
+      "n_predictions_rf": 0,
+      "naive": {
+        "mae": 36.306875,
+        "mape_all": 167458333356.19565,
+        "mape_nonzero_only": 26.765698107433575,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_rows": 48,
+        "rmse": 52.353484383404066,
+        "wape": 0.2053970150942462
+      },
+      "random_forest": null,
+      "random_forest_note": "RF produced zero valid feature rows at 6 months of TRAIN history: pipeline.forecast.build_forecast_features requires 6 PRIOR months per category before the current one (a 6-row rolling-window warm-up), so an exactly-6-month TRAIN window yields no row with i>=6 in any category's own series. This is itself a Section 15 finding: RF's own feature engineering imposes a de facto >=7-month floor independent of the product's 12-month rule."
+    },
+    "9": {
+      "n_origins_used": 3,
+      "n_predictions_naive": 48,
+      "n_predictions_rf": 48,
+      "naive": {
+        "mae": 36.306875,
+        "mape_all": 167458333356.19565,
+        "mape_nonzero_only": 26.765698107433575,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_rows": 48,
+        "rmse": 52.353484383404066,
+        "wape": 0.2053970150942462
+      },
+      "random_forest": {
+        "mae": 54.98799378571831,
+        "mape_all": 889813335525.9625,
+        "mape_nonzero_only": 33.387088940233895,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_rows": 48,
+        "rmse": 64.05740906164918,
+        "wape": 0.3110807468174416
+      },
+      "random_forest_note": null
+    }
+  },
+  "note": "Small sample (n_origins=3) -- findings are indicative, not a robust statistical basis for changing the frozen 12-month product rule (ML Spec Section 15).",
+  "origins_used_dev_index": [
+    17,
+    18,
+    19
+  ],
+  "origins_used_last_train_month": [
+    "2024-06",
+    "2024-07",
+    "2024-08"
+  ],
+  "status": "EVALUATED"
+}

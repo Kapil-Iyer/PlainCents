@@ -1,0 +1,1873 @@
+origin_index,category,horizon,target_month,candidate,strategy,actual,predicted,eligible
+6,Food & Dining,1,2023-08,naive,n/a,379.58,433.27,True
+6,Food & Dining,2,2023-09,naive,n/a,370.69,433.27,True
+6,Food & Dining,3,2023-10,naive,n/a,318.4,433.27,True
+6,Food & Dining,1,2023-08,seasonal_naive,n/a,379.58,,False
+6,Food & Dining,2,2023-09,seasonal_naive,n/a,370.69,,False
+6,Food & Dining,3,2023-10,seasonal_naive,n/a,318.4,,False
+6,Food & Dining,1,2023-08,random_forest,last_known_history,379.58,213.8910375000001,True
+6,Food & Dining,1,2023-08,random_forest,recursive,379.58,213.8910375000001,True
+6,Food & Dining,2,2023-09,random_forest,last_known_history,370.69,213.8910375000001,True
+6,Food & Dining,2,2023-09,random_forest,recursive,370.69,213.8910375000001,True
+6,Food & Dining,3,2023-10,random_forest,last_known_history,318.4,213.8910375000001,True
+6,Food & Dining,3,2023-10,random_forest,recursive,318.4,213.8910375000001,True
+6,Food & Dining,1,2023-08,ridge,last_known_history,379.58,369.81217644074377,True
+6,Food & Dining,1,2023-08,ridge,recursive,379.58,369.81217644074377,True
+6,Food & Dining,2,2023-09,ridge,last_known_history,370.69,369.81217644074377,True
+6,Food & Dining,2,2023-09,ridge,recursive,370.69,363.11523852012635,True
+6,Food & Dining,3,2023-10,ridge,last_known_history,318.4,369.81217644074377,True
+6,Food & Dining,3,2023-10,ridge,recursive,318.4,367.1916484902408,True
+6,Transport,1,2023-08,naive,n/a,145.74,196.57999999999998,True
+6,Transport,2,2023-09,naive,n/a,127.67,196.57999999999998,True
+6,Transport,3,2023-10,naive,n/a,150.02,196.57999999999998,True
+6,Transport,1,2023-08,seasonal_naive,n/a,145.74,,False
+6,Transport,2,2023-09,seasonal_naive,n/a,127.67,,False
+6,Transport,3,2023-10,seasonal_naive,n/a,150.02,,False
+6,Transport,1,2023-08,random_forest,last_known_history,145.74,213.8910375000001,True
+6,Transport,1,2023-08,random_forest,recursive,145.74,213.8910375000001,True
+6,Transport,2,2023-09,random_forest,last_known_history,127.67,213.8910375000001,True
+6,Transport,2,2023-09,random_forest,recursive,127.67,213.8910375000001,True
+6,Transport,3,2023-10,random_forest,last_known_history,150.02,213.8910375000001,True
+6,Transport,3,2023-10,random_forest,recursive,150.02,213.8910375000001,True
+6,Transport,1,2023-08,ridge,last_known_history,145.74,224.30837539729546,True
+6,Transport,1,2023-08,ridge,recursive,145.74,224.30837539729546,True
+6,Transport,2,2023-09,ridge,last_known_history,127.67,224.30837539729546,True
+6,Transport,2,2023-09,ridge,recursive,127.67,262.0834379397682,True
+6,Transport,3,2023-10,ridge,last_known_history,150.02,224.30837539729546,True
+6,Transport,3,2023-10,ridge,recursive,150.02,247.88371657009066,True
+6,Rent & Utilities,1,2023-08,naive,n/a,102.14,231.57999999999998,True
+6,Rent & Utilities,2,2023-09,naive,n/a,229.42000000000002,231.57999999999998,True
+6,Rent & Utilities,3,2023-10,naive,n/a,235.87,231.57999999999998,True
+6,Rent & Utilities,1,2023-08,seasonal_naive,n/a,102.14,,False
+6,Rent & Utilities,2,2023-09,seasonal_naive,n/a,229.42000000000002,,False
+6,Rent & Utilities,3,2023-10,seasonal_naive,n/a,235.87,,False
+6,Rent & Utilities,1,2023-08,random_forest,last_known_history,102.14,213.8910375000001,True
+6,Rent & Utilities,1,2023-08,random_forest,recursive,102.14,213.8910375000001,True
+6,Rent & Utilities,2,2023-09,random_forest,last_known_history,229.42000000000002,213.8910375000001,True
+6,Rent & Utilities,2,2023-09,random_forest,recursive,229.42000000000002,213.8910375000001,True
+6,Rent & Utilities,3,2023-10,random_forest,last_known_history,235.87,213.8910375000001,True
+6,Rent & Utilities,3,2023-10,random_forest,recursive,235.87,213.8910375000001,True
+6,Rent & Utilities,1,2023-08,ridge,last_known_history,102.14,263.3305011711184,True
+6,Rent & Utilities,1,2023-08,ridge,recursive,102.14,263.3305011711184,True
+6,Rent & Utilities,2,2023-09,ridge,last_known_history,229.42000000000002,263.3305011711184,True
+6,Rent & Utilities,2,2023-09,ridge,recursive,229.42000000000002,295.0665004736307,True
+6,Rent & Utilities,3,2023-10,ridge,last_known_history,235.87,263.3305011711184,True
+6,Rent & Utilities,3,2023-10,ridge,recursive,235.87,259.39489043470377,True
+6,Entertainment,1,2023-08,naive,n/a,77.7,104.44,True
+6,Entertainment,2,2023-09,naive,n/a,60.92,104.44,True
+6,Entertainment,3,2023-10,naive,n/a,68.53999999999999,104.44,True
+6,Entertainment,1,2023-08,seasonal_naive,n/a,77.7,,False
+6,Entertainment,2,2023-09,seasonal_naive,n/a,60.92,,False
+6,Entertainment,3,2023-10,seasonal_naive,n/a,68.53999999999999,,False
+6,Entertainment,1,2023-08,random_forest,last_known_history,77.7,213.8910375000001,True
+6,Entertainment,1,2023-08,random_forest,recursive,77.7,213.8910375000001,True
+6,Entertainment,2,2023-09,random_forest,last_known_history,60.92,213.8910375000001,True
+6,Entertainment,2,2023-09,random_forest,recursive,60.92,213.8910375000001,True
+6,Entertainment,3,2023-10,random_forest,last_known_history,68.53999999999999,213.8910375000001,True
+6,Entertainment,3,2023-10,random_forest,recursive,68.53999999999999,213.8910375000001,True
+6,Entertainment,1,2023-08,ridge,last_known_history,77.7,131.78026586311665,True
+6,Entertainment,1,2023-08,ridge,recursive,77.7,131.78026586311665,True
+6,Entertainment,2,2023-09,ridge,last_known_history,60.92,131.78026586311665,True
+6,Entertainment,2,2023-09,ridge,recursive,60.92,130.3115784376169,True
+6,Entertainment,3,2023-10,ridge,last_known_history,68.53999999999999,131.78026586311665,True
+6,Entertainment,3,2023-10,ridge,recursive,68.53999999999999,138.36555936306365,True
+6,Healthcare,1,2023-08,naive,n/a,488.24,368.3,True
+6,Healthcare,2,2023-09,naive,n/a,321.92,368.3,True
+6,Healthcare,3,2023-10,naive,n/a,432.38,368.3,True
+6,Healthcare,1,2023-08,seasonal_naive,n/a,488.24,,False
+6,Healthcare,2,2023-09,seasonal_naive,n/a,321.92,,False
+6,Healthcare,3,2023-10,seasonal_naive,n/a,432.38,,False
+6,Healthcare,1,2023-08,random_forest,last_known_history,488.24,213.8910375000001,True
+6,Healthcare,1,2023-08,random_forest,recursive,488.24,213.8910375000001,True
+6,Healthcare,2,2023-09,random_forest,last_known_history,321.92,213.8910375000001,True
+6,Healthcare,2,2023-09,random_forest,recursive,321.92,213.8910375000001,True
+6,Healthcare,3,2023-10,random_forest,last_known_history,432.38,213.8910375000001,True
+6,Healthcare,3,2023-10,random_forest,recursive,432.38,213.8910375000001,True
+6,Healthcare,1,2023-08,ridge,last_known_history,488.24,436.76966820362776,True
+6,Healthcare,1,2023-08,ridge,recursive,488.24,436.76966820362776,True
+6,Healthcare,2,2023-09,ridge,last_known_history,321.92,436.76966820362776,True
+6,Healthcare,2,2023-09,ridge,recursive,321.92,439.720747335336,True
+6,Healthcare,3,2023-10,ridge,last_known_history,432.38,436.76966820362776,True
+6,Healthcare,3,2023-10,ridge,recursive,432.38,409.9116093785693,True
+6,Shopping,1,2023-08,naive,n/a,304.44,321.81,True
+6,Shopping,2,2023-09,naive,n/a,272.02,321.81,True
+6,Shopping,3,2023-10,naive,n/a,316.92,321.81,True
+6,Shopping,1,2023-08,seasonal_naive,n/a,304.44,,False
+6,Shopping,2,2023-09,seasonal_naive,n/a,272.02,,False
+6,Shopping,3,2023-10,seasonal_naive,n/a,316.92,,False
+6,Shopping,1,2023-08,random_forest,last_known_history,304.44,213.8910375000001,True
+6,Shopping,1,2023-08,random_forest,recursive,304.44,213.8910375000001,True
+6,Shopping,2,2023-09,random_forest,last_known_history,272.02,213.8910375000001,True
+6,Shopping,2,2023-09,random_forest,recursive,272.02,213.8910375000001,True
+6,Shopping,3,2023-10,random_forest,last_known_history,316.92,213.8910375000001,True
+6,Shopping,3,2023-10,random_forest,recursive,316.92,213.8910375000001,True
+6,Shopping,1,2023-08,ridge,last_known_history,304.44,337.54547680475673,True
+6,Shopping,1,2023-08,ridge,recursive,304.44,337.54547680475673,True
+6,Shopping,2,2023-09,ridge,last_known_history,272.02,337.54547680475673,True
+6,Shopping,2,2023-09,ridge,recursive,272.02,298.0294260057144,True
+6,Shopping,3,2023-10,ridge,last_known_history,316.92,337.54547680475673,True
+6,Shopping,3,2023-10,ridge,recursive,316.92,301.82389140288143,True
+6,Subscriptions,1,2023-08,naive,n/a,45.74,46.38,True
+6,Subscriptions,2,2023-09,naive,n/a,45.58,46.38,True
+6,Subscriptions,3,2023-10,naive,n/a,46.21,46.38,True
+6,Subscriptions,1,2023-08,seasonal_naive,n/a,45.74,,False
+6,Subscriptions,2,2023-09,seasonal_naive,n/a,45.58,,False
+6,Subscriptions,3,2023-10,seasonal_naive,n/a,46.21,,False
+6,Subscriptions,1,2023-08,random_forest,last_known_history,45.74,213.8910375000001,True
+6,Subscriptions,1,2023-08,random_forest,recursive,45.74,213.8910375000001,True
+6,Subscriptions,2,2023-09,random_forest,last_known_history,45.58,213.8910375000001,True
+6,Subscriptions,2,2023-09,random_forest,recursive,45.58,213.8910375000001,True
+6,Subscriptions,3,2023-10,random_forest,last_known_history,46.21,213.8910375000001,True
+6,Subscriptions,3,2023-10,random_forest,recursive,46.21,213.8910375000001,True
+6,Subscriptions,1,2023-08,ridge,last_known_history,45.74,82.9912189482258,True
+6,Subscriptions,1,2023-08,ridge,recursive,45.74,82.9912189482258,True
+6,Subscriptions,2,2023-09,ridge,last_known_history,45.58,82.9912189482258,True
+6,Subscriptions,2,2023-09,ridge,recursive,45.58,121.08342928876999,True
+6,Subscriptions,3,2023-10,ridge,last_known_history,46.21,82.9912189482258,True
+6,Subscriptions,3,2023-10,ridge,recursive,46.21,158.45865131726958,True
+6,Other,1,2023-08,naive,n/a,0.0,0.0,True
+6,Other,2,2023-09,naive,n/a,0.0,0.0,True
+6,Other,3,2023-10,naive,n/a,0.0,0.0,True
+6,Other,1,2023-08,seasonal_naive,n/a,0.0,,False
+6,Other,2,2023-09,seasonal_naive,n/a,0.0,,False
+6,Other,3,2023-10,seasonal_naive,n/a,0.0,,False
+6,Other,1,2023-08,random_forest,last_known_history,0.0,213.8910375000001,True
+6,Other,1,2023-08,random_forest,recursive,0.0,213.8910375000001,True
+6,Other,2,2023-09,random_forest,last_known_history,0.0,213.8910375000001,True
+6,Other,2,2023-09,random_forest,recursive,0.0,213.8910375000001,True
+6,Other,3,2023-10,random_forest,last_known_history,0.0,213.8910375000001,True
+6,Other,3,2023-10,random_forest,recursive,0.0,213.8910375000001,True
+6,Other,1,2023-08,ridge,last_known_history,0.0,41.49963176192276,True
+6,Other,1,2023-08,ridge,recursive,0.0,41.49963176192276,True
+6,Other,2,2023-09,ridge,last_known_history,0.0,41.49963176192276,True
+6,Other,2,2023-09,ridge,recursive,0.0,84.91011132988075,True
+6,Other,3,2023-10,ridge,last_known_history,0.0,41.49963176192276,True
+6,Other,3,2023-10,ridge,recursive,0.0,127.55756907455337,True
+7,Food & Dining,1,2023-09,naive,n/a,370.69,379.58,True
+7,Food & Dining,2,2023-10,naive,n/a,318.4,379.58,True
+7,Food & Dining,3,2023-11,naive,n/a,291.52,379.58,True
+7,Food & Dining,1,2023-09,seasonal_naive,n/a,370.69,,False
+7,Food & Dining,2,2023-10,seasonal_naive,n/a,318.4,,False
+7,Food & Dining,3,2023-11,seasonal_naive,n/a,291.52,,False
+7,Food & Dining,1,2023-09,random_forest,last_known_history,370.69,300.14108269841273,True
+7,Food & Dining,1,2023-09,random_forest,recursive,370.69,300.14108269841273,True
+7,Food & Dining,2,2023-10,random_forest,last_known_history,318.4,300.14108269841273,True
+7,Food & Dining,2,2023-10,random_forest,recursive,318.4,300.14108269841273,True
+7,Food & Dining,3,2023-11,random_forest,last_known_history,291.52,300.14108269841273,True
+7,Food & Dining,3,2023-11,random_forest,recursive,291.52,300.14108269841273,True
+7,Food & Dining,1,2023-09,ridge,last_known_history,370.69,333.66941203809233,True
+7,Food & Dining,1,2023-09,ridge,recursive,370.69,333.66941203809233,True
+7,Food & Dining,2,2023-10,ridge,last_known_history,318.4,305.90359634680954,True
+7,Food & Dining,2,2023-10,ridge,recursive,318.4,307.0225767915869,True
+7,Food & Dining,3,2023-11,ridge,last_known_history,291.52,278.13778065552674,True
+7,Food & Dining,3,2023-11,ridge,recursive,291.52,252.19859115813432,True
+7,Transport,1,2023-09,naive,n/a,127.67,145.74,True
+7,Transport,2,2023-10,naive,n/a,150.02,145.74,True
+7,Transport,3,2023-11,naive,n/a,144.53,145.74,True
+7,Transport,1,2023-09,seasonal_naive,n/a,127.67,,False
+7,Transport,2,2023-10,seasonal_naive,n/a,150.02,,False
+7,Transport,3,2023-11,seasonal_naive,n/a,144.53,,False
+7,Transport,1,2023-09,random_forest,last_known_history,127.67,168.77723008297264,True
+7,Transport,1,2023-09,random_forest,recursive,127.67,168.77723008297264,True
+7,Transport,2,2023-10,random_forest,last_known_history,150.02,168.77723008297264,True
+7,Transport,2,2023-10,random_forest,recursive,150.02,219.9311473160174,True
+7,Transport,3,2023-11,random_forest,last_known_history,144.53,168.77723008297264,True
+7,Transport,3,2023-11,random_forest,recursive,144.53,231.44962497474756,True
+7,Transport,1,2023-09,ridge,last_known_history,127.67,124.84255655911512,True
+7,Transport,1,2023-09,ridge,recursive,127.67,124.84255655911512,True
+7,Transport,2,2023-10,ridge,last_known_history,150.02,97.07674086783234,True
+7,Transport,2,2023-10,ridge,recursive,150.02,99.45773144767003,True
+7,Transport,3,2023-11,ridge,last_known_history,144.53,69.31092517654957,True
+7,Transport,3,2023-11,ridge,recursive,144.53,52.0358215099682,True
+7,Rent & Utilities,1,2023-09,naive,n/a,229.42000000000002,102.14,True
+7,Rent & Utilities,2,2023-10,naive,n/a,235.87,102.14,True
+7,Rent & Utilities,3,2023-11,naive,n/a,246.32999999999998,102.14,True
+7,Rent & Utilities,1,2023-09,seasonal_naive,n/a,229.42000000000002,,False
+7,Rent & Utilities,2,2023-10,seasonal_naive,n/a,235.87,,False
+7,Rent & Utilities,3,2023-11,seasonal_naive,n/a,246.32999999999998,,False
+7,Rent & Utilities,1,2023-09,random_forest,last_known_history,229.42000000000002,163.33961198773454,True
+7,Rent & Utilities,1,2023-09,random_forest,recursive,229.42000000000002,163.33961198773454,True
+7,Rent & Utilities,2,2023-10,random_forest,last_known_history,235.87,163.33961198773454,True
+7,Rent & Utilities,2,2023-10,random_forest,recursive,235.87,170.91495553751807,True
+7,Rent & Utilities,3,2023-11,random_forest,last_known_history,246.32999999999998,163.33961198773454,True
+7,Rent & Utilities,3,2023-11,random_forest,recursive,246.32999999999998,221.2341073160174,True
+7,Rent & Utilities,1,2023-09,ridge,last_known_history,229.42000000000002,138.33907339639592,True
+7,Rent & Utilities,1,2023-09,ridge,recursive,229.42000000000002,138.33907339639592,True
+7,Rent & Utilities,2,2023-10,ridge,last_known_history,235.87,110.57325770511312,True
+7,Rent & Utilities,2,2023-10,ridge,recursive,235.87,112.33707657808993,True
+7,Rent & Utilities,3,2023-11,ridge,last_known_history,246.32999999999998,82.80744201383035,True
+7,Rent & Utilities,3,2023-11,ridge,recursive,246.32999999999998,42.878378139200606,True
+7,Entertainment,1,2023-09,naive,n/a,60.92,77.7,True
+7,Entertainment,2,2023-10,naive,n/a,68.53999999999999,77.7,True
+7,Entertainment,3,2023-11,naive,n/a,50.989999999999995,77.7,True
+7,Entertainment,1,2023-09,seasonal_naive,n/a,60.92,,False
+7,Entertainment,2,2023-10,seasonal_naive,n/a,68.53999999999999,,False
+7,Entertainment,3,2023-11,seasonal_naive,n/a,50.989999999999995,,False
+7,Entertainment,1,2023-09,random_forest,last_known_history,60.92,112.12490738455986,True
+7,Entertainment,1,2023-09,random_forest,recursive,60.92,112.12490738455986,True
+7,Entertainment,2,2023-10,random_forest,last_known_history,68.53999999999999,112.12490738455986,True
+7,Entertainment,2,2023-10,random_forest,recursive,68.53999999999999,125.04943817821069,True
+7,Entertainment,3,2023-11,random_forest,last_known_history,50.989999999999995,112.12490738455986,True
+7,Entertainment,3,2023-11,random_forest,recursive,50.989999999999995,143.73508151154405,True
+7,Entertainment,1,2023-09,ridge,last_known_history,60.92,61.320580632952044,True
+7,Entertainment,1,2023-09,ridge,recursive,60.92,61.320580632952044,True
+7,Entertainment,2,2023-10,ridge,last_known_history,68.53999999999999,33.55476494166925,True
+7,Entertainment,2,2023-10,ridge,recursive,68.53999999999999,29.848484301367307,True
+7,Entertainment,3,2023-11,ridge,last_known_history,50.989999999999995,5.78894925038648,True
+7,Entertainment,3,2023-11,ridge,recursive,50.989999999999995,-8.303375347632453,True
+7,Healthcare,1,2023-09,naive,n/a,321.92,488.24,True
+7,Healthcare,2,2023-10,naive,n/a,432.38,488.24,True
+7,Healthcare,3,2023-11,naive,n/a,349.05,488.24,True
+7,Healthcare,1,2023-09,seasonal_naive,n/a,321.92,,False
+7,Healthcare,2,2023-10,seasonal_naive,n/a,432.38,,False
+7,Healthcare,3,2023-11,seasonal_naive,n/a,349.05,,False
+7,Healthcare,1,2023-09,random_forest,last_known_history,321.92,300.14108269841273,True
+7,Healthcare,1,2023-09,random_forest,recursive,321.92,300.14108269841273,True
+7,Healthcare,2,2023-10,random_forest,last_known_history,432.38,300.14108269841273,True
+7,Healthcare,2,2023-10,random_forest,recursive,432.38,300.14108269841273,True
+7,Healthcare,3,2023-11,random_forest,last_known_history,349.05,300.14108269841273,True
+7,Healthcare,3,2023-11,random_forest,recursive,349.05,300.14108269841273,True
+7,Healthcare,1,2023-09,ridge,last_known_history,321.92,404.9321144662059,True
+7,Healthcare,1,2023-09,ridge,recursive,321.92,404.9321144662059,True
+7,Healthcare,2,2023-10,ridge,last_known_history,432.38,377.1662987749231,True
+7,Healthcare,2,2023-10,ridge,recursive,432.38,358.53023447133705,True
+7,Healthcare,3,2023-11,ridge,last_known_history,349.05,349.4004830836404,True
+7,Healthcare,3,2023-11,ridge,recursive,349.05,326.7532999661303,True
+7,Shopping,1,2023-09,naive,n/a,272.02,304.44,True
+7,Shopping,2,2023-10,naive,n/a,316.92,304.44,True
+7,Shopping,3,2023-11,naive,n/a,253.39,304.44,True
+7,Shopping,1,2023-09,seasonal_naive,n/a,272.02,,False
+7,Shopping,2,2023-10,seasonal_naive,n/a,316.92,,False
+7,Shopping,3,2023-11,seasonal_naive,n/a,253.39,,False
+7,Shopping,1,2023-09,random_forest,last_known_history,272.02,298.8381226984127,True
+7,Shopping,1,2023-09,random_forest,recursive,272.02,298.8381226984127,True
+7,Shopping,2,2023-10,random_forest,last_known_history,316.92,298.8381226984127,True
+7,Shopping,2,2023-10,random_forest,recursive,316.92,298.8381226984127,True
+7,Shopping,3,2023-11,random_forest,last_known_history,253.39,298.8381226984127,True
+7,Shopping,3,2023-11,random_forest,recursive,253.39,298.8381226984127,True
+7,Shopping,1,2023-09,ridge,last_known_history,272.02,262.969218045951,True
+7,Shopping,1,2023-09,ridge,recursive,272.02,262.969218045951,True
+7,Shopping,2,2023-10,ridge,last_known_history,316.92,235.20340235466819,True
+7,Shopping,2,2023-10,ridge,recursive,316.92,229.46086173727707,True
+7,Shopping,3,2023-11,ridge,last_known_history,253.39,207.43758666338545,True
+7,Shopping,3,2023-11,ridge,recursive,253.39,184.1060371313216,True
+7,Subscriptions,1,2023-09,naive,n/a,45.58,45.74,True
+7,Subscriptions,2,2023-10,naive,n/a,46.21,45.74,True
+7,Subscriptions,3,2023-11,naive,n/a,45.58,45.74,True
+7,Subscriptions,1,2023-09,seasonal_naive,n/a,45.58,,False
+7,Subscriptions,2,2023-10,seasonal_naive,n/a,46.21,,False
+7,Subscriptions,3,2023-11,seasonal_naive,n/a,45.58,,False
+7,Subscriptions,1,2023-09,random_forest,last_known_history,45.58,108.32403794011545,True
+7,Subscriptions,1,2023-09,random_forest,recursive,45.58,108.32403794011545,True
+7,Subscriptions,2,2023-10,random_forest,last_known_history,46.21,108.32403794011545,True
+7,Subscriptions,2,2023-10,random_forest,recursive,46.21,115.06461603535354,True
+7,Subscriptions,3,2023-11,random_forest,last_known_history,45.58,108.32403794011545,True
+7,Subscriptions,3,2023-11,random_forest,recursive,45.58,115.06461603535354,True
+7,Subscriptions,1,2023-09,ridge,last_known_history,45.58,21.454265095293692,True
+7,Subscriptions,1,2023-09,ridge,recursive,45.58,21.454265095293692,True
+7,Subscriptions,2,2023-10,ridge,last_known_history,46.21,-6.311550595989104,True
+7,Subscriptions,2,2023-10,ridge,recursive,46.21,-3.9762296748872643,True
+7,Subscriptions,3,2023-11,ridge,last_known_history,45.58,-34.07736628727184,True
+7,Subscriptions,3,2023-11,ridge,recursive,45.58,-36.76010484707041,True
+7,Other,1,2023-09,naive,n/a,0.0,0.0,True
+7,Other,2,2023-10,naive,n/a,0.0,0.0,True
+7,Other,3,2023-11,naive,n/a,0.0,0.0,True
+7,Other,1,2023-09,seasonal_naive,n/a,0.0,,False
+7,Other,2,2023-10,seasonal_naive,n/a,0.0,,False
+7,Other,3,2023-11,seasonal_naive,n/a,0.0,,False
+7,Other,1,2023-09,random_forest,last_known_history,0.0,108.32403794011545,True
+7,Other,1,2023-09,random_forest,recursive,0.0,108.32403794011545,True
+7,Other,2,2023-10,random_forest,last_known_history,0.0,108.32403794011545,True
+7,Other,2,2023-10,random_forest,recursive,0.0,115.06461603535354,True
+7,Other,3,2023-11,random_forest,last_known_history,0.0,108.32403794011545,True
+7,Other,3,2023-11,random_forest,recursive,0.0,115.06461603535354,True
+7,Other,1,2023-09,ridge,last_known_history,0.0,-21.445094759510283,True
+7,Other,1,2023-09,ridge,recursive,0.0,-21.445094759510283,True
+7,Other,2,2023-10,ridge,last_known_history,0.0,-49.21091045079305,True
+7,Other,2,2023-10,ridge,recursive,0.0,-47.00242066604778,True
+7,Other,3,2023-11,ridge,last_known_history,0.0,-76.97672614207582,True
+7,Other,3,2023-11,ridge,recursive,0.0,-78.80941379161689,True
+8,Food & Dining,1,2023-10,naive,n/a,318.4,370.69,True
+8,Food & Dining,2,2023-11,naive,n/a,291.52,370.69,True
+8,Food & Dining,3,2023-12,naive,n/a,364.99,370.69,True
+8,Food & Dining,1,2023-10,seasonal_naive,n/a,318.4,,False
+8,Food & Dining,2,2023-11,seasonal_naive,n/a,291.52,,False
+8,Food & Dining,3,2023-12,seasonal_naive,n/a,364.99,,False
+8,Food & Dining,1,2023-10,random_forest,last_known_history,318.4,349.48002360403467,True
+8,Food & Dining,1,2023-10,random_forest,recursive,318.4,349.48002360403467,True
+8,Food & Dining,2,2023-11,random_forest,last_known_history,291.52,349.48002360403467,True
+8,Food & Dining,2,2023-11,random_forest,recursive,291.52,346.0915173103284,True
+8,Food & Dining,3,2023-12,random_forest,last_known_history,364.99,349.48002360403467,True
+8,Food & Dining,3,2023-12,random_forest,recursive,364.99,345.05573159604273,True
+8,Food & Dining,1,2023-10,ridge,last_known_history,318.4,313.22436162654253,True
+8,Food & Dining,1,2023-10,ridge,recursive,318.4,313.22436162654253,True
+8,Food & Dining,2,2023-11,ridge,last_known_history,291.52,288.4774207991796,True
+8,Food & Dining,2,2023-11,ridge,recursive,291.52,277.4405993161784,True
+8,Food & Dining,3,2023-12,ridge,last_known_history,364.99,263.73047997181664,True
+8,Food & Dining,3,2023-12,ridge,recursive,364.99,240.09411171022828,True
+8,Transport,1,2023-10,naive,n/a,150.02,127.67,True
+8,Transport,2,2023-11,naive,n/a,144.53,127.67,True
+8,Transport,3,2023-12,naive,n/a,124.59,127.67,True
+8,Transport,1,2023-10,seasonal_naive,n/a,150.02,,False
+8,Transport,2,2023-11,seasonal_naive,n/a,144.53,,False
+8,Transport,3,2023-12,seasonal_naive,n/a,124.59,,False
+8,Transport,1,2023-10,random_forest,last_known_history,150.02,221.9755576955153,True
+8,Transport,1,2023-10,random_forest,recursive,150.02,221.9755576955153,True
+8,Transport,2,2023-11,random_forest,last_known_history,144.53,221.9755576955153,True
+8,Transport,2,2023-11,random_forest,recursive,144.53,235.16258147728905,True
+8,Transport,3,2023-12,random_forest,last_known_history,124.59,221.9755576955153,True
+8,Transport,3,2023-12,random_forest,recursive,124.59,235.16258147728905,True
+8,Transport,1,2023-10,ridge,last_known_history,150.02,121.13307986966498,True
+8,Transport,1,2023-10,ridge,recursive,150.02,121.13307986966498,True
+8,Transport,2,2023-11,ridge,last_known_history,144.53,96.38613904230203,True
+8,Transport,2,2023-11,ridge,recursive,144.53,72.94674136461232,True
+8,Transport,3,2023-12,ridge,last_known_history,124.59,71.63919821493913,True
+8,Transport,3,2023-12,ridge,recursive,124.59,49.26773230170298,True
+8,Rent & Utilities,1,2023-10,naive,n/a,235.87,229.42000000000002,True
+8,Rent & Utilities,2,2023-11,naive,n/a,246.32999999999998,229.42000000000002,True
+8,Rent & Utilities,3,2023-12,naive,n/a,231.35000000000002,229.42000000000002,True
+8,Rent & Utilities,1,2023-10,seasonal_naive,n/a,235.87,,False
+8,Rent & Utilities,2,2023-11,seasonal_naive,n/a,246.32999999999998,,False
+8,Rent & Utilities,3,2023-12,seasonal_naive,n/a,231.35000000000002,,False
+8,Rent & Utilities,1,2023-10,random_forest,last_known_history,235.87,235.16258147728905,True
+8,Rent & Utilities,1,2023-10,random_forest,recursive,235.87,235.16258147728905,True
+8,Rent & Utilities,2,2023-11,random_forest,last_known_history,246.32999999999998,235.16258147728905,True
+8,Rent & Utilities,2,2023-11,random_forest,recursive,246.32999999999998,235.16258147728905,True
+8,Rent & Utilities,3,2023-12,random_forest,last_known_history,231.35000000000002,235.16258147728905,True
+8,Rent & Utilities,3,2023-12,random_forest,recursive,231.35000000000002,275.3654786296792,True
+8,Rent & Utilities,1,2023-10,ridge,last_known_history,235.87,146.4207110739199,True
+8,Rent & Utilities,1,2023-10,ridge,recursive,235.87,146.4207110739199,True
+8,Rent & Utilities,2,2023-11,ridge,last_known_history,246.32999999999998,121.67377024655694,True
+8,Rent & Utilities,2,2023-11,ridge,recursive,246.32999999999998,118.19909541833427,True
+8,Rent & Utilities,3,2023-12,ridge,last_known_history,231.35000000000002,96.92682941919402,True
+8,Rent & Utilities,3,2023-12,ridge,recursive,231.35000000000002,98.62186226549903,True
+8,Entertainment,1,2023-10,naive,n/a,68.53999999999999,60.92,True
+8,Entertainment,2,2023-11,naive,n/a,50.989999999999995,60.92,True
+8,Entertainment,3,2023-12,naive,n/a,60.0,60.92,True
+8,Entertainment,1,2023-10,seasonal_naive,n/a,68.53999999999999,,False
+8,Entertainment,2,2023-11,seasonal_naive,n/a,50.989999999999995,,False
+8,Entertainment,3,2023-12,seasonal_naive,n/a,60.0,,False
+8,Entertainment,1,2023-10,random_forest,last_known_history,68.53999999999999,78.24052817753325,True
+8,Entertainment,1,2023-10,random_forest,recursive,68.53999999999999,78.24052817753325,True
+8,Entertainment,2,2023-11,random_forest,last_known_history,50.989999999999995,78.24052817753325,True
+8,Entertainment,2,2023-11,random_forest,recursive,50.989999999999995,74.85202188382695,True
+8,Entertainment,3,2023-12,random_forest,last_known_history,60.0,78.24052817753325,True
+8,Entertainment,3,2023-12,random_forest,recursive,60.0,74.0907663282714,True
+8,Entertainment,1,2023-10,ridge,last_known_history,68.53999999999999,52.18499562523769,True
+8,Entertainment,1,2023-10,ridge,recursive,68.53999999999999,52.18499562523769,True
+8,Entertainment,2,2023-11,ridge,last_known_history,50.989999999999995,27.43805479787477,True
+8,Entertainment,2,2023-11,ridge,recursive,50.989999999999995,14.452172509639212,True
+8,Entertainment,3,2023-12,ridge,last_known_history,60.0,2.69111397051185,True
+8,Entertainment,3,2023-12,ridge,recursive,60.0,-10.974446452481715,True
+8,Healthcare,1,2023-10,naive,n/a,432.38,321.92,True
+8,Healthcare,2,2023-11,naive,n/a,349.05,321.92,True
+8,Healthcare,3,2023-12,naive,n/a,503.07,321.92,True
+8,Healthcare,1,2023-10,seasonal_naive,n/a,432.38,,False
+8,Healthcare,2,2023-11,seasonal_naive,n/a,349.05,,False
+8,Healthcare,3,2023-12,seasonal_naive,n/a,503.07,,False
+8,Healthcare,1,2023-10,random_forest,last_known_history,432.38,348.44423788974893,True
+8,Healthcare,1,2023-10,random_forest,recursive,432.38,348.44423788974893,True
+8,Healthcare,2,2023-11,random_forest,last_known_history,349.05,348.44423788974893,True
+8,Healthcare,2,2023-11,random_forest,recursive,349.05,349.48002360403467,True
+8,Healthcare,3,2023-12,random_forest,last_known_history,503.07,348.44423788974893,True
+8,Healthcare,3,2023-12,random_forest,recursive,503.07,341.6675758420744,True
+8,Healthcare,1,2023-10,ridge,last_known_history,432.38,376.8137465869503,True
+8,Healthcare,1,2023-10,ridge,recursive,432.38,376.8137465869503,True
+8,Healthcare,2,2023-11,ridge,last_known_history,349.05,352.06680575958734,True
+8,Healthcare,2,2023-11,ridge,recursive,349.05,337.02578193271324,True
+8,Healthcare,3,2023-12,ridge,last_known_history,503.07,327.31986493222445,True
+8,Healthcare,3,2023-12,ridge,recursive,503.07,248.90043472004598,True
+8,Shopping,1,2023-10,naive,n/a,316.92,272.02,True
+8,Shopping,2,2023-11,naive,n/a,253.39,272.02,True
+8,Shopping,3,2023-12,naive,n/a,379.82,272.02,True
+8,Shopping,1,2023-10,seasonal_naive,n/a,316.92,,False
+8,Shopping,2,2023-11,seasonal_naive,n/a,253.39,,False
+8,Shopping,3,2023-12,seasonal_naive,n/a,379.82,,False
+8,Shopping,1,2023-10,random_forest,last_known_history,316.92,339.0495387826061,True
+8,Shopping,1,2023-10,random_forest,recursive,316.92,339.0495387826061,True
+8,Shopping,2,2023-11,random_forest,last_known_history,253.39,339.0495387826061,True
+8,Shopping,2,2023-11,random_forest,recursive,253.39,344.02029642149506,True
+8,Shopping,3,2023-12,random_forest,last_known_history,379.82,339.0495387826061,True
+8,Shopping,3,2023-12,random_forest,recursive,379.82,344.02029642149506,True
+8,Shopping,1,2023-10,ridge,last_known_history,316.92,241.53388712588136,True
+8,Shopping,1,2023-10,ridge,recursive,316.92,241.53388712588136,True
+8,Shopping,2,2023-11,ridge,last_known_history,253.39,216.78694629851842,True
+8,Shopping,2,2023-11,ridge,recursive,253.39,204.15302154821697,True
+8,Shopping,3,2023-12,ridge,last_known_history,379.82,192.0400054711555,True
+8,Shopping,3,2023-12,ridge,recursive,379.82,167.69141140931612,True
+8,Subscriptions,1,2023-10,naive,n/a,46.21,45.58,True
+8,Subscriptions,2,2023-11,naive,n/a,45.58,45.58,True
+8,Subscriptions,3,2023-12,naive,n/a,45.63,45.58,True
+8,Subscriptions,1,2023-10,seasonal_naive,n/a,46.21,,False
+8,Subscriptions,2,2023-11,seasonal_naive,n/a,45.58,,False
+8,Subscriptions,3,2023-12,seasonal_naive,n/a,45.63,,False
+8,Subscriptions,1,2023-10,random_forest,last_known_history,46.21,69.14916426477933,True
+8,Subscriptions,1,2023-10,random_forest,recursive,46.21,69.14916426477933,True
+8,Subscriptions,2,2023-11,random_forest,last_known_history,45.58,69.14916426477933,True
+8,Subscriptions,2,2023-11,random_forest,recursive,45.58,73.87606188382695,True
+8,Subscriptions,3,2023-12,random_forest,last_known_history,45.63,69.14916426477933,True
+8,Subscriptions,3,2023-12,random_forest,recursive,45.63,73.87606188382695,True
+8,Subscriptions,1,2023-10,ridge,last_known_history,46.21,13.477403027789734,True
+8,Subscriptions,1,2023-10,ridge,recursive,46.21,13.477403027789734,True
+8,Subscriptions,2,2023-11,ridge,last_known_history,45.58,-11.269537799573214,True
+8,Subscriptions,2,2023-11,ridge,recursive,45.58,-2.4891460233421583,True
+8,Subscriptions,3,2023-12,ridge,last_known_history,45.63,-36.016478626936134,True
+8,Subscriptions,3,2023-12,ridge,recursive,45.63,-32.881375115077304,True
+8,Other,1,2023-10,naive,n/a,0.0,0.0,True
+8,Other,2,2023-11,naive,n/a,0.0,0.0,True
+8,Other,3,2023-12,naive,n/a,0.0,0.0,True
+8,Other,1,2023-10,seasonal_naive,n/a,0.0,,False
+8,Other,2,2023-11,seasonal_naive,n/a,0.0,,False
+8,Other,3,2023-12,seasonal_naive,n/a,0.0,,False
+8,Other,1,2023-10,random_forest,last_known_history,0.0,69.14916426477933,True
+8,Other,1,2023-10,random_forest,recursive,0.0,69.14916426477933,True
+8,Other,2,2023-11,random_forest,last_known_history,0.0,69.14916426477933,True
+8,Other,2,2023-11,random_forest,recursive,0.0,78.39079151086658,True
+8,Other,3,2023-12,random_forest,last_known_history,0.0,69.14916426477933,True
+8,Other,3,2023-12,random_forest,recursive,0.0,79.29230817753324,True
+8,Other,1,2023-10,ridge,last_known_history,0.0,-27.43464644008847,True
+8,Other,1,2023-10,ridge,recursive,0.0,-27.43464644008847,True
+8,Other,2,2023-11,ridge,last_known_history,0.0,-52.18158726745142,True
+8,Other,2,2023-11,ridge,recursive,0.0,-44.34444965127892,True
+8,Other,3,2023-12,ridge,last_known_history,0.0,-76.92852809481431,True
+8,Other,3,2023-12,ridge,recursive,0.0,-73.17641414095883,True
+9,Food & Dining,1,2023-11,naive,n/a,291.52,318.4,True
+9,Food & Dining,2,2023-12,naive,n/a,364.99,318.4,True
+9,Food & Dining,3,2024-01,naive,n/a,250.51999999999998,318.4,True
+9,Food & Dining,1,2023-11,seasonal_naive,n/a,291.52,,False
+9,Food & Dining,2,2023-12,seasonal_naive,n/a,364.99,,False
+9,Food & Dining,3,2024-01,seasonal_naive,n/a,250.51999999999998,468.82,True
+9,Food & Dining,1,2023-11,random_forest,last_known_history,291.52,344.2104739114971,True
+9,Food & Dining,1,2023-11,random_forest,recursive,291.52,344.2104739114971,True
+9,Food & Dining,2,2023-12,random_forest,last_known_history,364.99,344.2104739114971,True
+9,Food & Dining,2,2023-12,random_forest,recursive,364.99,343.2657024829257,True
+9,Food & Dining,3,2024-01,random_forest,last_known_history,250.51999999999998,344.2104739114971,True
+9,Food & Dining,3,2024-01,random_forest,recursive,250.51999999999998,342.53833026070345,True
+9,Food & Dining,1,2023-11,ridge,last_known_history,291.52,321.7963359244991,True
+9,Food & Dining,1,2023-11,ridge,recursive,291.52,321.7963359244991,True
+9,Food & Dining,2,2023-12,ridge,last_known_history,364.99,314.8035583245539,True
+9,Food & Dining,2,2023-12,ridge,recursive,364.99,296.44107366937806,True
+9,Food & Dining,3,2024-01,ridge,last_known_history,250.51999999999998,391.7241119239514,True
+9,Food & Dining,3,2024-01,ridge,recursive,250.51999999999998,346.6428521152105,True
+9,Transport,1,2023-11,naive,n/a,144.53,150.02,True
+9,Transport,2,2023-12,naive,n/a,124.59,150.02,True
+9,Transport,3,2024-01,naive,n/a,94.71000000000001,150.02,True
+9,Transport,1,2023-11,seasonal_naive,n/a,144.53,,False
+9,Transport,2,2023-12,seasonal_naive,n/a,124.59,,False
+9,Transport,3,2024-01,seasonal_naive,n/a,94.71000000000001,34.43,True
+9,Transport,1,2023-11,random_forest,last_known_history,144.53,151.0058188006601,True
+9,Transport,1,2023-11,random_forest,recursive,144.53,151.0058188006601,True
+9,Transport,2,2023-12,random_forest,last_known_history,124.59,151.0058188006601,True
+9,Transport,2,2023-12,random_forest,recursive,124.59,155.21203584611465,True
+9,Transport,3,2024-01,random_forest,last_known_history,94.71000000000001,151.0058188006601,True
+9,Transport,3,2024-01,random_forest,recursive,94.71000000000001,181.4454224533963,True
+9,Transport,1,2023-11,ridge,last_known_history,144.53,122.85078595774341,True
+9,Transport,1,2023-11,ridge,recursive,144.53,122.85078595774341,True
+9,Transport,2,2023-12,ridge,last_known_history,124.59,115.85800835779817,True
+9,Transport,2,2023-12,ridge,recursive,124.59,117.51323343240972,True
+9,Transport,3,2024-01,ridge,last_known_history,94.71000000000001,192.77856195719573,True
+9,Transport,3,2024-01,ridge,recursive,94.71000000000001,197.64869505330122,True
+9,Rent & Utilities,1,2023-11,naive,n/a,246.32999999999998,235.87,True
+9,Rent & Utilities,2,2023-12,naive,n/a,231.35000000000002,235.87,True
+9,Rent & Utilities,3,2024-01,naive,n/a,119.77,235.87,True
+9,Rent & Utilities,1,2023-11,seasonal_naive,n/a,246.32999999999998,,False
+9,Rent & Utilities,2,2023-12,seasonal_naive,n/a,231.35000000000002,,False
+9,Rent & Utilities,3,2024-01,seasonal_naive,n/a,119.77,229.07999999999998,True
+9,Rent & Utilities,1,2023-11,random_forest,last_known_history,246.32999999999998,262.8057105035161,True
+9,Rent & Utilities,1,2023-11,random_forest,recursive,246.32999999999998,262.8057105035161,True
+9,Rent & Utilities,2,2023-12,random_forest,last_known_history,231.35000000000002,262.8057105035161,True
+9,Rent & Utilities,2,2023-12,random_forest,recursive,231.35000000000002,282.6028425126182,True
+9,Rent & Utilities,3,2024-01,random_forest,last_known_history,119.77,262.8057105035161,True
+9,Rent & Utilities,3,2024-01,random_forest,recursive,119.77,304.7682800991983,True
+9,Rent & Utilities,1,2023-11,ridge,last_known_history,246.32999999999998,183.1159936375345,True
+9,Rent & Utilities,1,2023-11,ridge,recursive,246.32999999999998,183.1159936375345,True
+9,Rent & Utilities,2,2023-12,ridge,last_known_history,231.35000000000002,176.12321603758926,True
+9,Rent & Utilities,2,2023-12,ridge,recursive,231.35000000000002,172.933597174109,True
+9,Rent & Utilities,3,2024-01,ridge,last_known_history,119.77,253.0437696369868,True
+9,Rent & Utilities,3,2024-01,ridge,recursive,119.77,251.67686033316,True
+9,Entertainment,1,2023-11,naive,n/a,50.989999999999995,68.53999999999999,True
+9,Entertainment,2,2023-12,naive,n/a,60.0,68.53999999999999,True
+9,Entertainment,3,2024-01,naive,n/a,114.69,68.53999999999999,True
+9,Entertainment,1,2023-11,seasonal_naive,n/a,50.989999999999995,,False
+9,Entertainment,2,2023-12,seasonal_naive,n/a,60.0,,False
+9,Entertainment,3,2024-01,seasonal_naive,n/a,114.69,104.07,True
+9,Entertainment,1,2023-11,random_forest,last_known_history,50.989999999999995,56.08955938234148,True
+9,Entertainment,1,2023-11,random_forest,recursive,50.989999999999995,56.08955938234148,True
+9,Entertainment,2,2023-12,random_forest,last_known_history,60.0,56.08955938234148,True
+9,Entertainment,2,2023-12,random_forest,recursive,60.0,54.06367705910915,True
+9,Entertainment,3,2024-01,random_forest,last_known_history,114.69,56.08955938234148,True
+9,Entertainment,3,2024-01,random_forest,recursive,114.69,50.19540231163441,True
+9,Entertainment,1,2023-11,ridge,last_known_history,50.989999999999995,53.5801887786663,True
+9,Entertainment,1,2023-11,ridge,recursive,50.989999999999995,53.5801887786663,True
+9,Entertainment,2,2023-12,ridge,last_known_history,60.0,46.587411178721055,True
+9,Entertainment,2,2023-12,ridge,recursive,60.0,43.97001831254045,True
+9,Entertainment,3,2024-01,ridge,last_known_history,114.69,123.50796477811859,True
+9,Entertainment,3,2024-01,ridge,recursive,114.69,117.67258883778143,True
+9,Healthcare,1,2023-11,naive,n/a,349.05,432.38,True
+9,Healthcare,2,2023-12,naive,n/a,503.07,432.38,True
+9,Healthcare,3,2024-01,naive,n/a,456.0,432.38,True
+9,Healthcare,1,2023-11,seasonal_naive,n/a,349.05,,False
+9,Healthcare,2,2023-12,seasonal_naive,n/a,503.07,,False
+9,Healthcare,3,2024-01,seasonal_naive,n/a,456.0,592.73,True
+9,Healthcare,1,2023-11,random_forest,last_known_history,349.05,366.47323573689397,True
+9,Healthcare,1,2023-11,random_forest,recursive,349.05,366.47323573689397,True
+9,Healthcare,2,2023-12,random_forest,last_known_history,503.07,366.47323573689397,True
+9,Healthcare,2,2023-12,random_forest,recursive,503.07,366.47323573689397,True
+9,Healthcare,3,2024-01,random_forest,last_known_history,456.0,366.47323573689397,True
+9,Healthcare,3,2024-01,random_forest,recursive,456.0,366.47323573689397,True
+9,Healthcare,1,2023-11,ridge,last_known_history,349.05,393.12569824080776,True
+9,Healthcare,1,2023-11,ridge,recursive,349.05,393.12569824080776,True
+9,Healthcare,2,2023-12,ridge,last_known_history,503.07,386.1329206408625,True
+9,Healthcare,2,2023-12,ridge,recursive,503.07,350.66548388343466,True
+9,Healthcare,3,2024-01,ridge,last_known_history,456.0,463.05347424026,True
+9,Healthcare,3,2024-01,ridge,recursive,456.0,418.44342211811227,True
+9,Shopping,1,2023-11,naive,n/a,253.39,316.92,True
+9,Shopping,2,2023-12,naive,n/a,379.82,316.92,True
+9,Shopping,3,2024-01,naive,n/a,294.45,316.92,True
+9,Shopping,1,2023-11,seasonal_naive,n/a,253.39,,False
+9,Shopping,2,2023-12,seasonal_naive,n/a,379.82,,False
+9,Shopping,3,2024-01,seasonal_naive,n/a,294.45,359.53,True
+9,Shopping,1,2023-11,random_forest,last_known_history,253.39,333.7363254072236,True
+9,Shopping,1,2023-11,random_forest,recursive,253.39,333.7363254072236,True
+9,Shopping,2,2023-12,random_forest,last_known_history,379.82,333.7363254072236,True
+9,Shopping,2,2023-12,random_forest,recursive,379.82,333.7363254072236,True
+9,Shopping,3,2024-01,random_forest,last_known_history,294.45,333.7363254072236,True
+9,Shopping,3,2024-01,random_forest,recursive,294.45,333.7363254072236,True
+9,Shopping,1,2023-11,ridge,last_known_history,253.39,251.6864975317186,True
+9,Shopping,1,2023-11,ridge,recursive,253.39,251.6864975317186,True
+9,Shopping,2,2023-12,ridge,last_known_history,379.82,244.69371993177336,True
+9,Shopping,2,2023-12,ridge,recursive,379.82,257.3418485047198,True
+9,Shopping,3,2024-01,ridge,last_known_history,294.45,321.6142735311709,True
+9,Shopping,3,2024-01,ridge,recursive,294.45,326.76571352389,True
+9,Subscriptions,1,2023-11,naive,n/a,45.58,46.21,True
+9,Subscriptions,2,2023-12,naive,n/a,45.63,46.21,True
+9,Subscriptions,3,2024-01,naive,n/a,45.83,46.21,True
+9,Subscriptions,1,2023-11,seasonal_naive,n/a,45.58,,False
+9,Subscriptions,2,2023-12,seasonal_naive,n/a,45.63,,False
+9,Subscriptions,3,2024-01,seasonal_naive,n/a,45.83,46.29,True
+9,Subscriptions,1,2023-11,random_forest,last_known_history,45.58,39.596623914198545,True
+9,Subscriptions,1,2023-11,random_forest,recursive,45.58,39.596623914198545,True
+9,Subscriptions,2,2023-12,random_forest,last_known_history,45.63,39.596623914198545,True
+9,Subscriptions,2,2023-12,random_forest,recursive,45.63,43.30621002530965,True
+9,Subscriptions,3,2024-01,random_forest,last_known_history,45.83,39.596623914198545,True
+9,Subscriptions,3,2024-01,random_forest,recursive,45.83,43.30621002530965,True
+9,Subscriptions,1,2023-11,ridge,last_known_history,45.58,34.5886054495422,True
+9,Subscriptions,1,2023-11,ridge,recursive,45.58,34.5886054495422,True
+9,Subscriptions,2,2023-12,ridge,last_known_history,45.63,27.595827849596958,True
+9,Subscriptions,2,2023-12,ridge,recursive,45.63,31.676790411043726,True
+9,Subscriptions,3,2024-01,ridge,last_known_history,45.83,104.51638144899448,True
+9,Subscriptions,3,2024-01,ridge,recursive,45.83,106.44414740760438,True
+9,Other,1,2023-11,naive,n/a,0.0,0.0,True
+9,Other,2,2023-12,naive,n/a,0.0,0.0,True
+9,Other,3,2024-01,naive,n/a,0.0,0.0,True
+9,Other,1,2023-11,seasonal_naive,n/a,0.0,,False
+9,Other,2,2023-12,seasonal_naive,n/a,0.0,,False
+9,Other,3,2024-01,seasonal_naive,n/a,0.0,0.0,True
+9,Other,1,2023-11,random_forest,last_known_history,0.0,39.04021974753188,True
+9,Other,1,2023-11,random_forest,recursive,0.0,39.04021974753188,True
+9,Other,2,2023-12,random_forest,last_known_history,0.0,39.04021974753188,True
+9,Other,2,2023-12,random_forest,recursive,0.0,49.09784546542508,True
+9,Other,3,2024-01,random_forest,last_known_history,0.0,39.04021974753188,True
+9,Other,3,2024-01,random_forest,recursive,0.0,57.01258221950432,True
+9,Other,1,2023-11,ridge,last_known_history,0.0,-9.436740771689472,True
+9,Other,1,2023-11,ridge,recursive,0.0,-9.436740771689472,True
+9,Other,2,2023-12,ridge,last_known_history,0.0,-16.429518371634742,True
+9,Other,2,2023-12,ridge,recursive,0.0,-12.902761901663325,True
+9,Other,3,2024-01,ridge,last_known_history,0.0,60.491035227762836,True
+9,Other,3,2024-01,ridge,recursive,0.0,62.33681162418458,True
+10,Food & Dining,1,2023-12,naive,n/a,364.99,291.52,True
+10,Food & Dining,2,2024-01,naive,n/a,250.51999999999998,291.52,True
+10,Food & Dining,3,2024-02,naive,n/a,250.0,291.52,True
+10,Food & Dining,1,2023-12,seasonal_naive,n/a,364.99,,False
+10,Food & Dining,2,2024-01,seasonal_naive,n/a,250.51999999999998,468.82,True
+10,Food & Dining,3,2024-02,seasonal_naive,n/a,250.0,402.02,True
+10,Food & Dining,1,2023-12,random_forest,last_known_history,364.99,285.6668676635946,True
+10,Food & Dining,1,2023-12,random_forest,recursive,364.99,285.6668676635946,True
+10,Food & Dining,2,2024-01,random_forest,last_known_history,250.51999999999998,285.6668676635946,True
+10,Food & Dining,2,2024-01,random_forest,recursive,250.51999999999998,284.65032260864956,True
+10,Food & Dining,3,2024-02,random_forest,last_known_history,250.0,285.6668676635946,True
+10,Food & Dining,3,2024-02,random_forest,recursive,250.0,284.65032260864956,True
+10,Food & Dining,1,2023-12,ridge,last_known_history,364.99,299.57911773689705,True
+10,Food & Dining,1,2023-12,ridge,recursive,364.99,299.57911773689705,True
+10,Food & Dining,2,2024-01,ridge,last_known_history,250.51999999999998,361.80085265873197,True
+10,Food & Dining,2,2024-01,ridge,recursive,250.51999999999998,321.4487295644092,True
+10,Food & Dining,3,2024-02,ridge,last_known_history,250.0,356.1443313022015,True
+10,Food & Dining,3,2024-02,ridge,recursive,250.0,305.3061214663023,True
+10,Transport,1,2023-12,naive,n/a,124.59,144.53,True
+10,Transport,2,2024-01,naive,n/a,94.71000000000001,144.53,True
+10,Transport,3,2024-02,naive,n/a,98.65,144.53,True
+10,Transport,1,2023-12,seasonal_naive,n/a,124.59,,False
+10,Transport,2,2024-01,seasonal_naive,n/a,94.71000000000001,34.43,True
+10,Transport,3,2024-02,seasonal_naive,n/a,98.65,142.64999999999998,True
+10,Transport,1,2023-12,random_forest,last_known_history,124.59,152.22070638163305,True
+10,Transport,1,2023-12,random_forest,recursive,124.59,152.22070638163305,True
+10,Transport,2,2024-01,random_forest,last_known_history,94.71000000000001,152.22070638163305,True
+10,Transport,2,2024-01,random_forest,recursive,94.71000000000001,202.1110395702091,True
+10,Transport,3,2024-02,random_forest,last_known_history,98.65,152.22070638163305,True
+10,Transport,3,2024-02,random_forest,recursive,98.65,217.30774602944436,True
+10,Transport,1,2023-12,ridge,last_known_history,124.59,124.23761477189878,True
+10,Transport,1,2023-12,ridge,recursive,124.59,124.23761477189878,True
+10,Transport,2,2024-01,ridge,last_known_history,94.71000000000001,186.4593496937337,True
+10,Transport,2,2024-01,ridge,recursive,94.71000000000001,192.7781868568669,True
+10,Transport,3,2024-02,ridge,last_known_history,98.65,180.80282833720327,True
+10,Transport,3,2024-02,ridge,recursive,98.65,199.20563032066562,True
+10,Rent & Utilities,1,2023-12,naive,n/a,231.35000000000002,246.32999999999998,True
+10,Rent & Utilities,2,2024-01,naive,n/a,119.77,246.32999999999998,True
+10,Rent & Utilities,3,2024-02,naive,n/a,231.54000000000002,246.32999999999998,True
+10,Rent & Utilities,1,2023-12,seasonal_naive,n/a,231.35000000000002,,False
+10,Rent & Utilities,2,2024-01,seasonal_naive,n/a,119.77,229.07999999999998,True
+10,Rent & Utilities,3,2024-02,seasonal_naive,n/a,231.54000000000002,242.75,True
+10,Rent & Utilities,1,2023-12,random_forest,last_known_history,231.35000000000002,275.15400510143456,True
+10,Rent & Utilities,1,2023-12,random_forest,recursive,231.35000000000002,275.15400510143456,True
+10,Rent & Utilities,2,2024-01,random_forest,last_known_history,119.77,275.15400510143456,True
+10,Rent & Utilities,2,2024-01,random_forest,recursive,119.77,276.4884271793566,True
+10,Rent & Utilities,3,2024-02,random_forest,last_known_history,231.54000000000002,275.15400510143456,True
+10,Rent & Utilities,3,2024-02,random_forest,recursive,231.54000000000002,277.78233886766833,True
+10,Rent & Utilities,1,2023-12,ridge,last_known_history,231.35000000000002,166.9484951726562,True
+10,Rent & Utilities,1,2023-12,ridge,recursive,231.35000000000002,166.9484951726562,True
+10,Rent & Utilities,2,2024-01,ridge,last_known_history,119.77,229.17023009449113,True
+10,Rent & Utilities,2,2024-01,ridge,recursive,119.77,262.98223192232524,True
+10,Rent & Utilities,3,2024-02,ridge,last_known_history,231.54000000000002,223.51370873796068,True
+10,Rent & Utilities,3,2024-02,ridge,recursive,231.54000000000002,254.67362777302282,True
+10,Entertainment,1,2023-12,naive,n/a,60.0,50.989999999999995,True
+10,Entertainment,2,2024-01,naive,n/a,114.69,50.989999999999995,True
+10,Entertainment,3,2024-02,naive,n/a,104.2,50.989999999999995,True
+10,Entertainment,1,2023-12,seasonal_naive,n/a,60.0,,False
+10,Entertainment,2,2024-01,seasonal_naive,n/a,114.69,104.07,True
+10,Entertainment,3,2024-02,seasonal_naive,n/a,104.2,44.96,True
+10,Entertainment,1,2023-12,random_forest,last_known_history,60.0,42.75926438055752,True
+10,Entertainment,1,2023-12,random_forest,recursive,60.0,42.75926438055752,True
+10,Entertainment,2,2024-01,random_forest,last_known_history,114.69,42.75926438055752,True
+10,Entertainment,2,2024-01,random_forest,recursive,114.69,46.10327277882591,True
+10,Entertainment,3,2024-02,random_forest,last_known_history,104.2,42.75926438055752,True
+10,Entertainment,3,2024-02,random_forest,recursive,104.2,39.927734943328076,True
+10,Entertainment,1,2023-12,ridge,last_known_history,60.0,45.8861640383175,True
+10,Entertainment,1,2023-12,ridge,recursive,60.0,45.8861640383175,True
+10,Entertainment,2,2024-01,ridge,last_known_history,114.69,108.10789896015241,True
+10,Entertainment,2,2024-01,ridge,recursive,114.69,103.58060920150012,True
+10,Entertainment,3,2024-02,ridge,last_known_history,104.2,102.45137760362196,True
+10,Entertainment,3,2024-02,ridge,recursive,104.2,109.53524639981383,True
+10,Healthcare,1,2023-12,naive,n/a,503.07,349.05,True
+10,Healthcare,2,2024-01,naive,n/a,456.0,349.05,True
+10,Healthcare,3,2024-02,naive,n/a,458.63,349.05,True
+10,Healthcare,1,2023-12,seasonal_naive,n/a,503.07,,False
+10,Healthcare,2,2024-01,seasonal_naive,n/a,456.0,592.73,True
+10,Healthcare,3,2024-02,seasonal_naive,n/a,458.63,440.37,True
+10,Healthcare,1,2023-12,random_forest,last_known_history,503.07,373.4727573172743,True
+10,Healthcare,1,2023-12,random_forest,recursive,503.07,373.4727573172743,True
+10,Healthcare,2,2024-01,random_forest,last_known_history,456.0,373.4727573172743,True
+10,Healthcare,2,2024-01,random_forest,recursive,456.0,375.5270847306941,True
+10,Healthcare,3,2024-02,random_forest,last_known_history,458.63,373.4727573172743,True
+10,Healthcare,3,2024-02,random_forest,recursive,458.63,372.2830184283854,True
+10,Healthcare,1,2023-12,ridge,last_known_history,503.07,347.2806692319451,True
+10,Healthcare,1,2023-12,ridge,recursive,503.07,347.2806692319451,True
+10,Healthcare,2,2024-01,ridge,last_known_history,456.0,409.50240415378005,True
+10,Healthcare,2,2024-01,ridge,recursive,456.0,396.60426615021584,True
+10,Healthcare,3,2024-02,ridge,last_known_history,458.63,403.8458827972496,True
+10,Healthcare,3,2024-02,ridge,recursive,458.63,363.16506883140994,True
+10,Shopping,1,2023-12,naive,n/a,379.82,253.39,True
+10,Shopping,2,2024-01,naive,n/a,294.45,253.39,True
+10,Shopping,3,2024-02,naive,n/a,354.46000000000004,253.39,True
+10,Shopping,1,2023-12,seasonal_naive,n/a,379.82,,False
+10,Shopping,2,2024-01,seasonal_naive,n/a,294.45,359.53,True
+10,Shopping,3,2024-02,seasonal_naive,n/a,354.46000000000004,303.49,True
+10,Shopping,1,2023-12,random_forest,last_known_history,379.82,277.20984536117487,True
+10,Shopping,1,2023-12,random_forest,recursive,379.82,277.20984536117487,True
+10,Shopping,2,2024-01,random_forest,last_known_history,294.45,277.20984536117487,True
+10,Shopping,2,2024-01,random_forest,recursive,294.45,278.5442674390969,True
+10,Shopping,3,2024-02,random_forest,last_known_history,354.46000000000004,277.20984536117487,True
+10,Shopping,3,2024-02,random_forest,recursive,354.46000000000004,278.5442674390969,True
+10,Shopping,1,2023-12,ridge,last_known_history,379.82,259.03208186602984,True
+10,Shopping,1,2023-12,ridge,recursive,379.82,259.03208186602984,True
+10,Shopping,2,2024-01,ridge,last_known_history,294.45,321.2538167878648,True
+10,Shopping,2,2024-01,ridge,recursive,294.45,314.8294936504499,True
+10,Shopping,3,2024-02,ridge,last_known_history,354.46000000000004,315.5972954313344,True
+10,Shopping,3,2024-02,ridge,recursive,354.46000000000004,298.1201372116626,True
+10,Subscriptions,1,2023-12,naive,n/a,45.63,45.58,True
+10,Subscriptions,2,2024-01,naive,n/a,45.83,45.58,True
+10,Subscriptions,3,2024-02,naive,n/a,45.86,45.58,True
+10,Subscriptions,1,2023-12,seasonal_naive,n/a,45.63,,False
+10,Subscriptions,2,2024-01,seasonal_naive,n/a,45.83,46.29,True
+10,Subscriptions,3,2024-02,seasonal_naive,n/a,45.86,46.33,True
+10,Subscriptions,1,2023-12,random_forest,last_known_history,45.63,33.19210243722308,True
+10,Subscriptions,1,2023-12,random_forest,recursive,45.63,33.19210243722308,True
+10,Subscriptions,2,2024-01,random_forest,last_known_history,45.83,33.19210243722308,True
+10,Subscriptions,2,2024-01,random_forest,recursive,45.83,37.21600885857949,True
+10,Subscriptions,3,2024-02,random_forest,last_known_history,45.86,33.19210243722308,True
+10,Subscriptions,3,2024-02,random_forest,recursive,45.86,37.21600885857949,True
+10,Subscriptions,1,2023-12,ridge,last_known_history,45.63,35.70894045509277,True
+10,Subscriptions,1,2023-12,ridge,recursive,45.63,35.70894045509277,True
+10,Subscriptions,2,2024-01,ridge,last_known_history,45.83,97.93067537692767,True
+10,Subscriptions,2,2024-01,ridge,recursive,45.83,101.33065620447094,True
+10,Subscriptions,3,2024-02,ridge,last_known_history,45.86,92.27415402039725,True
+10,Subscriptions,3,2024-02,ridge,recursive,45.86,120.894060804763,True
+10,Other,1,2023-12,naive,n/a,0.0,0.0,True
+10,Other,2,2024-01,naive,n/a,0.0,0.0,True
+10,Other,3,2024-02,naive,n/a,0.0,0.0,True
+10,Other,1,2023-12,seasonal_naive,n/a,0.0,,False
+10,Other,2,2024-01,seasonal_naive,n/a,0.0,0.0,True
+10,Other,3,2024-02,seasonal_naive,n/a,0.0,0.0,True
+10,Other,1,2023-12,random_forest,last_known_history,0.0,27.756077668103302,True
+10,Other,1,2023-12,random_forest,recursive,0.0,27.756077668103302,True
+10,Other,2,2024-01,random_forest,last_known_history,0.0,27.756077668103302,True
+10,Other,2,2024-01,random_forest,recursive,0.0,43.863760358191,True
+10,Other,3,2024-02,random_forest,last_known_history,0.0,27.756077668103302,True
+10,Other,3,2024-02,random_forest,recursive,0.0,48.82814941416427,True
+10,Other,1,2023-12,ridge,last_known_history,0.0,-10.491912708460262,True
+10,Other,1,2023-12,ridge,recursive,0.0,-10.491912708460262,True
+10,Other,2,2024-01,ridge,last_known_history,0.0,51.72982221337466,True
+10,Other,2,2024-01,ridge,recursive,0.0,55.53260507344979,True
+10,Other,3,2024-02,ridge,last_known_history,0.0,46.07330085684421,True
+10,Other,3,2024-02,ridge,recursive,0.0,75.08931703440649,True
+11,Food & Dining,1,2024-01,naive,n/a,250.51999999999998,364.99,True
+11,Food & Dining,2,2024-02,naive,n/a,250.0,364.99,True
+11,Food & Dining,3,2024-03,naive,n/a,261.24,364.99,True
+11,Food & Dining,1,2024-01,seasonal_naive,n/a,250.51999999999998,468.82,True
+11,Food & Dining,2,2024-02,seasonal_naive,n/a,250.0,402.02,True
+11,Food & Dining,3,2024-03,seasonal_naive,n/a,261.24,374.88,True
+11,Food & Dining,1,2024-01,random_forest,last_known_history,250.51999999999998,335.6808802039627,True
+11,Food & Dining,1,2024-01,random_forest,recursive,250.51999999999998,335.6808802039627,True
+11,Food & Dining,2,2024-02,random_forest,last_known_history,250.0,335.6808802039627,True
+11,Food & Dining,2,2024-02,random_forest,recursive,250.0,328.19099542402046,True
+11,Food & Dining,3,2024-03,random_forest,last_known_history,261.24,335.6808802039627,True
+11,Food & Dining,3,2024-03,random_forest,recursive,261.24,325.03856240814747,True
+11,Food & Dining,1,2024-01,ridge,last_known_history,250.51999999999998,341.48752663471737,True
+11,Food & Dining,1,2024-01,ridge,recursive,250.51999999999998,341.48752663471737,True
+11,Food & Dining,2,2024-02,ridge,last_known_history,250.0,336.69755022800405,True
+11,Food & Dining,2,2024-02,ridge,recursive,250.0,338.1010979397662,True
+11,Food & Dining,3,2024-03,ridge,last_known_history,261.24,331.9075738212906,True
+11,Food & Dining,3,2024-03,ridge,recursive,261.24,318.0620236589763,True
+11,Transport,1,2024-01,naive,n/a,94.71000000000001,124.59,True
+11,Transport,2,2024-02,naive,n/a,98.65,124.59,True
+11,Transport,3,2024-03,naive,n/a,112.97,124.59,True
+11,Transport,1,2024-01,seasonal_naive,n/a,94.71000000000001,34.43,True
+11,Transport,2,2024-02,seasonal_naive,n/a,98.65,142.64999999999998,True
+11,Transport,3,2024-03,seasonal_naive,n/a,112.97,79.71,True
+11,Transport,1,2024-01,random_forest,last_known_history,94.71000000000001,176.85080853957322,True
+11,Transport,1,2024-01,random_forest,recursive,94.71000000000001,176.85080853957322,True
+11,Transport,2,2024-02,random_forest,last_known_history,98.65,176.85080853957322,True
+11,Transport,2,2024-02,random_forest,recursive,98.65,190.8592200647148,True
+11,Transport,3,2024-03,random_forest,last_known_history,112.97,176.85080853957322,True
+11,Transport,3,2024-03,random_forest,recursive,112.97,217.71066939094416,True
+11,Transport,1,2024-01,ridge,last_known_history,94.71000000000001,182.64711116288683,True
+11,Transport,1,2024-01,ridge,recursive,94.71000000000001,182.64711116288683,True
+11,Transport,2,2024-02,ridge,last_known_history,98.65,177.85713475617348,True
+11,Transport,2,2024-02,ridge,recursive,98.65,183.74995408273182,True
+11,Transport,3,2024-03,ridge,last_known_history,112.97,173.06715834946013,True
+11,Transport,3,2024-03,ridge,recursive,112.97,192.78817945703005,True
+11,Rent & Utilities,1,2024-01,naive,n/a,119.77,231.35000000000002,True
+11,Rent & Utilities,2,2024-02,naive,n/a,231.54000000000002,231.35000000000002,True
+11,Rent & Utilities,3,2024-03,naive,n/a,115.84,231.35000000000002,True
+11,Rent & Utilities,1,2024-01,seasonal_naive,n/a,119.77,229.07999999999998,True
+11,Rent & Utilities,2,2024-02,seasonal_naive,n/a,231.54000000000002,242.75,True
+11,Rent & Utilities,3,2024-03,seasonal_naive,n/a,115.84,112.91,True
+11,Rent & Utilities,1,2024-01,random_forest,last_known_history,119.77,268.5011963593923,True
+11,Rent & Utilities,1,2024-01,random_forest,recursive,119.77,268.5011963593923,True
+11,Rent & Utilities,2,2024-02,random_forest,last_known_history,231.54000000000002,268.5011963593923,True
+11,Rent & Utilities,2,2024-02,random_forest,recursive,231.54000000000002,278.90502859243696,True
+11,Rent & Utilities,3,2024-03,random_forest,last_known_history,115.84,268.5011963593923,True
+11,Rent & Utilities,3,2024-03,random_forest,recursive,115.84,282.12375337876176,True
+11,Rent & Utilities,1,2024-01,ridge,last_known_history,119.77,230.2749192894802,True
+11,Rent & Utilities,1,2024-01,ridge,recursive,119.77,230.2749192894802,True
+11,Rent & Utilities,2,2024-02,ridge,last_known_history,231.54000000000002,225.48494288276686,True
+11,Rent & Utilities,2,2024-02,ridge,recursive,231.54000000000002,225.78805030738016,True
+11,Rent & Utilities,3,2024-03,ridge,last_known_history,115.84,220.6949664760535,True
+11,Rent & Utilities,3,2024-03,ridge,recursive,115.84,224.0342732373972,True
+11,Entertainment,1,2024-01,naive,n/a,114.69,60.0,True
+11,Entertainment,2,2024-02,naive,n/a,104.2,60.0,True
+11,Entertainment,3,2024-03,naive,n/a,46.2,60.0,True
+11,Entertainment,1,2024-01,seasonal_naive,n/a,114.69,104.07,True
+11,Entertainment,2,2024-02,seasonal_naive,n/a,104.2,44.96,True
+11,Entertainment,3,2024-03,seasonal_naive,n/a,46.2,40.07,True
+11,Entertainment,1,2024-01,random_forest,last_known_history,114.69,53.58125764371509,True
+11,Entertainment,1,2024-01,random_forest,recursive,114.69,53.58125764371509,True
+11,Entertainment,2,2024-02,random_forest,last_known_history,104.2,53.58125764371509,True
+11,Entertainment,2,2024-02,random_forest,recursive,104.2,51.91281229739474,True
+11,Entertainment,3,2024-03,random_forest,last_known_history,46.2,53.58125764371509,True
+11,Entertainment,3,2024-03,random_forest,recursive,46.2,48.82948448396635,True
+11,Entertainment,1,2024-01,ridge,last_known_history,114.69,88.45972229528581,True
+11,Entertainment,1,2024-01,ridge,recursive,114.69,88.45972229528581,True
+11,Entertainment,2,2024-02,ridge,last_known_history,104.2,83.66974588857246,True
+11,Entertainment,2,2024-02,ridge,recursive,104.2,88.9997471375849,True
+11,Entertainment,3,2024-03,ridge,last_known_history,46.2,78.87976948185911,True
+11,Entertainment,3,2024-03,ridge,recursive,46.2,89.05339365494534,True
+11,Healthcare,1,2024-01,naive,n/a,456.0,503.07,True
+11,Healthcare,2,2024-02,naive,n/a,458.63,503.07,True
+11,Healthcare,3,2024-03,naive,n/a,482.62,503.07,True
+11,Healthcare,1,2024-01,seasonal_naive,n/a,456.0,592.73,True
+11,Healthcare,2,2024-02,seasonal_naive,n/a,458.63,440.37,True
+11,Healthcare,3,2024-03,seasonal_naive,n/a,482.62,499.22,True
+11,Healthcare,1,2024-01,random_forest,last_known_history,456.0,399.30273136044525,True
+11,Healthcare,1,2024-01,random_forest,recursive,456.0,399.30273136044525,True
+11,Healthcare,2,2024-02,random_forest,last_known_history,458.63,399.30273136044525,True
+11,Healthcare,2,2024-02,random_forest,recursive,458.63,399.30273136044525,True
+11,Healthcare,3,2024-03,random_forest,last_known_history,482.62,399.30273136044525,True
+11,Healthcare,3,2024-03,random_forest,recursive,482.62,399.30273136044525,True
+11,Healthcare,1,2024-01,ridge,last_known_history,456.0,430.31388478050167,True
+11,Healthcare,1,2024-01,ridge,recursive,456.0,430.31388478050167,True
+11,Healthcare,2,2024-02,ridge,last_known_history,458.63,425.52390837378834,True
+11,Healthcare,2,2024-02,ridge,recursive,458.63,446.83375305852263,True
+11,Healthcare,3,2024-03,ridge,last_known_history,482.62,420.7339319670749,True
+11,Healthcare,3,2024-03,ridge,recursive,482.62,416.9638918346686,True
+11,Shopping,1,2024-01,naive,n/a,294.45,379.82,True
+11,Shopping,2,2024-02,naive,n/a,354.46000000000004,379.82,True
+11,Shopping,3,2024-03,naive,n/a,345.1,379.82,True
+11,Shopping,1,2024-01,seasonal_naive,n/a,294.45,359.53,True
+11,Shopping,2,2024-02,seasonal_naive,n/a,354.46000000000004,303.49,True
+11,Shopping,3,2024-03,seasonal_naive,n/a,345.1,356.53,True
+11,Shopping,1,2024-01,random_forest,last_known_history,294.45,312.87730964244076,True
+11,Shopping,1,2024-01,random_forest,recursive,294.45,312.87730964244076,True
+11,Shopping,2,2024-02,random_forest,last_known_history,354.46000000000004,312.87730964244076,True
+11,Shopping,2,2024-02,random_forest,recursive,354.46000000000004,299.11037008893874,True
+11,Shopping,3,2024-03,random_forest,last_known_history,345.1,312.87730964244076,True
+11,Shopping,3,2024-03,random_forest,recursive,345.1,302.91103893398264,True
+11,Shopping,1,2024-01,ridge,last_known_history,294.45,341.7643929273529,True
+11,Shopping,1,2024-01,ridge,recursive,294.45,341.7643929273529,True
+11,Shopping,2,2024-02,ridge,last_known_history,354.46000000000004,336.9744165206396,True
+11,Shopping,2,2024-02,ridge,recursive,354.46000000000004,353.0119438818334,True
+11,Shopping,3,2024-03,ridge,last_known_history,345.1,332.18444011392626,True
+11,Shopping,3,2024-03,ridge,recursive,345.1,326.9144791416269,True
+11,Subscriptions,1,2024-01,naive,n/a,45.83,45.63,True
+11,Subscriptions,2,2024-02,naive,n/a,45.86,45.63,True
+11,Subscriptions,3,2024-03,naive,n/a,45.61,45.63,True
+11,Subscriptions,1,2024-01,seasonal_naive,n/a,45.83,46.29,True
+11,Subscriptions,2,2024-02,seasonal_naive,n/a,45.86,46.33,True
+11,Subscriptions,3,2024-03,seasonal_naive,n/a,45.61,46.19,True
+11,Subscriptions,1,2024-01,random_forest,last_known_history,45.83,34.934597007626884,True
+11,Subscriptions,1,2024-01,random_forest,recursive,45.83,34.934597007626884,True
+11,Subscriptions,2,2024-02,random_forest,last_known_history,45.86,34.934597007626884,True
+11,Subscriptions,2,2024-02,random_forest,recursive,45.86,37.82574695788131,True
+11,Subscriptions,3,2024-03,random_forest,last_known_history,45.61,34.934597007626884,True
+11,Subscriptions,3,2024-03,random_forest,recursive,45.61,36.83491708775144,True
+11,Subscriptions,1,2024-01,ridge,last_known_history,45.83,82.00401473407211,True
+11,Subscriptions,1,2024-01,ridge,recursive,45.83,82.00401473407211,True
+11,Subscriptions,2,2024-02,ridge,last_known_history,45.86,77.21403832735876,True
+11,Subscriptions,2,2024-02,ridge,recursive,45.86,96.9480704158835,True
+11,Subscriptions,3,2024-03,ridge,last_known_history,45.61,72.42406192064541,True
+11,Subscriptions,3,2024-03,ridge,recursive,45.61,107.11410421965971,True
+11,Other,1,2024-01,naive,n/a,0.0,0.0,True
+11,Other,2,2024-02,naive,n/a,0.0,0.0,True
+11,Other,3,2024-03,naive,n/a,0.0,0.0,True
+11,Other,1,2024-01,seasonal_naive,n/a,0.0,0.0,True
+11,Other,2,2024-02,seasonal_naive,n/a,0.0,0.0,True
+11,Other,3,2024-03,seasonal_naive,n/a,0.0,0.0,True
+11,Other,1,2024-01,random_forest,last_known_history,0.0,15.93263164576651,True
+11,Other,1,2024-01,random_forest,recursive,0.0,15.93263164576651,True
+11,Other,2,2024-02,random_forest,last_known_history,0.0,15.93263164576651,True
+11,Other,2,2024-02,random_forest,recursive,0.0,29.395464308586167,True
+11,Other,3,2024-03,random_forest,last_known_history,0.0,15.93263164576651,True
+11,Other,3,2024-03,random_forest,recursive,0.0,37.36695698757384,True
+11,Other,1,2024-01,ridge,last_known_history,0.0,34.365114744461664,True
+11,Other,1,2024-01,ridge,recursive,0.0,34.365114744461664,True
+11,Other,2,2024-02,ridge,last_known_history,0.0,29.575138337748342,True
+11,Other,2,2024-02,ridge,recursive,0.0,48.660638189632806,True
+11,Other,3,2024-03,ridge,last_known_history,0.0,24.785161931034963,True
+11,Other,3,2024-03,ridge,recursive,0.0,58.08707348016071,True
+12,Food & Dining,1,2024-02,naive,n/a,250.0,250.51999999999998,True
+12,Food & Dining,2,2024-03,naive,n/a,261.24,250.51999999999998,True
+12,Food & Dining,3,2024-04,naive,n/a,269.06,250.51999999999998,True
+12,Food & Dining,1,2024-02,seasonal_naive,n/a,250.0,402.02,True
+12,Food & Dining,2,2024-03,seasonal_naive,n/a,261.24,374.88,True
+12,Food & Dining,3,2024-04,seasonal_naive,n/a,269.06,343.76,True
+12,Food & Dining,1,2024-02,random_forest,last_known_history,250.0,292.6746387157716,True
+12,Food & Dining,1,2024-02,random_forest,recursive,250.0,292.6746387157716,True
+12,Food & Dining,2,2024-03,random_forest,last_known_history,261.24,292.6746387157716,True
+12,Food & Dining,2,2024-03,random_forest,recursive,261.24,294.2581677633906,True
+12,Food & Dining,3,2024-04,random_forest,last_known_history,269.06,292.6746387157716,True
+12,Food & Dining,3,2024-04,random_forest,recursive,269.06,292.317223109711,True
+12,Food & Dining,1,2024-02,ridge,last_known_history,250.0,317.38459112308743,True
+12,Food & Dining,1,2024-02,ridge,recursive,250.0,317.38459112308743,True
+12,Food & Dining,2,2024-03,ridge,last_known_history,261.24,317.2690801347883,True
+12,Food & Dining,2,2024-03,ridge,recursive,261.24,303.1217627330208,True
+12,Food & Dining,3,2024-04,ridge,last_known_history,269.06,317.1535691464892,True
+12,Food & Dining,3,2024-04,ridge,recursive,269.06,267.01503194241656,True
+12,Transport,1,2024-02,naive,n/a,98.65,94.71000000000001,True
+12,Transport,2,2024-03,naive,n/a,112.97,94.71000000000001,True
+12,Transport,3,2024-04,naive,n/a,153.48,94.71000000000001,True
+12,Transport,1,2024-02,seasonal_naive,n/a,98.65,142.64999999999998,True
+12,Transport,2,2024-03,seasonal_naive,n/a,112.97,79.71,True
+12,Transport,3,2024-04,seasonal_naive,n/a,153.48,93.08,True
+12,Transport,1,2024-02,random_forest,last_known_history,98.65,145.23936106687432,True
+12,Transport,1,2024-02,random_forest,recursive,98.65,145.23936106687432,True
+12,Transport,2,2024-03,random_forest,last_known_history,112.97,145.23936106687432,True
+12,Transport,2,2024-03,random_forest,recursive,112.97,148.18361395426473,True
+12,Transport,3,2024-04,random_forest,last_known_history,153.48,145.23936106687432,True
+12,Transport,3,2024-04,random_forest,recursive,153.48,149.32653866205692,True
+12,Transport,1,2024-02,ridge,last_known_history,98.65,132.3200966284691,True
+12,Transport,1,2024-02,ridge,recursive,98.65,132.3200966284691,True
+12,Transport,2,2024-03,ridge,last_known_history,112.97,132.20458564016997,True
+12,Transport,2,2024-03,ridge,recursive,112.97,116.5461106090486,True
+12,Transport,3,2024-04,ridge,last_known_history,153.48,132.08907465187082,True
+12,Transport,3,2024-04,ridge,recursive,153.48,116.17542529247618,True
+12,Rent & Utilities,1,2024-02,naive,n/a,231.54000000000002,119.77,True
+12,Rent & Utilities,2,2024-03,naive,n/a,115.84,119.77,True
+12,Rent & Utilities,3,2024-04,naive,n/a,225.6,119.77,True
+12,Rent & Utilities,1,2024-02,seasonal_naive,n/a,231.54000000000002,242.75,True
+12,Rent & Utilities,2,2024-03,seasonal_naive,n/a,115.84,112.91,True
+12,Rent & Utilities,3,2024-04,seasonal_naive,n/a,225.6,128.62,True
+12,Rent & Utilities,1,2024-02,random_forest,last_known_history,231.54000000000002,195.13134666212878,True
+12,Rent & Utilities,1,2024-02,random_forest,recursive,231.54000000000002,195.13134666212878,True
+12,Rent & Utilities,2,2024-03,random_forest,last_known_history,115.84,195.13134666212878,True
+12,Rent & Utilities,2,2024-03,random_forest,recursive,115.84,194.32254666212876,True
+12,Rent & Utilities,3,2024-04,random_forest,last_known_history,225.6,195.13134666212878,True
+12,Rent & Utilities,3,2024-04,random_forest,recursive,225.6,172.41724068918006,True
+12,Rent & Utilities,1,2024-02,ridge,last_known_history,231.54000000000002,238.7238447486605,True
+12,Rent & Utilities,1,2024-02,ridge,recursive,231.54000000000002,238.7238447486605,True
+12,Rent & Utilities,2,2024-03,ridge,last_known_history,115.84,238.60833376036135,True
+12,Rent & Utilities,2,2024-03,ridge,recursive,115.84,223.47894194865222,True
+12,Rent & Utilities,3,2024-04,ridge,last_known_history,225.6,238.4928227720622,True
+12,Rent & Utilities,3,2024-04,ridge,recursive,225.6,222.5010111315886,True
+12,Entertainment,1,2024-02,naive,n/a,104.2,114.69,True
+12,Entertainment,2,2024-03,naive,n/a,46.2,114.69,True
+12,Entertainment,3,2024-04,naive,n/a,105.53999999999999,114.69,True
+12,Entertainment,1,2024-02,seasonal_naive,n/a,104.2,44.96,True
+12,Entertainment,2,2024-03,seasonal_naive,n/a,46.2,40.07,True
+12,Entertainment,3,2024-04,seasonal_naive,n/a,105.53999999999999,54.37,True
+12,Entertainment,1,2024-02,random_forest,last_known_history,104.2,102.0808910154143,True
+12,Entertainment,1,2024-02,random_forest,recursive,104.2,102.0808910154143,True
+12,Entertainment,2,2024-03,random_forest,last_known_history,46.2,102.0808910154143,True
+12,Entertainment,2,2024-03,random_forest,recursive,46.2,98.7795659058017,True
+12,Entertainment,3,2024-04,random_forest,last_known_history,105.53999999999999,102.0808910154143,True
+12,Entertainment,3,2024-04,random_forest,recursive,105.53999999999999,88.87020074497397,True
+12,Entertainment,1,2024-02,ridge,last_known_history,104.2,75.45254740568302,True
+12,Entertainment,1,2024-02,ridge,recursive,104.2,75.45254740568302,True
+12,Entertainment,2,2024-03,ridge,last_known_history,46.2,75.3370364173839,True
+12,Entertainment,2,2024-03,ridge,recursive,46.2,80.30926067460584,True
+12,Entertainment,3,2024-04,ridge,last_known_history,105.53999999999999,75.22152542908475,True
+12,Entertainment,3,2024-04,ridge,recursive,105.53999999999999,77.32472728989632,True
+12,Healthcare,1,2024-02,naive,n/a,458.63,456.0,True
+12,Healthcare,2,2024-03,naive,n/a,482.62,456.0,True
+12,Healthcare,3,2024-04,naive,n/a,405.18,456.0,True
+12,Healthcare,1,2024-02,seasonal_naive,n/a,458.63,440.37,True
+12,Healthcare,2,2024-03,seasonal_naive,n/a,482.62,499.22,True
+12,Healthcare,3,2024-04,seasonal_naive,n/a,405.18,445.33000000000004,True
+12,Healthcare,1,2024-02,random_forest,last_known_history,458.63,406.8629253937404,True
+12,Healthcare,1,2024-02,random_forest,recursive,458.63,406.8629253937404,True
+12,Healthcare,2,2024-03,random_forest,last_known_history,482.62,406.8629253937404,True
+12,Healthcare,2,2024-03,random_forest,recursive,482.62,407.51774884251375,True
+12,Healthcare,3,2024-04,random_forest,last_known_history,405.18,406.8629253937404,True
+12,Healthcare,3,2024-04,random_forest,recursive,405.18,407.51774884251375,True
+12,Healthcare,1,2024-02,ridge,last_known_history,458.63,415.83705640295557,True
+12,Healthcare,1,2024-02,ridge,recursive,458.63,415.83705640295557,True
+12,Healthcare,2,2024-03,ridge,last_known_history,482.62,415.7215454146565,True
+12,Healthcare,2,2024-03,ridge,recursive,482.62,392.4756572736653,True
+12,Healthcare,3,2024-04,ridge,last_known_history,405.18,415.60603442635727,True
+12,Healthcare,3,2024-04,ridge,recursive,405.18,372.4932572138513,True
+12,Shopping,1,2024-02,naive,n/a,354.46000000000004,294.45,True
+12,Shopping,2,2024-03,naive,n/a,345.1,294.45,True
+12,Shopping,3,2024-04,naive,n/a,271.61,294.45,True
+12,Shopping,1,2024-02,seasonal_naive,n/a,354.46000000000004,303.49,True
+12,Shopping,2,2024-03,seasonal_naive,n/a,345.1,356.53,True
+12,Shopping,3,2024-04,seasonal_naive,n/a,271.61,343.28999999999996,True
+12,Shopping,1,2024-02,random_forest,last_known_history,354.46000000000004,294.16712437594475,True
+12,Shopping,1,2024-02,random_forest,recursive,354.46000000000004,294.16712437594475,True
+12,Shopping,2,2024-03,random_forest,last_known_history,345.1,294.16712437594475,True
+12,Shopping,2,2024-03,random_forest,recursive,345.1,297.4191606347737,True
+12,Shopping,3,2024-04,random_forest,last_known_history,271.61,294.16712437594475,True
+12,Shopping,3,2024-04,random_forest,recursive,271.61,292.592293531789,True
+12,Shopping,1,2024-02,ridge,last_known_history,354.46000000000004,311.89193354819287,True
+12,Shopping,1,2024-02,ridge,recursive,354.46000000000004,311.89193354819287,True
+12,Shopping,2,2024-03,ridge,last_known_history,345.1,311.7764225598937,True
+12,Shopping,2,2024-03,ridge,recursive,345.1,299.024242784653,True
+12,Shopping,3,2024-04,ridge,last_known_history,271.61,311.66091157159457,True
+12,Shopping,3,2024-04,ridge,recursive,271.61,253.32648866344798,True
+12,Subscriptions,1,2024-02,naive,n/a,45.86,45.83,True
+12,Subscriptions,2,2024-03,naive,n/a,45.61,45.83,True
+12,Subscriptions,3,2024-04,naive,n/a,46.370000000000005,45.83,True
+12,Subscriptions,1,2024-02,seasonal_naive,n/a,45.86,46.33,True
+12,Subscriptions,2,2024-03,seasonal_naive,n/a,45.61,46.19,True
+12,Subscriptions,3,2024-04,seasonal_naive,n/a,46.370000000000005,45.86,True
+12,Subscriptions,1,2024-02,random_forest,last_known_history,45.86,37.44675287331135,True
+12,Subscriptions,1,2024-02,random_forest,recursive,45.86,37.44675287331135,True
+12,Subscriptions,2,2024-03,random_forest,last_known_history,45.61,37.44675287331135,True
+12,Subscriptions,2,2024-03,random_forest,recursive,45.61,43.66018373256647,True
+12,Subscriptions,3,2024-04,random_forest,last_known_history,46.370000000000005,37.44675287331135,True
+12,Subscriptions,3,2024-04,random_forest,recursive,46.370000000000005,41.889030810488556,True
+12,Subscriptions,1,2024-02,ridge,last_known_history,45.86,34.136386540721986,True
+12,Subscriptions,1,2024-02,ridge,recursive,45.86,34.136386540721986,True
+12,Subscriptions,2,2024-03,ridge,last_known_history,45.61,34.020875552422865,True
+12,Subscriptions,2,2024-03,ridge,recursive,45.61,40.076568620890185,True
+12,Subscriptions,3,2024-04,ridge,last_known_history,46.370000000000005,33.905364564123715,True
+12,Subscriptions,3,2024-04,ridge,recursive,46.370000000000005,36.57645221164964,True
+12,Other,1,2024-02,naive,n/a,0.0,0.0,True
+12,Other,2,2024-03,naive,n/a,0.0,0.0,True
+12,Other,3,2024-04,naive,n/a,0.0,0.0,True
+12,Other,1,2024-02,seasonal_naive,n/a,0.0,0.0,True
+12,Other,2,2024-03,seasonal_naive,n/a,0.0,0.0,True
+12,Other,3,2024-04,seasonal_naive,n/a,0.0,0.0,True
+12,Other,1,2024-02,random_forest,last_known_history,0.0,7.510953716912175,True
+12,Other,1,2024-02,random_forest,recursive,0.0,7.510953716912175,True
+12,Other,2,2024-03,random_forest,last_known_history,0.0,7.510953716912175,True
+12,Other,2,2024-03,random_forest,recursive,0.0,17.720732626311598,True
+12,Other,3,2024-04,random_forest,last_known_history,0.0,7.510953716912175,True
+12,Other,3,2024-04,random_forest,recursive,0.0,27.317509216265773,True
+12,Other,1,2024-02,ridge,last_known_history,0.0,-7.318000053488589,True
+12,Other,1,2024-02,ridge,recursive,0.0,-7.318000053488589,True
+12,Other,2,2024-03,ridge,last_known_history,0.0,-7.43351104178771,True
+12,Other,2,2024-03,ridge,recursive,0.0,-3.5536339631045735,True
+12,Other,3,2024-04,ridge,last_known_history,0.0,-7.54902203008686,True
+12,Other,3,2024-04,ridge,recursive,0.0,-5.854475166063793,True
+13,Food & Dining,1,2024-03,naive,n/a,261.24,250.0,True
+13,Food & Dining,2,2024-04,naive,n/a,269.06,250.0,True
+13,Food & Dining,3,2024-05,naive,n/a,250.0,250.0,True
+13,Food & Dining,1,2024-03,seasonal_naive,n/a,261.24,374.88,True
+13,Food & Dining,2,2024-04,seasonal_naive,n/a,269.06,343.76,True
+13,Food & Dining,3,2024-05,seasonal_naive,n/a,250.0,381.2,True
+13,Food & Dining,1,2024-03,random_forest,last_known_history,261.24,277.74576832360464,True
+13,Food & Dining,1,2024-03,random_forest,recursive,261.24,277.74576832360464,True
+13,Food & Dining,2,2024-04,random_forest,last_known_history,269.06,277.74576832360464,True
+13,Food & Dining,2,2024-04,random_forest,recursive,269.06,279.94991374526626,True
+13,Food & Dining,3,2024-05,random_forest,last_known_history,250.0,277.74576832360464,True
+13,Food & Dining,3,2024-05,random_forest,recursive,250.0,279.94991374526626,True
+13,Food & Dining,1,2024-03,ridge,last_known_history,261.24,306.12030702706073,True
+13,Food & Dining,1,2024-03,ridge,recursive,261.24,306.12030702706073,True
+13,Food & Dining,2,2024-04,ridge,last_known_history,269.06,305.8815768129599,True
+13,Food & Dining,2,2024-04,ridge,recursive,269.06,249.7336608047388,True
+13,Food & Dining,3,2024-05,ridge,last_known_history,250.0,305.642846598859,True
+13,Food & Dining,3,2024-05,ridge,recursive,250.0,251.51192282850013,True
+13,Transport,1,2024-03,naive,n/a,112.97,98.65,True
+13,Transport,2,2024-04,naive,n/a,153.48,98.65,True
+13,Transport,3,2024-05,naive,n/a,104.87,98.65,True
+13,Transport,1,2024-03,seasonal_naive,n/a,112.97,79.71,True
+13,Transport,2,2024-04,seasonal_naive,n/a,153.48,93.08,True
+13,Transport,3,2024-05,seasonal_naive,n/a,104.87,145.03,True
+13,Transport,1,2024-03,random_forest,last_known_history,112.97,135.57513337135907,True
+13,Transport,1,2024-03,random_forest,recursive,112.97,135.57513337135907,True
+13,Transport,2,2024-04,random_forest,last_known_history,153.48,135.57513337135907,True
+13,Transport,2,2024-04,random_forest,recursive,153.48,131.87068225261672,True
+13,Transport,3,2024-05,random_forest,last_known_history,104.87,136.14895644828215,True
+13,Transport,3,2024-05,random_forest,recursive,104.87,132.4445053295398,True
+13,Transport,1,2024-03,ridge,last_known_history,112.97,109.62101379995244,True
+13,Transport,1,2024-03,ridge,recursive,112.97,109.62101379995244,True
+13,Transport,2,2024-04,ridge,last_known_history,153.48,109.3822835858516,True
+13,Transport,2,2024-04,ridge,recursive,153.48,95.53112870115721,True
+13,Transport,3,2024-05,ridge,last_known_history,104.87,109.14355337175076,True
+13,Transport,3,2024-05,ridge,recursive,104.87,92.82886069295611,True
+13,Rent & Utilities,1,2024-03,naive,n/a,115.84,231.54000000000002,True
+13,Rent & Utilities,2,2024-04,naive,n/a,225.6,231.54000000000002,True
+13,Rent & Utilities,3,2024-05,naive,n/a,229.68,231.54000000000002,True
+13,Rent & Utilities,1,2024-03,seasonal_naive,n/a,115.84,112.91,True
+13,Rent & Utilities,2,2024-04,seasonal_naive,n/a,225.6,128.62,True
+13,Rent & Utilities,3,2024-05,seasonal_naive,n/a,229.68,102.08,True
+13,Rent & Utilities,1,2024-03,random_forest,last_known_history,115.84,197.67907306721875,True
+13,Rent & Utilities,1,2024-03,random_forest,recursive,115.84,197.67907306721875,True
+13,Rent & Utilities,2,2024-04,random_forest,last_known_history,225.6,197.67907306721875,True
+13,Rent & Utilities,2,2024-04,random_forest,recursive,225.6,196.4146985217642,True
+13,Rent & Utilities,3,2024-05,random_forest,last_known_history,229.68,198.2528961441418,True
+13,Rent & Utilities,3,2024-05,random_forest,recursive,229.68,192.623632262468,True
+13,Rent & Utilities,1,2024-03,ridge,last_known_history,115.84,223.1280634276909,True
+13,Rent & Utilities,1,2024-03,ridge,recursive,115.84,223.1280634276909,True
+13,Rent & Utilities,2,2024-04,ridge,last_known_history,225.6,222.88933321359005,True
+13,Rent & Utilities,2,2024-04,ridge,recursive,225.6,219.82532694580877,True
+13,Rent & Utilities,3,2024-05,ridge,last_known_history,229.68,222.65060299948922,True
+13,Rent & Utilities,3,2024-05,ridge,recursive,229.68,177.95233295104518,True
+13,Entertainment,1,2024-03,naive,n/a,46.2,104.2,True
+13,Entertainment,2,2024-04,naive,n/a,105.53999999999999,104.2,True
+13,Entertainment,3,2024-05,naive,n/a,110.28999999999999,104.2,True
+13,Entertainment,1,2024-03,seasonal_naive,n/a,46.2,40.07,True
+13,Entertainment,2,2024-04,seasonal_naive,n/a,105.53999999999999,54.37,True
+13,Entertainment,3,2024-05,seasonal_naive,n/a,110.28999999999999,63.730000000000004,True
+13,Entertainment,1,2024-03,random_forest,last_known_history,46.2,111.62198914852304,True
+13,Entertainment,1,2024-03,random_forest,recursive,46.2,111.62198914852304,True
+13,Entertainment,2,2024-04,random_forest,last_known_history,105.53999999999999,111.62198914852304,True
+13,Entertainment,2,2024-04,random_forest,recursive,105.53999999999999,114.70698634848816,True
+13,Entertainment,3,2024-05,random_forest,last_known_history,110.28999999999999,112.19581222544612,True
+13,Entertainment,3,2024-05,random_forest,recursive,110.28999999999999,125.06880771215714,True
+13,Entertainment,1,2024-03,ridge,last_known_history,46.2,85.74126395068585,True
+13,Entertainment,1,2024-03,ridge,recursive,46.2,85.74126395068585,True
+13,Entertainment,2,2024-04,ridge,last_known_history,105.53999999999999,85.50253373658502,True
+13,Entertainment,2,2024-04,ridge,recursive,105.53999999999999,79.18777347349993,True
+13,Entertainment,3,2024-05,ridge,last_known_history,110.28999999999999,85.26380352248417,True
+13,Entertainment,3,2024-05,ridge,recursive,110.28999999999999,72.94275533865543,True
+13,Healthcare,1,2024-03,naive,n/a,482.62,458.63,True
+13,Healthcare,2,2024-04,naive,n/a,405.18,458.63,True
+13,Healthcare,3,2024-05,naive,n/a,433.86,458.63,True
+13,Healthcare,1,2024-03,seasonal_naive,n/a,482.62,499.22,True
+13,Healthcare,2,2024-04,seasonal_naive,n/a,405.18,445.33000000000004,True
+13,Healthcare,3,2024-05,seasonal_naive,n/a,433.86,464.39,True
+13,Healthcare,1,2024-03,random_forest,last_known_history,482.62,410.8674880427987,True
+13,Healthcare,1,2024-03,random_forest,recursive,482.62,410.8674880427987,True
+13,Healthcare,2,2024-04,random_forest,last_known_history,405.18,410.8674880427987,True
+13,Healthcare,2,2024-04,random_forest,recursive,405.18,411.18098804279873,True
+13,Healthcare,3,2024-05,random_forest,last_known_history,433.86,410.8674880427987,True
+13,Healthcare,3,2024-05,random_forest,recursive,433.86,411.18098804279873,True
+13,Healthcare,1,2024-03,ridge,last_known_history,482.62,382.0230001386801,True
+13,Healthcare,1,2024-03,ridge,recursive,482.62,382.0230001386801,True
+13,Healthcare,2,2024-04,ridge,last_known_history,405.18,381.7842699245793,True
+13,Healthcare,2,2024-04,ridge,recursive,405.18,393.0418819696067,True
+13,Healthcare,3,2024-05,ridge,last_known_history,433.86,381.54553971047847,True
+13,Healthcare,3,2024-05,ridge,recursive,433.86,376.011071798815,True
+13,Shopping,1,2024-03,naive,n/a,345.1,354.46000000000004,True
+13,Shopping,2,2024-04,naive,n/a,271.61,354.46000000000004,True
+13,Shopping,3,2024-05,naive,n/a,300.07,354.46000000000004,True
+13,Shopping,1,2024-03,seasonal_naive,n/a,345.1,356.53,True
+13,Shopping,2,2024-04,seasonal_naive,n/a,271.61,343.28999999999996,True
+13,Shopping,3,2024-05,seasonal_naive,n/a,300.07,241.38,True
+13,Shopping,1,2024-03,random_forest,last_known_history,345.1,313.75780165624406,True
+13,Shopping,1,2024-03,random_forest,recursive,345.1,313.75780165624406,True
+13,Shopping,2,2024-04,random_forest,last_known_history,271.61,313.75780165624406,True
+13,Shopping,2,2024-04,random_forest,recursive,271.61,304.54951874138123,True
+13,Shopping,3,2024-05,random_forest,last_known_history,300.07,313.75780165624406,True
+13,Shopping,3,2024-05,random_forest,recursive,300.07,308.79347266995256,True
+13,Shopping,1,2024-03,ridge,last_known_history,345.1,304.40865212278646,True
+13,Shopping,1,2024-03,ridge,recursive,345.1,304.40865212278646,True
+13,Shopping,2,2024-04,ridge,last_known_history,271.61,304.16992190868564,True
+13,Shopping,2,2024-04,ridge,recursive,271.61,288.3180885014523,True
+13,Shopping,3,2024-05,ridge,last_known_history,300.07,303.9311916945848,True
+13,Shopping,3,2024-05,ridge,recursive,300.07,289.33319448929296,True
+13,Subscriptions,1,2024-03,naive,n/a,45.61,45.86,True
+13,Subscriptions,2,2024-04,naive,n/a,46.370000000000005,45.86,True
+13,Subscriptions,3,2024-05,naive,n/a,45.55,45.86,True
+13,Subscriptions,1,2024-03,seasonal_naive,n/a,45.61,46.19,True
+13,Subscriptions,2,2024-04,seasonal_naive,n/a,46.370000000000005,45.86,True
+13,Subscriptions,3,2024-05,seasonal_naive,n/a,45.55,45.870000000000005,True
+13,Subscriptions,1,2024-03,random_forest,last_known_history,45.61,40.184435848522796,True
+13,Subscriptions,1,2024-03,random_forest,recursive,45.61,40.184435848522796,True
+13,Subscriptions,2,2024-04,random_forest,last_known_history,46.370000000000005,40.184435848522796,True
+13,Subscriptions,2,2024-04,random_forest,recursive,46.370000000000005,41.881179444926396,True
+13,Subscriptions,3,2024-05,random_forest,last_known_history,45.55,40.184435848522796,True
+13,Subscriptions,3,2024-05,random_forest,recursive,45.55,41.881179444926396,True
+13,Subscriptions,1,2024-03,ridge,last_known_history,45.61,34.254508811889394,True
+13,Subscriptions,1,2024-03,ridge,recursive,45.61,34.254508811889394,True
+13,Subscriptions,2,2024-04,ridge,last_known_history,46.370000000000005,34.01577859778854,True
+13,Subscriptions,2,2024-04,ridge,recursive,46.370000000000005,39.44291473572329,True
+13,Subscriptions,3,2024-05,ridge,last_known_history,45.55,33.777048383687685,True
+13,Subscriptions,3,2024-05,ridge,recursive,45.55,36.1113508424049,True
+13,Other,1,2024-03,naive,n/a,0.0,0.0,True
+13,Other,2,2024-04,naive,n/a,0.0,0.0,True
+13,Other,3,2024-05,naive,n/a,0.0,0.0,True
+13,Other,1,2024-03,seasonal_naive,n/a,0.0,0.0,True
+13,Other,2,2024-04,seasonal_naive,n/a,0.0,0.0,True
+13,Other,3,2024-05,seasonal_naive,n/a,0.0,0.0,True
+13,Other,1,2024-03,random_forest,last_known_history,0.0,4.893485104267076,True
+13,Other,1,2024-03,random_forest,recursive,0.0,4.893485104267076,True
+13,Other,2,2024-04,random_forest,last_known_history,0.0,4.893485104267076,True
+13,Other,2,2024-04,random_forest,recursive,0.0,15.35269938763078,True
+13,Other,3,2024-05,random_forest,last_known_history,0.0,4.893485104267076,True
+13,Other,3,2024-05,random_forest,recursive,0.0,17.40924459242598,True
+13,Other,1,2024-03,ridge,last_known_history,0.0,-7.0546857534369565,True
+13,Other,1,2024-03,ridge,recursive,0.0,-7.0546857534369565,True
+13,Other,2,2024-04,ridge,last_known_history,0.0,-7.293415967537783,True
+13,Other,2,2024-04,ridge,recursive,0.0,-3.9470316848192795,True
+13,Other,3,2024-05,ridge,last_known_history,0.0,-7.532146181638666,True
+13,Other,3,2024-05,ridge,recursive,0.0,-6.062135114468049,True
+14,Food & Dining,1,2024-04,naive,n/a,269.06,261.24,True
+14,Food & Dining,2,2024-05,naive,n/a,250.0,261.24,True
+14,Food & Dining,3,2024-06,naive,n/a,256.69,261.24,True
+14,Food & Dining,1,2024-04,seasonal_naive,n/a,269.06,343.76,True
+14,Food & Dining,2,2024-05,seasonal_naive,n/a,250.0,381.2,True
+14,Food & Dining,3,2024-06,seasonal_naive,n/a,256.69,387.66,True
+14,Food & Dining,1,2024-04,random_forest,last_known_history,269.06,278.60370399289775,True
+14,Food & Dining,1,2024-04,random_forest,recursive,269.06,278.60370399289775,True
+14,Food & Dining,2,2024-05,random_forest,last_known_history,250.0,278.60370399289775,True
+14,Food & Dining,2,2024-05,random_forest,recursive,250.0,284.9252974849612,True
+14,Food & Dining,3,2024-06,random_forest,last_known_history,256.69,279.2449611357549,True
+14,Food & Dining,3,2024-06,random_forest,recursive,256.69,284.9252974849612,True
+14,Food & Dining,1,2024-04,ridge,last_known_history,269.06,222.73982989015124,True
+14,Food & Dining,1,2024-04,ridge,recursive,269.06,222.73982989015124,True
+14,Food & Dining,2,2024-05,ridge,last_known_history,250.0,222.56391941385348,True
+14,Food & Dining,2,2024-05,ridge,recursive,250.0,225.487590552868,True
+14,Food & Dining,3,2024-06,ridge,last_known_history,256.69,247.57535599881564,True
+14,Food & Dining,3,2024-06,ridge,recursive,256.69,242.44858233115283,True
+14,Transport,1,2024-04,naive,n/a,153.48,112.97,True
+14,Transport,2,2024-05,naive,n/a,104.87,112.97,True
+14,Transport,3,2024-06,naive,n/a,106.21000000000001,112.97,True
+14,Transport,1,2024-04,seasonal_naive,n/a,153.48,93.08,True
+14,Transport,2,2024-05,seasonal_naive,n/a,104.87,145.03,True
+14,Transport,3,2024-06,seasonal_naive,n/a,106.21000000000001,97.75999999999999,True
+14,Transport,1,2024-04,random_forest,last_known_history,153.48,115.56470090372048,True
+14,Transport,1,2024-04,random_forest,recursive,153.48,115.56470090372048,True
+14,Transport,2,2024-05,random_forest,last_known_history,104.87,115.56470090372048,True
+14,Transport,2,2024-05,random_forest,recursive,104.87,138.07900138337155,True
+14,Transport,3,2024-06,random_forest,last_known_history,106.21000000000001,122.64296000850456,True
+14,Transport,3,2024-06,random_forest,recursive,106.21000000000001,139.19388573235585,True
+14,Transport,1,2024-04,ridge,last_known_history,153.48,98.38560473077581,True
+14,Transport,1,2024-04,ridge,recursive,153.48,98.38560473077581,True
+14,Transport,2,2024-05,ridge,last_known_history,104.87,98.20969425447805,True
+14,Transport,2,2024-05,ridge,recursive,104.87,96.92748635070967,True
+14,Transport,3,2024-06,ridge,last_known_history,106.21000000000001,123.22113083944024,True
+14,Transport,3,2024-06,ridge,recursive,106.21000000000001,119.50645368581975,True
+14,Rent & Utilities,1,2024-04,naive,n/a,225.6,115.84,True
+14,Rent & Utilities,2,2024-05,naive,n/a,229.68,115.84,True
+14,Rent & Utilities,3,2024-06,naive,n/a,102.12,115.84,True
+14,Rent & Utilities,1,2024-04,seasonal_naive,n/a,225.6,128.62,True
+14,Rent & Utilities,2,2024-05,seasonal_naive,n/a,229.68,102.08,True
+14,Rent & Utilities,3,2024-06,seasonal_naive,n/a,102.12,106.96,True
+14,Rent & Utilities,1,2024-04,random_forest,last_known_history,225.6,161.6576376448307,True
+14,Rent & Utilities,1,2024-04,random_forest,recursive,225.6,161.6576376448307,True
+14,Rent & Utilities,2,2024-05,random_forest,last_known_history,229.68,161.6576376448307,True
+14,Rent & Utilities,2,2024-05,random_forest,recursive,229.68,157.01169769783326,True
+14,Rent & Utilities,3,2024-06,random_forest,last_known_history,102.12,169.17038639247187,True
+14,Rent & Utilities,3,2024-06,random_forest,recursive,102.12,149.94677636971684,True
+14,Rent & Utilities,1,2024-04,ridge,last_known_history,225.6,193.49613339185987,True
+14,Rent & Utilities,1,2024-04,ridge,recursive,225.6,193.49613339185987,True
+14,Rent & Utilities,2,2024-05,ridge,last_known_history,229.68,193.32022291556208,True
+14,Rent & Utilities,2,2024-05,ridge,recursive,229.68,193.29119462038437,True
+14,Rent & Utilities,3,2024-06,ridge,last_known_history,102.12,218.33165950052427,True
+14,Rent & Utilities,3,2024-06,ridge,recursive,102.12,196.71671714749863,True
+14,Entertainment,1,2024-04,naive,n/a,105.53999999999999,46.2,True
+14,Entertainment,2,2024-05,naive,n/a,110.28999999999999,46.2,True
+14,Entertainment,3,2024-06,naive,n/a,80.38,46.2,True
+14,Entertainment,1,2024-04,seasonal_naive,n/a,105.53999999999999,54.37,True
+14,Entertainment,2,2024-05,seasonal_naive,n/a,110.28999999999999,63.730000000000004,True
+14,Entertainment,3,2024-06,seasonal_naive,n/a,80.38,113.1,True
+14,Entertainment,1,2024-04,random_forest,last_known_history,105.53999999999999,66.61990071512894,True
+14,Entertainment,1,2024-04,random_forest,recursive,105.53999999999999,66.61990071512894,True
+14,Entertainment,2,2024-05,random_forest,last_known_history,110.28999999999999,66.61990071512894,True
+14,Entertainment,2,2024-05,random_forest,recursive,110.28999999999999,72.48721749473822,True
+14,Entertainment,3,2024-06,random_forest,last_known_history,80.38,66.61990071512894,True
+14,Entertainment,3,2024-06,random_forest,recursive,80.38,72.09650077007397,True
+14,Entertainment,1,2024-04,ridge,last_known_history,105.53999999999999,88.68059740511401,True
+14,Entertainment,1,2024-04,ridge,recursive,105.53999999999999,88.68059740511401,True
+14,Entertainment,2,2024-05,ridge,last_known_history,110.28999999999999,88.50468692881624,True
+14,Entertainment,2,2024-05,ridge,recursive,110.28999999999999,74.06815234515447,True
+14,Entertainment,3,2024-06,ridge,last_known_history,80.38,113.51612351377842,True
+14,Entertainment,3,2024-06,ridge,recursive,80.38,89.27821494753597,True
+14,Healthcare,1,2024-04,naive,n/a,405.18,482.62,True
+14,Healthcare,2,2024-05,naive,n/a,433.86,482.62,True
+14,Healthcare,3,2024-06,naive,n/a,494.31,482.62,True
+14,Healthcare,1,2024-04,seasonal_naive,n/a,405.18,445.33000000000004,True
+14,Healthcare,2,2024-05,seasonal_naive,n/a,433.86,464.39,True
+14,Healthcare,3,2024-06,seasonal_naive,n/a,494.31,484.01,True
+14,Healthcare,1,2024-04,random_forest,last_known_history,405.18,422.12612533264235,True
+14,Healthcare,1,2024-04,random_forest,recursive,405.18,422.12612533264235,True
+14,Healthcare,2,2024-05,random_forest,last_known_history,433.86,422.12612533264235,True
+14,Healthcare,2,2024-05,random_forest,recursive,433.86,423.01792153394103,True
+14,Healthcare,3,2024-06,random_forest,last_known_history,494.31,422.12612533264235,True
+14,Healthcare,3,2024-06,random_forest,recursive,494.31,423.01792153394103,True
+14,Healthcare,1,2024-04,ridge,last_known_history,405.18,395.7200286153011,True
+14,Healthcare,1,2024-04,ridge,recursive,405.18,395.7200286153011,True
+14,Healthcare,2,2024-05,ridge,last_known_history,433.86,395.54411813900333,True
+14,Healthcare,2,2024-05,ridge,recursive,433.86,412.37797660180536,True
+14,Healthcare,3,2024-06,ridge,last_known_history,494.31,420.55555472396554,True
+14,Healthcare,3,2024-06,ridge,recursive,494.31,429.77296729700436,True
+14,Shopping,1,2024-04,naive,n/a,271.61,345.1,True
+14,Shopping,2,2024-05,naive,n/a,300.07,345.1,True
+14,Shopping,3,2024-06,naive,n/a,261.44,345.1,True
+14,Shopping,1,2024-04,seasonal_naive,n/a,271.61,343.28999999999996,True
+14,Shopping,2,2024-05,seasonal_naive,n/a,300.07,241.38,True
+14,Shopping,3,2024-06,seasonal_naive,n/a,261.44,326.49,True
+14,Shopping,1,2024-04,random_forest,last_known_history,271.61,312.3533602158661,True
+14,Shopping,1,2024-04,random_forest,recursive,271.61,312.3533602158661,True
+14,Shopping,2,2024-05,random_forest,last_known_history,300.07,312.3533602158661,True
+14,Shopping,2,2024-05,random_forest,recursive,300.07,311.06922053332636,True
+14,Shopping,3,2024-06,random_forest,last_known_history,261.44,312.3533602158661,True
+14,Shopping,3,2024-06,random_forest,recursive,261.44,303.8677368031677,True
+14,Shopping,1,2024-04,ridge,last_known_history,271.61,301.4666100644793,True
+14,Shopping,1,2024-04,ridge,recursive,271.61,301.4666100644793,True
+14,Shopping,2,2024-05,ridge,last_known_history,300.07,301.29069958818155,True
+14,Shopping,2,2024-05,ridge,recursive,300.07,304.0415209288775,True
+14,Shopping,3,2024-06,ridge,last_known_history,261.44,326.3021361731437,True
+14,Shopping,3,2024-06,ridge,recursive,261.44,317.7616258994338,True
+14,Subscriptions,1,2024-04,naive,n/a,46.370000000000005,45.61,True
+14,Subscriptions,2,2024-05,naive,n/a,45.55,45.61,True
+14,Subscriptions,3,2024-06,naive,n/a,46.04,45.61,True
+14,Subscriptions,1,2024-04,seasonal_naive,n/a,46.370000000000005,45.86,True
+14,Subscriptions,2,2024-05,seasonal_naive,n/a,45.55,45.870000000000005,True
+14,Subscriptions,3,2024-06,seasonal_naive,n/a,46.04,46.16,True
+14,Subscriptions,1,2024-04,random_forest,last_known_history,46.370000000000005,44.4387856226479,True
+14,Subscriptions,1,2024-04,random_forest,recursive,46.370000000000005,44.4387856226479,True
+14,Subscriptions,2,2024-05,random_forest,last_known_history,45.55,44.4387856226479,True
+14,Subscriptions,2,2024-05,random_forest,recursive,45.55,44.40554963685008,True
+14,Subscriptions,3,2024-06,random_forest,last_known_history,46.04,44.4387856226479,True
+14,Subscriptions,3,2024-06,random_forest,recursive,46.04,44.40554963685008,True
+14,Subscriptions,1,2024-04,ridge,last_known_history,46.370000000000005,35.77434636888108,True
+14,Subscriptions,1,2024-04,ridge,recursive,46.370000000000005,35.77434636888108,True
+14,Subscriptions,2,2024-05,ridge,last_known_history,45.55,35.598435892583325,True
+14,Subscriptions,2,2024-05,ridge,recursive,45.55,38.05764783993459,True
+14,Subscriptions,3,2024-06,ridge,last_known_history,46.04,60.60987247754551,True
+14,Subscriptions,3,2024-06,ridge,recursive,46.04,60.25295369361368,True
+14,Other,1,2024-04,naive,n/a,0.0,0.0,True
+14,Other,2,2024-05,naive,n/a,0.0,0.0,True
+14,Other,3,2024-06,naive,n/a,0.0,0.0,True
+14,Other,1,2024-04,seasonal_naive,n/a,0.0,0.0,True
+14,Other,2,2024-05,seasonal_naive,n/a,0.0,0.0,True
+14,Other,3,2024-06,seasonal_naive,n/a,0.0,0.0,True
+14,Other,1,2024-04,random_forest,last_known_history,0.0,3.455842527056278,True
+14,Other,1,2024-04,random_forest,recursive,0.0,3.455842527056278,True
+14,Other,2,2024-05,random_forest,last_known_history,0.0,3.455842527056278,True
+14,Other,2,2024-05,random_forest,recursive,0.0,16.812992864774113,True
+14,Other,3,2024-06,random_forest,last_known_history,0.0,3.455842527056278,True
+14,Other,3,2024-06,random_forest,recursive,0.0,25.488565288077936,True
+14,Other,1,2024-04,ridge,last_known_history,0.0,-9.623192432123943,True
+14,Other,1,2024-04,ridge,recursive,0.0,-9.623192432123943,True
+14,Other,2,2024-05,ridge,last_known_history,0.0,-9.799102908421702,True
+14,Other,2,2024-05,ridge,recursive,0.0,-7.268927005818568,True
+14,Other,3,2024-06,ridge,last_known_history,0.0,15.212333676540482,True
+14,Other,3,2024-06,ridge,recursive,0.0,15.095879866357762,True
+15,Food & Dining,1,2024-05,naive,n/a,250.0,269.06,True
+15,Food & Dining,2,2024-06,naive,n/a,256.69,269.06,True
+15,Food & Dining,3,2024-07,naive,n/a,280.52,269.06,True
+15,Food & Dining,1,2024-05,seasonal_naive,n/a,250.0,381.2,True
+15,Food & Dining,2,2024-06,seasonal_naive,n/a,256.69,387.66,True
+15,Food & Dining,3,2024-07,seasonal_naive,n/a,280.52,433.27,True
+15,Food & Dining,1,2024-05,random_forest,last_known_history,250.0,276.66933645368607,True
+15,Food & Dining,1,2024-05,random_forest,recursive,250.0,276.66933645368607,True
+15,Food & Dining,2,2024-06,random_forest,last_known_history,256.69,277.88081099914064,True
+15,Food & Dining,2,2024-06,random_forest,recursive,256.69,279.1086757166943,True
+15,Food & Dining,3,2024-07,random_forest,last_known_history,280.52,277.88081099914064,True
+15,Food & Dining,3,2024-07,random_forest,recursive,280.52,279.1086757166943,True
+15,Food & Dining,1,2024-05,ridge,last_known_history,250.0,229.7535248379095,True
+15,Food & Dining,1,2024-05,ridge,recursive,250.0,229.7535248379095,True
+15,Food & Dining,2,2024-06,ridge,last_known_history,256.69,252.30276109658183,True
+15,Food & Dining,2,2024-06,ridge,recursive,256.69,257.24969339539916,True
+15,Food & Dining,3,2024-07,ridge,last_known_history,280.52,251.8308651357512,True
+15,Food & Dining,3,2024-07,ridge,recursive,280.52,245.00820947492016,True
+15,Transport,1,2024-05,naive,n/a,104.87,153.48,True
+15,Transport,2,2024-06,naive,n/a,106.21000000000001,153.48,True
+15,Transport,3,2024-07,naive,n/a,137.82,153.48,True
+15,Transport,1,2024-05,seasonal_naive,n/a,104.87,145.03,True
+15,Transport,2,2024-06,seasonal_naive,n/a,106.21000000000001,97.75999999999999,True
+15,Transport,3,2024-07,seasonal_naive,n/a,137.82,196.57999999999998,True
+15,Transport,1,2024-05,random_forest,last_known_history,104.87,136.47943134540293,True
+15,Transport,1,2024-05,random_forest,recursive,104.87,136.47943134540293,True
+15,Transport,2,2024-06,random_forest,last_known_history,106.21000000000001,138.58861069605223,True
+15,Transport,2,2024-06,random_forest,recursive,106.21000000000001,137.11696414843317,True
+15,Transport,3,2024-07,random_forest,last_known_history,137.82,138.58861069605223,True
+15,Transport,3,2024-07,random_forest,recursive,137.82,138.71977650330055,True
+15,Transport,1,2024-05,ridge,last_known_history,104.87,122.7968573231547,True
+15,Transport,1,2024-05,ridge,recursive,104.87,122.7968573231547,True
+15,Transport,2,2024-06,ridge,last_known_history,106.21000000000001,145.34609358182706,True
+15,Transport,2,2024-06,ridge,recursive,106.21000000000001,147.7232333744332,True
+15,Transport,3,2024-07,ridge,last_known_history,137.82,144.87419762099643,True
+15,Transport,3,2024-07,ridge,recursive,137.82,149.16598358507898,True
+15,Rent & Utilities,1,2024-05,naive,n/a,229.68,225.6,True
+15,Rent & Utilities,2,2024-06,naive,n/a,102.12,225.6,True
+15,Rent & Utilities,3,2024-07,naive,n/a,218.88,225.6,True
+15,Rent & Utilities,1,2024-05,seasonal_naive,n/a,229.68,102.08,True
+15,Rent & Utilities,2,2024-06,seasonal_naive,n/a,102.12,106.96,True
+15,Rent & Utilities,3,2024-07,seasonal_naive,n/a,218.88,231.57999999999998,True
+15,Rent & Utilities,1,2024-05,random_forest,last_known_history,229.68,177.93751981948606,True
+15,Rent & Utilities,1,2024-05,random_forest,recursive,229.68,177.93751981948606,True
+15,Rent & Utilities,2,2024-06,random_forest,last_known_history,102.12,180.0466991701354,True
+15,Rent & Utilities,2,2024-06,random_forest,recursive,102.12,179.39270297965922,True
+15,Rent & Utilities,3,2024-07,random_forest,last_known_history,218.88,180.0466991701354,True
+15,Rent & Utilities,3,2024-07,random_forest,recursive,218.88,177.41736113261734,True
+15,Rent & Utilities,1,2024-05,ridge,last_known_history,229.68,204.55060704559133,True
+15,Rent & Utilities,1,2024-05,ridge,recursive,229.68,204.55060704559133,True
+15,Rent & Utilities,2,2024-06,ridge,last_known_history,102.12,227.0998433042637,True
+15,Rent & Utilities,2,2024-06,ridge,recursive,102.12,216.80453853349465,True
+15,Rent & Utilities,3,2024-07,ridge,last_known_history,218.88,226.62794734343305,True
+15,Rent & Utilities,3,2024-07,ridge,recursive,218.88,200.7708680489042,True
+15,Entertainment,1,2024-05,naive,n/a,110.28999999999999,105.53999999999999,True
+15,Entertainment,2,2024-06,naive,n/a,80.38,105.53999999999999,True
+15,Entertainment,3,2024-07,naive,n/a,0.0,105.53999999999999,True
+15,Entertainment,1,2024-05,seasonal_naive,n/a,110.28999999999999,63.730000000000004,True
+15,Entertainment,2,2024-06,seasonal_naive,n/a,80.38,113.1,True
+15,Entertainment,3,2024-07,seasonal_naive,n/a,0.0,104.44,True
+15,Entertainment,1,2024-05,random_forest,last_known_history,110.28999999999999,89.93580676434675,True
+15,Entertainment,1,2024-05,random_forest,recursive,110.28999999999999,89.93580676434675,True
+15,Entertainment,2,2024-06,random_forest,last_known_history,80.38,90.34224676434674,True
+15,Entertainment,2,2024-06,random_forest,recursive,80.38,89.66281559551557,True
+15,Entertainment,3,2024-07,random_forest,last_known_history,0.0,90.34224676434674,True
+15,Entertainment,3,2024-07,random_forest,recursive,0.0,111.61066873445996,True
+15,Entertainment,1,2024-05,ridge,last_known_history,110.28999999999999,82.17686306607528,True
+15,Entertainment,1,2024-05,ridge,recursive,110.28999999999999,82.17686306607528,True
+15,Entertainment,2,2024-06,ridge,last_known_history,80.38,104.72609932474766,True
+15,Entertainment,2,2024-06,ridge,recursive,80.38,102.48263874238418,True
+15,Entertainment,3,2024-07,ridge,last_known_history,0.0,104.25420336391703,True
+15,Entertainment,3,2024-07,ridge,recursive,0.0,101.43908618859692,True
+15,Healthcare,1,2024-05,naive,n/a,433.86,405.18,True
+15,Healthcare,2,2024-06,naive,n/a,494.31,405.18,True
+15,Healthcare,3,2024-07,naive,n/a,389.94,405.18,True
+15,Healthcare,1,2024-05,seasonal_naive,n/a,433.86,464.39,True
+15,Healthcare,2,2024-06,seasonal_naive,n/a,494.31,484.01,True
+15,Healthcare,3,2024-07,seasonal_naive,n/a,389.94,368.3,True
+15,Healthcare,1,2024-05,random_forest,last_known_history,433.86,415.8942850809484,True
+15,Healthcare,1,2024-05,random_forest,recursive,433.86,415.8942850809484,True
+15,Healthcare,2,2024-06,random_forest,last_known_history,494.31,415.42562063650394,True
+15,Healthcare,2,2024-06,random_forest,recursive,494.31,415.2577984142817,True
+15,Healthcare,3,2024-07,random_forest,last_known_history,389.94,415.42562063650394,True
+15,Healthcare,3,2024-07,random_forest,recursive,389.94,410.23512648065974,True
+15,Healthcare,1,2024-05,ridge,last_known_history,433.86,412.3950682266027,True
+15,Healthcare,1,2024-05,ridge,recursive,433.86,412.3950682266027,True
+15,Healthcare,2,2024-06,ridge,last_known_history,494.31,434.94430448527504,True
+15,Healthcare,2,2024-06,ridge,recursive,494.31,430.8642612117734,True
+15,Healthcare,3,2024-07,ridge,last_known_history,389.94,434.4724085244444,True
+15,Healthcare,3,2024-07,ridge,recursive,389.94,391.99718849870385,True
+15,Shopping,1,2024-05,naive,n/a,300.07,271.61,True
+15,Shopping,2,2024-06,naive,n/a,261.44,271.61,True
+15,Shopping,3,2024-07,naive,n/a,349.52,271.61,True
+15,Shopping,1,2024-05,seasonal_naive,n/a,300.07,241.38,True
+15,Shopping,2,2024-06,seasonal_naive,n/a,261.44,326.49,True
+15,Shopping,3,2024-07,seasonal_naive,n/a,349.52,321.81,True
+15,Shopping,1,2024-05,random_forest,last_known_history,300.07,309.25289200841644,True
+15,Shopping,1,2024-05,random_forest,recursive,300.07,309.25289200841644,True
+15,Shopping,2,2024-06,random_forest,last_known_history,261.44,309.9957021094266,True
+15,Shopping,2,2024-06,random_forest,recursive,261.44,303.43234303743645,True
+15,Shopping,3,2024-07,random_forest,last_known_history,349.52,309.9957021094266,True
+15,Shopping,3,2024-07,random_forest,recursive,349.52,296.9641734828245,True
+15,Shopping,1,2024-05,ridge,last_known_history,300.07,314.29177785210425,True
+15,Shopping,1,2024-05,ridge,recursive,300.07,314.29177785210425,True
+15,Shopping,2,2024-06,ridge,last_known_history,261.44,336.84101411077654,True
+15,Shopping,2,2024-06,ridge,recursive,261.44,321.0357099679225,True
+15,Shopping,3,2024-07,ridge,last_known_history,349.52,336.3691181499459,True
+15,Shopping,3,2024-07,ridge,recursive,349.52,303.88986875035516,True
+15,Subscriptions,1,2024-05,naive,n/a,45.55,46.370000000000005,True
+15,Subscriptions,2,2024-06,naive,n/a,46.04,46.370000000000005,True
+15,Subscriptions,3,2024-07,naive,n/a,46.29,46.370000000000005,True
+15,Subscriptions,1,2024-05,seasonal_naive,n/a,45.55,45.870000000000005,True
+15,Subscriptions,2,2024-06,seasonal_naive,n/a,46.04,46.16,True
+15,Subscriptions,3,2024-07,seasonal_naive,n/a,46.29,46.38,True
+15,Subscriptions,1,2024-05,random_forest,last_known_history,45.55,47.62895484320419,True
+15,Subscriptions,1,2024-05,random_forest,recursive,45.55,47.62895484320419,True
+15,Subscriptions,2,2024-06,random_forest,last_known_history,46.04,47.62895484320419,True
+15,Subscriptions,2,2024-06,random_forest,recursive,46.04,48.736600218384574,True
+15,Subscriptions,3,2024-07,random_forest,last_known_history,46.29,47.62895484320419,True
+15,Subscriptions,3,2024-07,random_forest,recursive,46.29,49.295856449653314,True
+15,Subscriptions,1,2024-05,ridge,last_known_history,45.55,39.76276016129313,True
+15,Subscriptions,1,2024-05,ridge,recursive,45.55,39.76276016129313,True
+15,Subscriptions,2,2024-06,ridge,last_known_history,46.04,62.31199641996545,True
+15,Subscriptions,2,2024-06,ridge,recursive,46.04,63.8328487750633,True
+15,Subscriptions,3,2024-07,ridge,last_known_history,46.29,61.84010045913482,True
+15,Subscriptions,3,2024-07,ridge,recursive,46.29,71.3157490170079,True
+15,Other,1,2024-05,naive,n/a,0.0,0.0,True
+15,Other,2,2024-06,naive,n/a,0.0,0.0,True
+15,Other,3,2024-07,naive,n/a,0.0,0.0,True
+15,Other,1,2024-05,seasonal_naive,n/a,0.0,0.0,True
+15,Other,2,2024-06,seasonal_naive,n/a,0.0,0.0,True
+15,Other,3,2024-07,seasonal_naive,n/a,0.0,0.0,True
+15,Other,1,2024-05,random_forest,last_known_history,0.0,0.9603301587301588,True
+15,Other,1,2024-05,random_forest,recursive,0.0,0.9603301587301588,True
+15,Other,2,2024-06,random_forest,last_known_history,0.0,0.9603301587301588,True
+15,Other,2,2024-06,random_forest,recursive,0.0,10.91605734029859,True
+15,Other,3,2024-07,random_forest,last_known_history,0.0,0.9603301587301588,True
+15,Other,3,2024-07,random_forest,recursive,0.0,15.576766728410476,True
+15,Other,1,2024-05,ridge,last_known_history,0.0,-5.584783208087629,True
+15,Other,1,2024-05,ridge,recursive,0.0,-5.584783208087629,True
+15,Other,2,2024-06,ridge,last_known_history,0.0,16.964453050584723,True
+15,Other,2,2024-06,ridge,recursive,0.0,18.46866461177501,True
+15,Other,3,2024-07,ridge,last_known_history,0.0,16.492557089754087,True
+15,Other,3,2024-07,ridge,recursive,0.0,26.403640008051582,True
+16,Food & Dining,1,2024-06,naive,n/a,256.69,250.0,True
+16,Food & Dining,2,2024-07,naive,n/a,280.52,250.0,True
+16,Food & Dining,3,2024-08,naive,n/a,250.0,250.0,True
+16,Food & Dining,1,2024-06,seasonal_naive,n/a,256.69,387.66,True
+16,Food & Dining,2,2024-07,seasonal_naive,n/a,280.52,433.27,True
+16,Food & Dining,3,2024-08,seasonal_naive,n/a,250.0,379.58,True
+16,Food & Dining,1,2024-06,random_forest,last_known_history,256.69,257.31076329855017,True
+16,Food & Dining,1,2024-06,random_forest,recursive,256.69,257.31076329855017,True
+16,Food & Dining,2,2024-07,random_forest,last_known_history,280.52,257.89824663188347,True
+16,Food & Dining,2,2024-07,random_forest,recursive,280.52,259.59218989542546,True
+16,Food & Dining,3,2024-08,random_forest,last_known_history,250.0,257.89824663188347,True
+16,Food & Dining,3,2024-08,random_forest,recursive,250.0,261.25808508773315,True
+16,Food & Dining,1,2024-06,ridge,last_known_history,256.69,253.31884725488936,True
+16,Food & Dining,1,2024-06,ridge,recursive,256.69,253.31884725488936,True
+16,Food & Dining,2,2024-07,ridge,last_known_history,280.52,252.79506917540039,True
+16,Food & Dining,2,2024-07,ridge,recursive,280.52,244.0365655601272,True
+16,Food & Dining,3,2024-08,ridge,last_known_history,250.0,252.2712910959114,True
+16,Food & Dining,3,2024-08,ridge,recursive,250.0,235.35579514117538,True
+16,Transport,1,2024-06,naive,n/a,106.21000000000001,104.87,True
+16,Transport,2,2024-07,naive,n/a,137.82,104.87,True
+16,Transport,3,2024-08,naive,n/a,162.86,104.87,True
+16,Transport,1,2024-06,seasonal_naive,n/a,106.21000000000001,97.75999999999999,True
+16,Transport,2,2024-07,seasonal_naive,n/a,137.82,196.57999999999998,True
+16,Transport,3,2024-08,seasonal_naive,n/a,162.86,145.74,True
+16,Transport,1,2024-06,random_forest,last_known_history,106.21000000000001,131.3597009232924,True
+16,Transport,1,2024-06,random_forest,recursive,106.21000000000001,131.3597009232924,True
+16,Transport,2,2024-07,random_forest,last_known_history,137.82,135.43725642903667,True
+16,Transport,2,2024-07,random_forest,recursive,137.82,134.47270250714158,True
+16,Transport,3,2024-08,random_forest,last_known_history,162.86,135.43725642903667,True
+16,Transport,3,2024-08,random_forest,recursive,162.86,133.39706792921947,True
+16,Transport,1,2024-06,ridge,last_known_history,106.21000000000001,146.7633740260831,True
+16,Transport,1,2024-06,ridge,recursive,106.21000000000001,146.7633740260831,True
+16,Transport,2,2024-07,ridge,last_known_history,137.82,146.23959594659414,True
+16,Transport,2,2024-07,ridge,recursive,137.82,149.50853165952356,True
+16,Transport,3,2024-08,ridge,last_known_history,162.86,145.71581786710516,True
+16,Transport,3,2024-08,ridge,recursive,162.86,150.44491234483576,True
+16,Rent & Utilities,1,2024-06,naive,n/a,102.12,229.68,True
+16,Rent & Utilities,2,2024-07,naive,n/a,218.88,229.68,True
+16,Rent & Utilities,3,2024-08,naive,n/a,238.2,229.68,True
+16,Rent & Utilities,1,2024-06,seasonal_naive,n/a,102.12,106.96,True
+16,Rent & Utilities,2,2024-07,seasonal_naive,n/a,218.88,231.57999999999998,True
+16,Rent & Utilities,3,2024-08,seasonal_naive,n/a,238.2,102.14,True
+16,Rent & Utilities,1,2024-06,random_forest,last_known_history,102.12,189.53255133899825,True
+16,Rent & Utilities,1,2024-06,random_forest,recursive,102.12,189.53255133899825,True
+16,Rent & Utilities,2,2024-07,random_forest,last_known_history,218.88,192.86946031696473,True
+16,Rent & Utilities,2,2024-07,random_forest,recursive,218.88,196.94558403685585,True
+16,Rent & Utilities,3,2024-08,random_forest,last_known_history,238.2,192.86946031696473,True
+16,Rent & Utilities,3,2024-08,random_forest,recursive,238.2,196.94558403685585,True
+16,Rent & Utilities,1,2024-06,ridge,last_known_history,102.12,224.76747775684396,True
+16,Rent & Utilities,1,2024-06,ridge,recursive,102.12,224.76747775684396,True
+16,Rent & Utilities,2,2024-07,ridge,last_known_history,218.88,224.24369967735498,True
+16,Rent & Utilities,2,2024-07,ridge,recursive,218.88,202.59437341746053,True
+16,Rent & Utilities,3,2024-08,ridge,last_known_history,238.2,223.719921597866,True
+16,Rent & Utilities,3,2024-08,ridge,recursive,238.2,213.82915022718652,True
+16,Entertainment,1,2024-06,naive,n/a,80.38,110.28999999999999,True
+16,Entertainment,2,2024-07,naive,n/a,0.0,110.28999999999999,True
+16,Entertainment,3,2024-08,naive,n/a,35.87,110.28999999999999,True
+16,Entertainment,1,2024-06,seasonal_naive,n/a,80.38,113.1,True
+16,Entertainment,2,2024-07,seasonal_naive,n/a,0.0,104.44,True
+16,Entertainment,3,2024-08,seasonal_naive,n/a,35.87,77.7,True
+16,Entertainment,1,2024-06,random_forest,last_known_history,80.38,115.81135369371647,True
+16,Entertainment,1,2024-06,random_forest,recursive,80.38,115.81135369371647,True
+16,Entertainment,2,2024-07,random_forest,last_known_history,0.0,118.9667201884717,True
+16,Entertainment,2,2024-07,random_forest,recursive,0.0,117.1898405479733,True
+16,Entertainment,3,2024-08,random_forest,last_known_history,35.87,118.9667201884717,True
+16,Entertainment,3,2024-08,random_forest,recursive,35.87,111.3733536143514,True
+16,Entertainment,1,2024-06,ridge,last_known_history,80.38,112.60454680510499,True
+16,Entertainment,1,2024-06,ridge,recursive,80.38,112.60454680510499,True
+16,Entertainment,2,2024-07,ridge,last_known_history,0.0,112.08076872561601,True
+16,Entertainment,2,2024-07,ridge,recursive,0.0,105.86297253059234,True
+16,Entertainment,3,2024-08,ridge,last_known_history,35.87,111.55699064612703,True
+16,Entertainment,3,2024-08,ridge,recursive,35.87,105.53948070303008,True
+16,Healthcare,1,2024-06,naive,n/a,494.31,433.86,True
+16,Healthcare,2,2024-07,naive,n/a,389.94,433.86,True
+16,Healthcare,3,2024-08,naive,n/a,418.6,433.86,True
+16,Healthcare,1,2024-06,seasonal_naive,n/a,494.31,484.01,True
+16,Healthcare,2,2024-07,seasonal_naive,n/a,389.94,368.3,True
+16,Healthcare,3,2024-08,seasonal_naive,n/a,418.6,488.24,True
+16,Healthcare,1,2024-06,random_forest,last_known_history,494.31,415.5109545774814,True
+16,Healthcare,1,2024-06,random_forest,recursive,494.31,415.5109545774814,True
+16,Healthcare,2,2024-07,random_forest,last_known_history,389.94,414.3107813082505,True
+16,Healthcare,2,2024-07,random_forest,recursive,389.94,415.4002244806337,True
+16,Healthcare,3,2024-08,random_forest,last_known_history,418.6,410.3809083933876,True
+16,Healthcare,3,2024-08,random_forest,recursive,418.6,413.5589944229136,True
+16,Healthcare,1,2024-06,ridge,last_known_history,494.31,431.77536253497107,True
+16,Healthcare,1,2024-06,ridge,recursive,494.31,431.77536253497107,True
+16,Healthcare,2,2024-07,ridge,last_known_history,389.94,431.2515844554821,True
+16,Healthcare,2,2024-07,ridge,recursive,389.94,400.39852809809327,True
+16,Healthcare,3,2024-08,ridge,last_known_history,418.6,430.7278063759931,True
+16,Healthcare,3,2024-08,ridge,recursive,418.6,401.132486462103,True
+16,Shopping,1,2024-06,naive,n/a,261.44,300.07,True
+16,Shopping,2,2024-07,naive,n/a,349.52,300.07,True
+16,Shopping,3,2024-08,naive,n/a,344.46000000000004,300.07,True
+16,Shopping,1,2024-06,seasonal_naive,n/a,261.44,326.49,True
+16,Shopping,2,2024-07,seasonal_naive,n/a,349.52,321.81,True
+16,Shopping,3,2024-08,seasonal_naive,n/a,344.46000000000004,304.44,True
+16,Shopping,1,2024-06,random_forest,last_known_history,261.44,304.38357398386734,True
+16,Shopping,1,2024-06,random_forest,recursive,261.44,304.38357398386734,True
+16,Shopping,2,2024-07,random_forest,last_known_history,349.52,305.3601448172007,True
+16,Shopping,2,2024-07,random_forest,recursive,349.52,298.4558444817682,True
+16,Shopping,3,2024-08,random_forest,last_known_history,344.46000000000004,305.3601448172007,True
+16,Shopping,3,2024-08,random_forest,recursive,344.46000000000004,301.9757096743535,True
+16,Shopping,1,2024-06,ridge,last_known_history,261.44,318.24584962796905,True
+16,Shopping,1,2024-06,ridge,recursive,261.44,318.24584962796905,True
+16,Shopping,2,2024-07,ridge,last_known_history,349.52,317.72207154848013,True
+16,Shopping,2,2024-07,ridge,recursive,349.52,296.5928196051098,True
+16,Shopping,3,2024-08,ridge,last_known_history,344.46000000000004,317.1982934689911,True
+16,Shopping,3,2024-08,ridge,recursive,344.46000000000004,295.501873613648,True
+16,Subscriptions,1,2024-06,naive,n/a,46.04,45.55,True
+16,Subscriptions,2,2024-07,naive,n/a,46.29,45.55,True
+16,Subscriptions,3,2024-08,naive,n/a,46.0,45.55,True
+16,Subscriptions,1,2024-06,seasonal_naive,n/a,46.04,46.16,True
+16,Subscriptions,2,2024-07,seasonal_naive,n/a,46.29,46.38,True
+16,Subscriptions,3,2024-08,seasonal_naive,n/a,46.0,45.74,True
+16,Subscriptions,1,2024-06,random_forest,last_known_history,46.04,47.30736645661527,True
+16,Subscriptions,1,2024-06,random_forest,recursive,46.04,47.30736645661527,True
+16,Subscriptions,2,2024-07,random_forest,last_known_history,46.29,47.329741456615274,True
+16,Subscriptions,2,2024-07,random_forest,recursive,46.29,48.97644424382807,True
+16,Subscriptions,3,2024-08,random_forest,last_known_history,46.0,47.35474145661527,True
+16,Subscriptions,3,2024-08,random_forest,recursive,46.0,49.17617116690499,True
+16,Subscriptions,1,2024-06,ridge,last_known_history,46.04,61.20011294845108,True
+16,Subscriptions,1,2024-06,ridge,recursive,46.04,61.20011294845108,True
+16,Subscriptions,2,2024-07,ridge,last_known_history,46.29,60.6763348689621,True
+16,Subscriptions,2,2024-07,ridge,recursive,46.29,68.76969083004681,True
+16,Subscriptions,3,2024-08,ridge,last_known_history,46.0,60.152556789473124,True
+16,Subscriptions,3,2024-08,ridge,recursive,46.0,75.42238827105872,True
+16,Other,1,2024-06,naive,n/a,0.0,0.0,True
+16,Other,2,2024-07,naive,n/a,0.0,0.0,True
+16,Other,3,2024-08,naive,n/a,0.0,0.0,True
+16,Other,1,2024-06,seasonal_naive,n/a,0.0,0.0,True
+16,Other,2,2024-07,seasonal_naive,n/a,0.0,0.0,True
+16,Other,3,2024-08,seasonal_naive,n/a,0.0,0.0,True
+16,Other,1,2024-06,random_forest,last_known_history,0.0,0.3262625,True
+16,Other,1,2024-06,random_forest,recursive,0.0,0.3262625,True
+16,Other,2,2024-07,random_forest,last_known_history,0.0,0.3262625,True
+16,Other,2,2024-07,random_forest,recursive,0.0,13.019266490886567,True
+16,Other,3,2024-08,random_forest,last_known_history,0.0,0.3262625,True
+16,Other,3,2024-08,random_forest,recursive,0.0,19.336324920234993,True
+16,Other,1,2024-06,ridge,last_known_history,0.0,17.415056686145675,True
+16,Other,1,2024-06,ridge,recursive,0.0,17.415056686145675,True
+16,Other,2,2024-07,ridge,last_known_history,0.0,16.89127860665667,True
+16,Other,2,2024-07,ridge,recursive,0.0,26.45321148797052,True
+16,Other,3,2024-08,ridge,last_known_history,0.0,16.367500527167692,True
+16,Other,3,2024-08,ridge,recursive,0.0,34.21670311999105,True
+17,Food & Dining,1,2024-07,naive,n/a,280.52,256.69,True
+17,Food & Dining,2,2024-08,naive,n/a,250.0,256.69,True
+17,Food & Dining,3,2024-09,naive,n/a,272.94,256.69,True
+17,Food & Dining,1,2024-07,seasonal_naive,n/a,280.52,433.27,True
+17,Food & Dining,2,2024-08,seasonal_naive,n/a,250.0,379.58,True
+17,Food & Dining,3,2024-09,seasonal_naive,n/a,272.94,370.69,True
+17,Food & Dining,1,2024-07,random_forest,last_known_history,280.52,263.8605713887501,True
+17,Food & Dining,1,2024-07,random_forest,recursive,280.52,263.8605713887501,True
+17,Food & Dining,2,2024-08,random_forest,last_known_history,250.0,264.28871497849366,True
+17,Food & Dining,2,2024-08,random_forest,recursive,250.0,264.28871497849366,True
+17,Food & Dining,3,2024-09,random_forest,last_known_history,272.94,264.28871497849366,True
+17,Food & Dining,3,2024-09,random_forest,recursive,272.94,264.28871497849366,True
+17,Food & Dining,1,2024-07,ridge,last_known_history,280.52,240.3418284289928,True
+17,Food & Dining,1,2024-07,ridge,recursive,280.52,240.3418284289928,True
+17,Food & Dining,2,2024-08,ridge,last_known_history,250.0,240.08179195848203,True
+17,Food & Dining,2,2024-08,ridge,recursive,250.0,234.86632489805632,True
+17,Food & Dining,3,2024-09,ridge,last_known_history,272.94,227.57705334579663,True
+17,Food & Dining,3,2024-09,ridge,recursive,272.94,220.7460167935003,True
+17,Transport,1,2024-07,naive,n/a,137.82,106.21000000000001,True
+17,Transport,2,2024-08,naive,n/a,162.86,106.21000000000001,True
+17,Transport,3,2024-09,naive,n/a,131.09,106.21000000000001,True
+17,Transport,1,2024-07,seasonal_naive,n/a,137.82,196.57999999999998,True
+17,Transport,2,2024-08,seasonal_naive,n/a,162.86,145.74,True
+17,Transport,3,2024-09,seasonal_naive,n/a,131.09,127.67,True
+17,Transport,1,2024-07,random_forest,last_known_history,137.82,141.23109465505254,True
+17,Transport,1,2024-07,random_forest,recursive,137.82,141.23109465505254,True
+17,Transport,2,2024-08,random_forest,last_known_history,162.86,141.86636925822714,True
+17,Transport,2,2024-08,random_forest,recursive,162.86,135.1992258756375,True
+17,Transport,3,2024-09,random_forest,last_known_history,131.09,142.06265148044938,True
+17,Transport,3,2024-09,random_forest,recursive,131.09,137.3259560740502,True
+17,Transport,1,2024-07,ridge,last_known_history,137.82,132.56521514463606,True
+17,Transport,1,2024-07,ridge,recursive,137.82,132.56521514463606,True
+17,Transport,2,2024-08,ridge,last_known_history,162.86,132.30517867412527,True
+17,Transport,2,2024-08,ridge,recursive,162.86,120.16374781332493,True
+17,Transport,3,2024-09,ridge,last_known_history,131.09,119.8004400614399,True
+17,Transport,3,2024-09,ridge,recursive,131.09,112.54009994280597,True
+17,Rent & Utilities,1,2024-07,naive,n/a,218.88,102.12,True
+17,Rent & Utilities,2,2024-08,naive,n/a,238.2,102.12,True
+17,Rent & Utilities,3,2024-09,naive,n/a,116.6,102.12,True
+17,Rent & Utilities,1,2024-07,seasonal_naive,n/a,218.88,231.57999999999998,True
+17,Rent & Utilities,2,2024-08,seasonal_naive,n/a,238.2,102.14,True
+17,Rent & Utilities,3,2024-09,seasonal_naive,n/a,116.6,229.42000000000002,True
+17,Rent & Utilities,1,2024-07,random_forest,last_known_history,218.88,185.8140352211677,True
+17,Rent & Utilities,1,2024-07,random_forest,recursive,218.88,185.8140352211677,True
+17,Rent & Utilities,2,2024-08,random_forest,last_known_history,238.2,185.13490486402483,True
+17,Rent & Utilities,2,2024-08,random_forest,recursive,238.2,177.24248132561883,True
+17,Rent & Utilities,3,2024-09,random_forest,last_known_history,116.6,185.13490486402483,True
+17,Rent & Utilities,3,2024-09,random_forest,recursive,116.6,169.89917693112443,True
+17,Rent & Utilities,1,2024-07,ridge,last_known_history,218.88,219.6727193206929,True
+17,Rent & Utilities,1,2024-07,ridge,recursive,218.88,219.6727193206929,True
+17,Rent & Utilities,2,2024-08,ridge,last_known_history,238.2,219.4126828501821,True
+17,Rent & Utilities,2,2024-08,ridge,recursive,238.2,208.2343129144984,True
+17,Rent & Utilities,3,2024-09,ridge,last_known_history,116.6,206.90794423749674,True
+17,Rent & Utilities,3,2024-09,ridge,recursive,116.6,187.81784522420799,True
+17,Entertainment,1,2024-07,naive,n/a,0.0,80.38,True
+17,Entertainment,2,2024-08,naive,n/a,35.87,80.38,True
+17,Entertainment,3,2024-09,naive,n/a,47.17,80.38,True
+17,Entertainment,1,2024-07,seasonal_naive,n/a,0.0,104.44,True
+17,Entertainment,2,2024-08,seasonal_naive,n/a,35.87,77.7,True
+17,Entertainment,3,2024-09,seasonal_naive,n/a,47.17,60.92,True
+17,Entertainment,1,2024-07,random_forest,last_known_history,0.0,93.59689250812562,True
+17,Entertainment,1,2024-07,random_forest,recursive,0.0,93.59689250812562,True
+17,Entertainment,2,2024-08,random_forest,last_known_history,35.87,93.59689250812562,True
+17,Entertainment,2,2024-08,random_forest,recursive,35.87,96.29015660000597,True
+17,Entertainment,3,2024-09,random_forest,last_known_history,47.17,93.6559325081256,True
+17,Entertainment,3,2024-09,random_forest,recursive,47.17,81.40312654684283,True
+17,Entertainment,1,2024-07,ridge,last_known_history,0.0,102.52472596716942,True
+17,Entertainment,1,2024-07,ridge,recursive,0.0,102.52472596716942,True
+17,Entertainment,2,2024-08,ridge,last_known_history,35.87,102.26468949665865,True
+17,Entertainment,2,2024-08,ridge,recursive,35.87,97.53356055527499,True
+17,Entertainment,3,2024-09,ridge,last_known_history,47.17,89.75995088397327,True
+17,Entertainment,3,2024-09,ridge,recursive,47.17,80.41214750191263,True
+17,Healthcare,1,2024-07,naive,n/a,389.94,494.31,True
+17,Healthcare,2,2024-08,naive,n/a,418.6,494.31,True
+17,Healthcare,3,2024-09,naive,n/a,466.97,494.31,True
+17,Healthcare,1,2024-07,seasonal_naive,n/a,389.94,368.3,True
+17,Healthcare,2,2024-08,seasonal_naive,n/a,418.6,488.24,True
+17,Healthcare,3,2024-09,seasonal_naive,n/a,466.97,321.92,True
+17,Healthcare,1,2024-07,random_forest,last_known_history,389.94,419.8962882831792,True
+17,Healthcare,1,2024-07,random_forest,recursive,389.94,419.8962882831792,True
+17,Healthcare,2,2024-08,random_forest,last_known_history,418.6,416.21828521763365,True
+17,Healthcare,2,2024-08,random_forest,recursive,418.6,417.6998923785284,True
+17,Healthcare,3,2024-09,random_forest,last_known_history,466.97,410.5135943951229,True
+17,Healthcare,3,2024-09,random_forest,recursive,466.97,412.81279441316036,True
+17,Healthcare,1,2024-07,ridge,last_known_history,389.94,424.54642064755376,True
+17,Healthcare,1,2024-07,ridge,recursive,389.94,424.54642064755376,True
+17,Healthcare,2,2024-08,ridge,last_known_history,418.6,424.28638417704303,True
+17,Healthcare,2,2024-08,ridge,recursive,418.6,431.20240834062304,True
+17,Healthcare,3,2024-09,ridge,last_known_history,466.97,411.78164556435763,True
+17,Healthcare,3,2024-09,ridge,recursive,466.97,415.7621673019282,True
+17,Shopping,1,2024-07,naive,n/a,349.52,261.44,True
+17,Shopping,2,2024-08,naive,n/a,344.46000000000004,261.44,True
+17,Shopping,3,2024-09,naive,n/a,275.81,261.44,True
+17,Shopping,1,2024-07,seasonal_naive,n/a,349.52,321.81,True
+17,Shopping,2,2024-08,seasonal_naive,n/a,344.46000000000004,304.44,True
+17,Shopping,3,2024-09,seasonal_naive,n/a,275.81,272.02,True
+17,Shopping,1,2024-07,random_forest,last_known_history,349.52,289.71771486481646,True
+17,Shopping,1,2024-07,random_forest,recursive,349.52,289.71771486481646,True
+17,Shopping,2,2024-08,random_forest,last_known_history,344.46000000000004,290.1458584545601,True
+17,Shopping,2,2024-08,random_forest,recursive,344.46000000000004,294.54578474132893,True
+17,Shopping,3,2024-09,random_forest,last_known_history,275.81,290.68292512122673,True
+17,Shopping,3,2024-09,random_forest,recursive,275.81,283.31485428622847,True
+17,Shopping,1,2024-07,ridge,last_known_history,349.52,280.0255876017362,True
+17,Shopping,1,2024-07,ridge,recursive,349.52,280.0255876017362,True
+17,Shopping,2,2024-08,ridge,last_known_history,344.46000000000004,279.7655511312255,True
+17,Shopping,2,2024-08,ridge,recursive,344.46000000000004,277.6252259267868,True
+17,Shopping,3,2024-09,ridge,last_known_history,275.81,267.2608125185401,True
+17,Shopping,3,2024-09,ridge,recursive,275.81,250.42397246500968,True
+17,Subscriptions,1,2024-07,naive,n/a,46.29,46.04,True
+17,Subscriptions,2,2024-08,naive,n/a,46.0,46.04,True
+17,Subscriptions,3,2024-09,naive,n/a,46.0,46.04,True
+17,Subscriptions,1,2024-07,seasonal_naive,n/a,46.29,46.38,True
+17,Subscriptions,2,2024-08,seasonal_naive,n/a,46.0,45.74,True
+17,Subscriptions,3,2024-09,seasonal_naive,n/a,46.0,45.58,True
+17,Subscriptions,1,2024-07,random_forest,last_known_history,46.29,47.1124659386636,True
+17,Subscriptions,1,2024-07,random_forest,recursive,46.29,47.1124659386636,True
+17,Subscriptions,2,2024-08,random_forest,last_known_history,46.0,47.1124659386636,True
+17,Subscriptions,2,2024-08,random_forest,recursive,46.0,48.02310333765351,True
+17,Subscriptions,3,2024-09,random_forest,last_known_history,46.0,47.1124659386636,True
+17,Subscriptions,3,2024-09,random_forest,recursive,46.0,48.02310333765351,True
+17,Subscriptions,1,2024-07,ridge,last_known_history,46.29,51.14645327476708,True
+17,Subscriptions,1,2024-07,ridge,recursive,46.29,51.14645327476708,True
+17,Subscriptions,2,2024-08,ridge,last_known_history,46.0,50.88641680425633,True
+17,Subscriptions,2,2024-08,ridge,recursive,46.0,53.06485140042935,True
+17,Subscriptions,3,2024-09,ridge,last_known_history,46.0,38.381678191570956,True
+17,Subscriptions,3,2024-09,ridge,recursive,46.0,42.634363667327875,True
+17,Other,1,2024-07,naive,n/a,0.0,0.0,True
+17,Other,2,2024-08,naive,n/a,0.0,0.0,True
+17,Other,3,2024-09,naive,n/a,0.0,0.0,True
+17,Other,1,2024-07,seasonal_naive,n/a,0.0,0.0,True
+17,Other,2,2024-08,seasonal_naive,n/a,0.0,0.0,True
+17,Other,3,2024-09,seasonal_naive,n/a,0.0,0.0,True
+17,Other,1,2024-07,random_forest,last_known_history,0.0,0.3763359829059829,True
+17,Other,1,2024-07,random_forest,recursive,0.0,0.3763359829059829,True
+17,Other,2,2024-08,random_forest,last_known_history,0.0,0.3763359829059829,True
+17,Other,2,2024-08,random_forest,recursive,0.0,11.278665943500942,True
+17,Other,3,2024-09,random_forest,last_known_history,0.0,0.3763359829059829,True
+17,Other,3,2024-09,random_forest,recursive,0.0,19.712029283127002,True
+17,Other,1,2024-07,ridge,last_known_history,0.0,7.839039389117687,True
+17,Other,1,2024-07,ridge,recursive,0.0,7.839039389117687,True
+17,Other,2,2024-08,ridge,last_known_history,0.0,7.5790029186069034,True
+17,Other,2,2024-08,ridge,recursive,0.0,11.233362160154599,True
+17,Other,3,2024-09,ridge,last_known_history,0.0,-4.9257356940784405,True
+17,Other,3,2024-09,ridge,recursive,0.0,2.039836693608976,True
+18,Food & Dining,1,2024-08,naive,n/a,250.0,280.52,True
+18,Food & Dining,2,2024-09,naive,n/a,272.94,280.52,True
+18,Food & Dining,1,2024-08,seasonal_naive,n/a,250.0,379.58,True
+18,Food & Dining,2,2024-09,seasonal_naive,n/a,272.94,370.69,True
+18,Food & Dining,1,2024-08,random_forest,last_known_history,250.0,273.13531845578734,True
+18,Food & Dining,1,2024-08,random_forest,recursive,250.0,273.13531845578734,True
+18,Food & Dining,2,2024-09,random_forest,last_known_history,272.94,273.13531845578734,True
+18,Food & Dining,2,2024-09,random_forest,recursive,272.94,273.49003242404126,True
+18,Food & Dining,1,2024-08,ridge,last_known_history,250.0,242.44836886086927,True
+18,Food & Dining,1,2024-08,ridge,recursive,250.0,242.44836886086927,True
+18,Food & Dining,2,2024-09,ridge,last_known_history,272.94,231.2091137105524,True
+18,Food & Dining,2,2024-09,ridge,recursive,272.94,236.30407789670232,True
+18,Transport,1,2024-08,naive,n/a,162.86,137.82,True
+18,Transport,2,2024-09,naive,n/a,131.09,137.82,True
+18,Transport,1,2024-08,seasonal_naive,n/a,162.86,145.74,True
+18,Transport,2,2024-09,seasonal_naive,n/a,131.09,127.67,True
+18,Transport,1,2024-08,random_forest,last_known_history,162.86,139.87472398849343,True
+18,Transport,1,2024-08,random_forest,recursive,162.86,139.87472398849343,True
+18,Transport,2,2024-09,random_forest,last_known_history,131.09,140.14753398849342,True
+18,Transport,2,2024-09,random_forest,recursive,131.09,139.9790998723318,True
+18,Transport,1,2024-08,ridge,last_known_history,162.86,124.0179526141477,True
+18,Transport,1,2024-08,ridge,recursive,162.86,124.0179526141477,True
+18,Transport,2,2024-09,ridge,last_known_history,131.09,112.77869746383084,True
+18,Transport,2,2024-09,ridge,recursive,131.09,118.9718582638039,True
+18,Rent & Utilities,1,2024-08,naive,n/a,238.2,218.88,True
+18,Rent & Utilities,2,2024-09,naive,n/a,116.6,218.88,True
+18,Rent & Utilities,1,2024-08,seasonal_naive,n/a,238.2,102.14,True
+18,Rent & Utilities,2,2024-09,seasonal_naive,n/a,116.6,229.42000000000002,True
+18,Rent & Utilities,1,2024-08,random_forest,last_known_history,238.2,191.01478149074347,True
+18,Rent & Utilities,1,2024-08,random_forest,recursive,238.2,191.01478149074347,True
+18,Rent & Utilities,2,2024-09,random_forest,last_known_history,116.6,191.57219982407682,True
+18,Rent & Utilities,2,2024-09,random_forest,recursive,116.6,170.79226517788965,True
+18,Rent & Utilities,1,2024-08,ridge,last_known_history,238.2,205.5534700716775,True
+18,Rent & Utilities,1,2024-08,ridge,recursive,238.2,205.5534700716775,True
+18,Rent & Utilities,2,2024-09,ridge,last_known_history,116.6,194.31421492136067,True
+18,Rent & Utilities,2,2024-09,ridge,recursive,116.6,185.83700631528293,True
+18,Entertainment,1,2024-08,naive,n/a,35.87,0.0,True
+18,Entertainment,2,2024-09,naive,n/a,47.17,0.0,True
+18,Entertainment,1,2024-08,seasonal_naive,n/a,35.87,77.7,True
+18,Entertainment,2,2024-09,seasonal_naive,n/a,47.17,60.92,True
+18,Entertainment,1,2024-08,random_forest,last_known_history,35.87,55.495768936308785,True
+18,Entertainment,1,2024-08,random_forest,recursive,35.87,55.495768936308785,True
+18,Entertainment,2,2024-09,random_forest,last_known_history,47.17,56.7550023183434,True
+18,Entertainment,2,2024-09,random_forest,recursive,47.17,65.8999093110729,True
+18,Entertainment,1,2024-08,ridge,last_known_history,35.87,100.95237949645676,True
+18,Entertainment,1,2024-08,ridge,recursive,35.87,100.95237949645676,True
+18,Entertainment,2,2024-09,ridge,last_known_history,47.17,89.71312434613989,True
+18,Entertainment,2,2024-09,ridge,recursive,47.17,71.14229326128374,True
+18,Healthcare,1,2024-08,naive,n/a,418.6,389.94,True
+18,Healthcare,2,2024-09,naive,n/a,466.97,389.94,True
+18,Healthcare,1,2024-08,seasonal_naive,n/a,418.6,488.24,True
+18,Healthcare,2,2024-09,seasonal_naive,n/a,466.97,321.92,True
+18,Healthcare,1,2024-08,random_forest,last_known_history,418.6,421.13348433789093,True
+18,Healthcare,1,2024-08,random_forest,recursive,418.6,421.13348433789093,True
+18,Healthcare,2,2024-09,random_forest,last_known_history,466.97,417.2711352469817,True
+18,Healthcare,2,2024-09,random_forest,recursive,466.97,413.4520080860872,True
+18,Healthcare,1,2024-08,ridge,last_known_history,418.6,434.7794873628012,True
+18,Healthcare,1,2024-08,ridge,recursive,418.6,434.7794873628012,True
+18,Healthcare,2,2024-09,ridge,last_known_history,466.97,423.5402322124844,True
+18,Healthcare,2,2024-09,ridge,recursive,466.97,415.52440858782836,True
+18,Shopping,1,2024-08,naive,n/a,344.46000000000004,349.52,True
+18,Shopping,2,2024-09,naive,n/a,275.81,349.52,True
+18,Shopping,1,2024-08,seasonal_naive,n/a,344.46000000000004,304.44,True
+18,Shopping,2,2024-09,seasonal_naive,n/a,275.81,272.02,True
+18,Shopping,1,2024-08,random_forest,last_known_history,344.46000000000004,308.7940683103666,True
+18,Shopping,1,2024-08,random_forest,recursive,344.46000000000004,308.7940683103666,True
+18,Shopping,2,2024-09,random_forest,last_known_history,275.81,308.7940683103666,True
+18,Shopping,2,2024-09,random_forest,recursive,275.81,311.15979837197165,True
+18,Shopping,1,2024-08,ridge,last_known_history,344.46000000000004,302.24804908968827,True
+18,Shopping,1,2024-08,ridge,recursive,344.46000000000004,302.24804908968827,True
+18,Shopping,2,2024-09,ridge,last_known_history,275.81,291.00879393937146,True
+18,Shopping,2,2024-09,ridge,recursive,275.81,294.3805974079387,True
+18,Subscriptions,1,2024-08,naive,n/a,46.0,46.29,True
+18,Subscriptions,2,2024-09,naive,n/a,46.0,46.29,True
+18,Subscriptions,1,2024-08,seasonal_naive,n/a,46.0,45.74,True
+18,Subscriptions,2,2024-09,seasonal_naive,n/a,46.0,45.58,True
+18,Subscriptions,1,2024-08,random_forest,last_known_history,46.0,45.296213605716176,True
+18,Subscriptions,1,2024-08,random_forest,recursive,46.0,45.296213605716176,True
+18,Subscriptions,2,2024-09,random_forest,last_known_history,46.0,46.94555270564403,True
+18,Subscriptions,2,2024-09,random_forest,recursive,46.0,47.86826648270029,True
+18,Subscriptions,1,2024-08,ridge,last_known_history,46.0,51.23777791637929,True
+18,Subscriptions,1,2024-08,ridge,recursive,46.0,51.23777791637929,True
+18,Subscriptions,2,2024-09,ridge,last_known_history,46.0,39.99852276606242,True
+18,Subscriptions,2,2024-09,ridge,recursive,46.0,42.18769356281885,True
+18,Other,1,2024-08,naive,n/a,0.0,0.0,True
+18,Other,2,2024-09,naive,n/a,0.0,0.0,True
+18,Other,1,2024-08,seasonal_naive,n/a,0.0,0.0,True
+18,Other,2,2024-09,seasonal_naive,n/a,0.0,0.0,True
+18,Other,1,2024-08,random_forest,last_known_history,0.0,0.13067142857142858,True
+18,Other,1,2024-08,random_forest,recursive,0.0,0.13067142857142858,True
+18,Other,2,2024-09,random_forest,last_known_history,0.0,0.13067142857142858,True
+18,Other,2,2024-09,random_forest,recursive,0.0,10.121418241203244,True
+18,Other,1,2024-08,ridge,last_known_history,0.0,4.6827898094299485,True
+18,Other,1,2024-08,ridge,recursive,0.0,4.6827898094299485,True
+18,Other,2,2024-09,ridge,last_known_history,0.0,-6.556465340886888,True
+18,Other,2,2024-09,ridge,recursive,0.0,-4.503051110855182,True
+19,Food & Dining,1,2024-09,naive,n/a,272.94,250.0,True
+19,Food & Dining,1,2024-09,seasonal_naive,n/a,272.94,370.69,True
+19,Food & Dining,1,2024-09,random_forest,last_known_history,272.94,258.70056243943975,True
+19,Food & Dining,1,2024-09,random_forest,recursive,272.94,258.70056243943975,True
+19,Food & Dining,1,2024-09,ridge,last_known_history,272.94,234.34604173634054,True
+19,Food & Dining,1,2024-09,ridge,recursive,272.94,234.34604173634054,True
+19,Transport,1,2024-09,naive,n/a,131.09,162.86,True
+19,Transport,1,2024-09,seasonal_naive,n/a,131.09,127.67,True
+19,Transport,1,2024-09,random_forest,last_known_history,131.09,144.13061222563385,True
+19,Transport,1,2024-09,random_forest,recursive,131.09,144.13061222563385,True
+19,Transport,1,2024-09,ridge,last_known_history,131.09,135.06785615277727,True
+19,Transport,1,2024-09,ridge,recursive,131.09,135.06785615277727,True
+19,Rent & Utilities,1,2024-09,naive,n/a,116.6,238.2,True
+19,Rent & Utilities,1,2024-09,seasonal_naive,n/a,116.6,229.42000000000002,True
+19,Rent & Utilities,1,2024-09,random_forest,last_known_history,116.6,237.90585124809837,True
+19,Rent & Utilities,1,2024-09,random_forest,recursive,116.6,237.90585124809837,True
+19,Rent & Utilities,1,2024-09,ridge,last_known_history,116.6,197.98062271806523,True
+19,Rent & Utilities,1,2024-09,ridge,recursive,116.6,197.98062271806523,True
+19,Entertainment,1,2024-09,naive,n/a,47.17,35.87,True
+19,Entertainment,1,2024-09,seasonal_naive,n/a,47.17,60.92,True
+19,Entertainment,1,2024-09,random_forest,last_known_history,47.17,61.68168063927904,True
+19,Entertainment,1,2024-09,random_forest,recursive,47.17,61.68168063927904,True
+19,Entertainment,1,2024-09,ridge,last_known_history,47.17,51.117797802790164,True
+19,Entertainment,1,2024-09,ridge,recursive,47.17,51.117797802790164,True
+19,Healthcare,1,2024-09,naive,n/a,466.97,418.6,True
+19,Healthcare,1,2024-09,seasonal_naive,n/a,466.97,321.92,True
+19,Healthcare,1,2024-09,random_forest,last_known_history,466.97,418.3002082297522,True
+19,Healthcare,1,2024-09,random_forest,recursive,466.97,418.3002082297522,True
+19,Healthcare,1,2024-09,ridge,last_known_history,466.97,414.16448222659915,True
+19,Healthcare,1,2024-09,ridge,recursive,466.97,414.16448222659915,True
+19,Shopping,1,2024-09,naive,n/a,275.81,344.46000000000004,True
+19,Shopping,1,2024-09,seasonal_naive,n/a,275.81,272.02,True
+19,Shopping,1,2024-09,random_forest,last_known_history,275.81,321.0986736957489,True
+19,Shopping,1,2024-09,random_forest,recursive,275.81,321.0986736957489,True
+19,Shopping,1,2024-09,ridge,last_known_history,275.81,306.68452211099,True
+19,Shopping,1,2024-09,ridge,recursive,275.81,306.68452211099,True
+19,Subscriptions,1,2024-09,naive,n/a,46.0,46.0,True
+19,Subscriptions,1,2024-09,seasonal_naive,n/a,46.0,45.58,True
+19,Subscriptions,1,2024-09,random_forest,last_known_history,46.0,47.43450948109596,True
+19,Subscriptions,1,2024-09,random_forest,recursive,46.0,47.43450948109596,True
+19,Subscriptions,1,2024-09,ridge,last_known_history,46.0,41.7308115178576,True
+19,Subscriptions,1,2024-09,ridge,recursive,46.0,41.7308115178576,True
+19,Other,1,2024-09,naive,n/a,0.0,0.0,True
+19,Other,1,2024-09,seasonal_naive,n/a,0.0,0.0,True
+19,Other,1,2024-09,random_forest,last_known_history,0.0,0.2165775,True
+19,Other,1,2024-09,random_forest,recursive,0.0,0.2165775,True
+19,Other,1,2024-09,ridge,last_known_history,0.0,-7.617837423523184,True
+19,Other,1,2024-09,ridge,recursive,0.0,-7.617837423523184,True

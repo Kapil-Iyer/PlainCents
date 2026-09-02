@@ -1,0 +1,568 @@
+{
+  "interpretation_note": "WAPE is undefined (NaN, denominator=0) for a category with zero actual spend across the entire evaluated window ('Other', per this dataset's K-Means-derived labels never assigning that category -- see reports/ml). MAE remains defined and near-trivially small for an all-zero category, since any candidate predicting near-zero achieves a small absolute error almost by construction -- this is a metric-sensitivity finding Section 16 specifically asks to be surfaced, not treated as evidence of genuine forecasting skill.",
+  "metric_behavior_by_category": {
+    "Entertainment": {
+      "naive__n/a": {
+        "mae": 35.94384615384615,
+        "mape_all": 759512820558.1805,
+        "n": 39,
+        "n_near_zero_actual": 3,
+        "wape": 0.5247964359919886
+      },
+      "random_forest__last_known_history": {
+        "mae": 46.509375811116826,
+        "mape_all": 776681690986.5405,
+        "n": 39,
+        "n_near_zero_actual": 3,
+        "wape": 0.6790579550506548
+      },
+      "random_forest__recursive": {
+        "mae": 48.218304532144494,
+        "mape_all": 826660004653.5953,
+        "n": 39,
+        "n_near_zero_actual": 3,
+        "wape": 0.7040090885025684
+      },
+      "ridge__last_known_history": {
+        "mae": 36.84785246044361,
+        "mape_all": 817588969426.1431,
+        "n": 39,
+        "n_near_zero_actual": 3,
+        "wape": 0.5379953375726938
+      },
+      "ridge__recursive": {
+        "mae": 37.388006747434424,
+        "mape_all": 794427653092.6709,
+        "n": 39,
+        "n_near_zero_actual": 3,
+        "wape": 0.545881834846393
+      },
+      "seasonal_naive__n/a": {
+        "mae": 40.71777777777778,
+        "mape_all": 1160444444484.061,
+        "n": 27,
+        "n_near_zero_actual": 3,
+        "wape": 0.5687370022038055
+      }
+    },
+    "Food & Dining": {
+      "naive__n/a": {
+        "mae": 36.63025641025641,
+        "mape_all": 12.819139579966562,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.12906600654102596
+      },
+      "random_forest__last_known_history": {
+        "mae": 40.04433342738209,
+        "mape_all": 13.62413772740154,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.14109544148924902
+      },
+      "random_forest__recursive": {
+        "mae": 40.03920686566746,
+        "mape_all": 13.613509020363653,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.1410773781472843
+      },
+      "ridge__last_known_history": {
+        "mae": 42.28254537558984,
+        "mape_all": 15.432085582155622,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.14898173839943657
+      },
+      "ridge__recursive": {
+        "mae": 38.043514294576184,
+        "mape_all": 13.573734997355496,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.1340455936151339
+      },
+      "seasonal_naive__n/a": {
+        "mae": 133.43444444444444,
+        "mape_all": 51.64567966185759,
+        "n": 27,
+        "n_near_zero_actual": 0,
+        "wape": 0.5129967492107972
+      }
+    },
+    "Healthcare": {
+      "naive__n/a": {
+        "mae": 64.23051282051283,
+        "mape_all": 15.082430366260173,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.14731846969314702
+      },
+      "random_forest__last_known_history": {
+        "mae": 65.05271456369984,
+        "mape_all": 14.411883339253851,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.14920426348906182
+      },
+      "random_forest__recursive": {
+        "mae": 64.97270809717489,
+        "mape_all": 14.384838806526624,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.1490207614477976
+      },
+      "ridge__last_known_history": {
+        "mae": 50.16981152319472,
+        "mape_all": 11.341481659377065,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.11506898409863342
+      },
+      "ridge__recursive": {
+        "mae": 55.60118574303717,
+        "mape_all": 12.477698434729344,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.12752633035451547
+      },
+      "seasonal_naive__n/a": {
+        "mae": 54.322222222222216,
+        "mape_all": 12.187031499362625,
+        "n": 27,
+        "n_near_zero_actual": 0,
+        "wape": 0.12203858605979365
+      }
+    },
+    "Other": {
+      "naive__n/a": {
+        "mae": 0.0,
+        "mape_all": 0.0,
+        "n": 39,
+        "n_near_zero_actual": 39,
+        "wape": NaN
+      },
+      "random_forest__last_known_history": {
+        "mae": 37.82889888783713,
+        "mape_all": 3782889888783.7124,
+        "n": 39,
+        "n_near_zero_actual": 39,
+        "wape": NaN
+      },
+      "random_forest__recursive": {
+        "mae": 45.979104259498456,
+        "mape_all": 4597910425949.844,
+        "n": 39,
+        "n_near_zero_actual": 39,
+        "wape": NaN
+      },
+      "ridge__last_known_history": {
+        "mae": 23.58425752288756,
+        "mape_all": 2358425752288.756,
+        "n": 39,
+        "n_near_zero_actual": 39,
+        "wape": NaN
+      },
+      "ridge__recursive": {
+        "mae": 29.36714522800923,
+        "mape_all": 2936714522800.922,
+        "n": 39,
+        "n_near_zero_actual": 39,
+        "wape": NaN
+      },
+      "seasonal_naive__n/a": {
+        "mae": 0.0,
+        "mape_all": 0.0,
+        "n": 27,
+        "n_near_zero_actual": 27,
+        "wape": NaN
+      }
+    },
+    "Rent & Utilities": {
+      "naive__n/a": {
+        "mae": 62.951282051282064,
+        "mape_all": 41.5642128201423,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.32750736361307947
+      },
+      "random_forest__last_known_history": {
+        "mae": 60.780166525510836,
+        "mape_all": 42.04537975706194,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.31621202063077913
+      },
+      "random_forest__recursive": {
+        "mae": 61.91870587593585,
+        "mape_all": 42.500530830563804,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.32213533162425
+      },
+      "ridge__last_known_history": {
+        "mae": 68.01215815614977,
+        "mape_all": 46.559250064795656,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.35383683835399776
+      },
+      "ridge__recursive": {
+        "mae": 71.2753966114565,
+        "mape_all": 47.40944044033436,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.3708140084530547
+      },
+      "seasonal_naive__n/a": {
+        "mae": 68.27222222222221,
+        "mape_all": 40.17784314536897,
+        "n": 27,
+        "n_near_zero_actual": 0,
+        "wape": 0.3844565550640395
+      }
+    },
+    "Shopping": {
+      "naive__n/a": {
+        "mae": 50.42102564102566,
+        "mape_all": 16.235048723391685,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.16265344762412093
+      },
+      "random_forest__last_known_history": {
+        "mae": 44.53740996014502,
+        "mape_all": 14.512260740635273,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.14367346134213008
+      },
+      "random_forest__recursive": {
+        "mae": 44.52842949808011,
+        "mape_all": 14.446607342618412,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.14364449122306677
+      },
+      "ridge__last_known_history": {
+        "mae": 44.16836803097635,
+        "mape_all": 13.922248027317961,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.1424829670724479
+      },
+      "ridge__recursive": {
+        "mae": 46.01111743779968,
+        "mape_all": 14.374580779605676,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.1484275019230686
+      },
+      "seasonal_naive__n/a": {
+        "mae": 43.82444444444444,
+        "mape_all": 14.616137669885362,
+        "n": 27,
+        "n_near_zero_actual": 0,
+        "wape": 0.14101940706205393
+      }
+    },
+    "Subscriptions": {
+      "naive__n/a": {
+        "mae": 0.32384615384615556,
+        "mape_all": 0.7050137904899437,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.007056614947955407
+      },
+      "random_forest__last_known_history": {
+        "mae": 23.389302212835027,
+        "mape_all": 51.0395946769525,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.5096534192459345
+      },
+      "random_forest__recursive": {
+        "mae": 23.32982632488071,
+        "mape_all": 50.90890071011947,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.5083574383148757
+      },
+      "ridge__last_known_history": {
+        "mae": 24.359537915784106,
+        "mape_all": 53.14766521283429,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.5307948769509502
+      },
+      "ridge__recursive": {
+        "mae": 29.412723738660482,
+        "mape_all": 64.1452464879519,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.6409039092460981
+      },
+      "seasonal_naive__n/a": {
+        "mae": 0.35888888888889015,
+        "mape_all": 0.7817691719917064,
+        "n": 27,
+        "n_near_zero_actual": 0,
+        "wape": 0.007810421956232647
+      }
+    },
+    "Transport": {
+      "naive__n/a": {
+        "mae": 28.043076923076917,
+        "mape_all": 22.31625241507127,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.22021230328119712
+      },
+      "random_forest__last_known_history": {
+        "mae": 36.54788190847074,
+        "mape_all": 30.618215815293624,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.28699751019441516
+      },
+      "random_forest__recursive": {
+        "mae": 46.44635377094609,
+        "mape_all": 39.30025038792599,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.36472668712385786
+      },
+      "ridge__last_known_history": {
+        "mae": 38.04329717727552,
+        "mape_all": 31.82339260486362,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.298740474121258
+      },
+      "ridge__recursive": {
+        "mae": 43.516748230222,
+        "mape_all": 36.08407346536738,
+        "n": 39,
+        "n_near_zero_actual": 0,
+        "wape": 0.34172153738234284
+      },
+      "seasonal_naive__n/a": {
+        "mae": 36.205555555555556,
+        "mape_all": 31.00571532553181,
+        "n": 27,
+        "n_near_zero_actual": 0,
+        "wape": 0.2955126693631763
+      }
+    }
+  },
+  "per_category_sparsity": {
+    "Entertainment": {
+      "candidate_rule_outcomes": {
+        "rule_1_min_total_months": {
+          "actual_total_months": 21,
+          "passes": true,
+          "threshold": 12
+        },
+        "rule_2_min_nonzero_months": {
+          "actual_nonzero_months": 20,
+          "passes": true,
+          "threshold": 6
+        },
+        "rule_3_min_recent_nonzero": {
+          "actual_recent_nonzero_count": 5,
+          "passes": true,
+          "window": 6
+        },
+        "rule_4_survives_dropna_floor": {
+          "passes": true
+        }
+      },
+      "nonzero_months": 20,
+      "pct_zero": 0.0476,
+      "sparsity_bucket": "intermittent",
+      "total_months_in_dev_region": 21
+    },
+    "Food & Dining": {
+      "candidate_rule_outcomes": {
+        "rule_1_min_total_months": {
+          "actual_total_months": 21,
+          "passes": true,
+          "threshold": 12
+        },
+        "rule_2_min_nonzero_months": {
+          "actual_nonzero_months": 21,
+          "passes": true,
+          "threshold": 6
+        },
+        "rule_3_min_recent_nonzero": {
+          "actual_recent_nonzero_count": 6,
+          "passes": true,
+          "window": 6
+        },
+        "rule_4_survives_dropna_floor": {
+          "passes": true
+        }
+      },
+      "nonzero_months": 21,
+      "pct_zero": 0.0,
+      "sparsity_bucket": "dense",
+      "total_months_in_dev_region": 21
+    },
+    "Healthcare": {
+      "candidate_rule_outcomes": {
+        "rule_1_min_total_months": {
+          "actual_total_months": 21,
+          "passes": true,
+          "threshold": 12
+        },
+        "rule_2_min_nonzero_months": {
+          "actual_nonzero_months": 21,
+          "passes": true,
+          "threshold": 6
+        },
+        "rule_3_min_recent_nonzero": {
+          "actual_recent_nonzero_count": 6,
+          "passes": true,
+          "window": 6
+        },
+        "rule_4_survives_dropna_floor": {
+          "passes": true
+        }
+      },
+      "nonzero_months": 21,
+      "pct_zero": 0.0,
+      "sparsity_bucket": "dense",
+      "total_months_in_dev_region": 21
+    },
+    "Other": {
+      "candidate_rule_outcomes": {
+        "rule_1_min_total_months": {
+          "actual_total_months": 21,
+          "passes": true,
+          "threshold": 12
+        },
+        "rule_2_min_nonzero_months": {
+          "actual_nonzero_months": 0,
+          "passes": false,
+          "threshold": 6
+        },
+        "rule_3_min_recent_nonzero": {
+          "actual_recent_nonzero_count": 0,
+          "passes": false,
+          "window": 6
+        },
+        "rule_4_survives_dropna_floor": {
+          "passes": true
+        }
+      },
+      "nonzero_months": 0,
+      "pct_zero": 1.0,
+      "sparsity_bucket": "always_zero",
+      "total_months_in_dev_region": 21
+    },
+    "Rent & Utilities": {
+      "candidate_rule_outcomes": {
+        "rule_1_min_total_months": {
+          "actual_total_months": 21,
+          "passes": true,
+          "threshold": 12
+        },
+        "rule_2_min_nonzero_months": {
+          "actual_nonzero_months": 21,
+          "passes": true,
+          "threshold": 6
+        },
+        "rule_3_min_recent_nonzero": {
+          "actual_recent_nonzero_count": 6,
+          "passes": true,
+          "window": 6
+        },
+        "rule_4_survives_dropna_floor": {
+          "passes": true
+        }
+      },
+      "nonzero_months": 21,
+      "pct_zero": 0.0,
+      "sparsity_bucket": "dense",
+      "total_months_in_dev_region": 21
+    },
+    "Shopping": {
+      "candidate_rule_outcomes": {
+        "rule_1_min_total_months": {
+          "actual_total_months": 21,
+          "passes": true,
+          "threshold": 12
+        },
+        "rule_2_min_nonzero_months": {
+          "actual_nonzero_months": 21,
+          "passes": true,
+          "threshold": 6
+        },
+        "rule_3_min_recent_nonzero": {
+          "actual_recent_nonzero_count": 6,
+          "passes": true,
+          "window": 6
+        },
+        "rule_4_survives_dropna_floor": {
+          "passes": true
+        }
+      },
+      "nonzero_months": 21,
+      "pct_zero": 0.0,
+      "sparsity_bucket": "dense",
+      "total_months_in_dev_region": 21
+    },
+    "Subscriptions": {
+      "candidate_rule_outcomes": {
+        "rule_1_min_total_months": {
+          "actual_total_months": 21,
+          "passes": true,
+          "threshold": 12
+        },
+        "rule_2_min_nonzero_months": {
+          "actual_nonzero_months": 21,
+          "passes": true,
+          "threshold": 6
+        },
+        "rule_3_min_recent_nonzero": {
+          "actual_recent_nonzero_count": 6,
+          "passes": true,
+          "window": 6
+        },
+        "rule_4_survives_dropna_floor": {
+          "passes": true
+        }
+      },
+      "nonzero_months": 21,
+      "pct_zero": 0.0,
+      "sparsity_bucket": "dense",
+      "total_months_in_dev_region": 21
+    },
+    "Transport": {
+      "candidate_rule_outcomes": {
+        "rule_1_min_total_months": {
+          "actual_total_months": 21,
+          "passes": true,
+          "threshold": 12
+        },
+        "rule_2_min_nonzero_months": {
+          "actual_nonzero_months": 21,
+          "passes": true,
+          "threshold": 6
+        },
+        "rule_3_min_recent_nonzero": {
+          "actual_recent_nonzero_count": 6,
+          "passes": true,
+          "window": 6
+        },
+        "rule_4_survives_dropna_floor": {
+          "passes": true
+        }
+      },
+      "nonzero_months": 21,
+      "pct_zero": 0.0,
+      "sparsity_bucket": "dense",
+      "total_months_in_dev_region": 21
+    }
+  },
+  "rule_adoption_status": "NONE of the four candidate rules is adopted as final -- ML Spec Section 16 explicitly reserves that decision; this analysis only reports how each rule would classify each category."
+}

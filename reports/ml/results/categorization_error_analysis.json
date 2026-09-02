@@ -1,0 +1,943 @@
+{
+  "kmeans": {
+    "error_rate": 0.88,
+    "errors": [
+      {
+        "amount": 6.8,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "DAIRY QUEEN #217 BRAMPTON",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 7.97,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "DAIRY QUEEN #217 BRAMPTON",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 8.57,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "DQ GRILL AND CHILL 217",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 11.13,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "DQ GRILL AND CHILL 217",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 29.9,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "ESCAPE ROOM EXPERIENCE",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 37.28,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "PUZZLE ESCAPE GAMES TORONTO",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 37.9,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "PUZZLE ESCAPE GAMES TORONTO",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 35.27,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "ESCAPE ROOM EXPERIENCE",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 264.24,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "generic_transfer_description (could be rent, could be a gift, could be anything)",
+        "merchant_description": "E TRFR SENT",
+        "predicted_category": "Transport",
+        "true_category": "Other"
+      },
+      {
+        "amount": 89.06,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "generic_transfer_description (could be rent, could be a gift, could be anything)",
+        "merchant_description": "SENT E-TRANSFER",
+        "predicted_category": "Transport",
+        "true_category": "Other"
+      },
+      {
+        "amount": 120.21,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "FRESHCO #2201 SCARBOROUGH ON",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 148.93,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "FRESHCO SUPERMARKET #2201",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 94.65,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "FRESHCO WEEKLY SHOP",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 92.87,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "RESIDENTIAL INTERNET MONTHLY BILL",
+        "predicted_category": "Transport",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 83.17,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "HOME INTERNET SERVICE PROVIDER",
+        "predicted_category": "Entertainment",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 94.58,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "RESIDENTIAL INTERNET MONTHLY BILL",
+        "predicted_category": "Transport",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 76.08,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "HOME INTERNET SERVICE PROVIDER",
+        "predicted_category": "Entertainment",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 37.4,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "INDIGO BOOKS AND MUSIC",
+        "predicted_category": "Transport",
+        "true_category": "Shopping"
+      },
+      {
+        "amount": 27.27,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "INDIGO #212 YORKDALE",
+        "predicted_category": "Transport",
+        "true_category": "Shopping"
+      },
+      {
+        "amount": 25.56,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "INDIGO #212 YORKDALE",
+        "predicted_category": "Transport",
+        "true_category": "Shopping"
+      },
+      {
+        "amount": 59.24,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "LONDON DRUGS #71 VANCOUVER BC",
+        "predicted_category": "Transport",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 15.26,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "LONDON DRUGS STORE #0071",
+        "predicted_category": "Transport",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 13.24,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "LYFT TRIP TORONTO ON",
+        "predicted_category": "Shopping",
+        "true_category": "Transport"
+      },
+      {
+        "amount": 40.25,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "LYFT TRIP TORONTO ON",
+        "predicted_category": "Shopping",
+        "true_category": "Transport"
+      },
+      {
+        "amount": 10.0,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "NOTION LABS INC MONTHLY",
+        "predicted_category": "Transport",
+        "true_category": "Subscriptions"
+      },
+      {
+        "amount": 10.0,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "NOTION.SO SUBSCRIPTION",
+        "predicted_category": "Entertainment",
+        "true_category": "Subscriptions"
+      },
+      {
+        "amount": 44.97,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "VISION CARE CENTRE EXAM",
+        "predicted_category": "Transport",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 104.09,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "OPTOMETRIST EYE EXAM FEE",
+        "predicted_category": "Other",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": -43.8,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "refund_credit (negative amount; V1's ingest.py does not net debits/credits)",
+        "merchant_description": "MERCHANT REFUND CREDIT ADJ",
+        "predicted_category": "Transport",
+        "true_category": "Other"
+      },
+      {
+        "amount": -46.01,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "refund_credit (negative amount; V1's ingest.py does not net debits/credits)",
+        "merchant_description": "REFUND - RETURNED ITEM",
+        "predicted_category": "Transport",
+        "true_category": "Other"
+      },
+      {
+        "amount": 10.0,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS COFFEE #1187 OTTAWA ON",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 4.46,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS COFFEE #0442 TORONTO ON",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 8.55,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS #0921 MISSISSAUGA",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 6.33,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS COFFEE #0442 TORONTO ON",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 105.5,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "TELUS COMMUNICATIONS",
+        "predicted_category": "Transport",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 59.55,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "TELUS MOBILITY PREAUTH PYMT",
+        "predicted_category": "Transport",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 115.04,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "TELUS MOBILITY PREAUTH PYMT",
+        "predicted_category": "Transport",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 86.11,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "WINNERS #4415",
+        "predicted_category": "Transport",
+        "true_category": "Shopping"
+      },
+      {
+        "amount": 37.86,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "WINNERS MERCHANTS INTL 4415",
+        "predicted_category": "Transport",
+        "true_category": "Shopping"
+      },
+      {
+        "amount": 11.78,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "XBOX GAME PASS ULTIMATE",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 16.28,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "XBOX GAME PASS ULTIMATE",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 12.7,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "XBOX GAME PASS MONTHLY RENEWAL",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 16.99,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "ZOOM PRO SUBSCRIPTION",
+        "predicted_category": "Entertainment",
+        "true_category": "Subscriptions"
+      },
+      {
+        "amount": 16.99,
+        "candidate_model": "kmeans",
+        "error_analysis_tag": "",
+        "merchant_description": "ZOOM VIDEO COMMUNICATIONS",
+        "predicted_category": "Transport",
+        "true_category": "Subscriptions"
+      }
+    ],
+    "n_errors": 44,
+    "n_validation_rows": 50
+  },
+  "tfidf_linear_svm": {
+    "error_rate": 0.74,
+    "errors": [
+      {
+        "amount": 6.8,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "DAIRY QUEEN #217 BRAMPTON",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 7.97,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "DAIRY QUEEN #217 BRAMPTON",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 8.57,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "DQ GRILL AND CHILL 217",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 11.13,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "DQ GRILL AND CHILL 217",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 29.9,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "ESCAPE ROOM EXPERIENCE",
+        "predicted_category": "Shopping",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 37.28,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "PUZZLE ESCAPE GAMES TORONTO",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 37.9,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "PUZZLE ESCAPE GAMES TORONTO",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 35.27,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "ESCAPE ROOM EXPERIENCE",
+        "predicted_category": "Shopping",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 264.24,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "generic_transfer_description (could be rent, could be a gift, could be anything)",
+        "merchant_description": "E TRFR SENT",
+        "predicted_category": "Shopping",
+        "true_category": "Other"
+      },
+      {
+        "amount": 89.06,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "generic_transfer_description (could be rent, could be a gift, could be anything)",
+        "merchant_description": "SENT E-TRANSFER",
+        "predicted_category": "Shopping",
+        "true_category": "Other"
+      },
+      {
+        "amount": 120.21,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "FRESHCO #2201 SCARBOROUGH ON",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 148.93,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "FRESHCO SUPERMARKET #2201",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 94.65,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "FRESHCO WEEKLY SHOP",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 83.17,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "HOME INTERNET SERVICE PROVIDER",
+        "predicted_category": "Other",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 76.08,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "HOME INTERNET SERVICE PROVIDER",
+        "predicted_category": "Other",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 59.24,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "LONDON DRUGS #71 VANCOUVER BC",
+        "predicted_category": "Shopping",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 15.26,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "LONDON DRUGS STORE #0071",
+        "predicted_category": "Shopping",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 35.93,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "LYFT *RIDE THU 4PM",
+        "predicted_category": "Shopping",
+        "true_category": "Transport"
+      },
+      {
+        "amount": 10.0,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "NOTION.SO SUBSCRIPTION",
+        "predicted_category": "Entertainment",
+        "true_category": "Subscriptions"
+      },
+      {
+        "amount": 44.97,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "VISION CARE CENTRE EXAM",
+        "predicted_category": "Shopping",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 104.09,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "OPTOMETRIST EYE EXAM FEE",
+        "predicted_category": "Other",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 71.82,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "PARK N FLY PEARSON AIRPORT",
+        "predicted_category": "Shopping",
+        "true_category": "Transport"
+      },
+      {
+        "amount": 116.37,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "PARK'N FLY YYZ LOT 3",
+        "predicted_category": "Shopping",
+        "true_category": "Transport"
+      },
+      {
+        "amount": 95.04,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "PARK'N FLY YYZ LOT 3",
+        "predicted_category": "Shopping",
+        "true_category": "Transport"
+      },
+      {
+        "amount": -43.8,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "refund_credit (negative amount; V1's ingest.py does not net debits/credits)",
+        "merchant_description": "MERCHANT REFUND CREDIT ADJ",
+        "predicted_category": "Shopping",
+        "true_category": "Other"
+      },
+      {
+        "amount": -46.01,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "refund_credit (negative amount; V1's ingest.py does not net debits/credits)",
+        "merchant_description": "REFUND - RETURNED ITEM",
+        "predicted_category": "Shopping",
+        "true_category": "Other"
+      },
+      {
+        "amount": 4.5,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS CANADA #0442",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 9.27,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS CANADA #0442",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 10.0,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS COFFEE #1187 OTTAWA ON",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 4.46,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS COFFEE #0442 TORONTO ON",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 8.55,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS #0921 MISSISSAUGA",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 6.33,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS COFFEE #0442 TORONTO ON",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 105.5,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "TELUS COMMUNICATIONS",
+        "predicted_category": "Shopping",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 11.78,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "XBOX GAME PASS ULTIMATE",
+        "predicted_category": "Shopping",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 16.28,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "XBOX GAME PASS ULTIMATE",
+        "predicted_category": "Shopping",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 16.99,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "ZOOM PRO SUBSCRIPTION",
+        "predicted_category": "Entertainment",
+        "true_category": "Subscriptions"
+      },
+      {
+        "amount": 16.99,
+        "candidate_model": "tfidf_linear_svm",
+        "error_analysis_tag": "",
+        "merchant_description": "ZOOM VIDEO COMMUNICATIONS",
+        "predicted_category": "Shopping",
+        "true_category": "Subscriptions"
+      }
+    ],
+    "n_errors": 37,
+    "n_validation_rows": 50
+  },
+  "tfidf_logreg": {
+    "error_rate": 0.68,
+    "errors": [
+      {
+        "amount": 29.9,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "ESCAPE ROOM EXPERIENCE",
+        "predicted_category": "Food & Dining",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 37.28,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "PUZZLE ESCAPE GAMES TORONTO",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 37.9,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "PUZZLE ESCAPE GAMES TORONTO",
+        "predicted_category": "Transport",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 35.27,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "ESCAPE ROOM EXPERIENCE",
+        "predicted_category": "Food & Dining",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 264.24,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "generic_transfer_description (could be rent, could be a gift, could be anything)",
+        "merchant_description": "E TRFR SENT",
+        "predicted_category": "Food & Dining",
+        "true_category": "Other"
+      },
+      {
+        "amount": 89.06,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "generic_transfer_description (could be rent, could be a gift, could be anything)",
+        "merchant_description": "SENT E-TRANSFER",
+        "predicted_category": "Food & Dining",
+        "true_category": "Other"
+      },
+      {
+        "amount": 120.21,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "FRESHCO #2201 SCARBOROUGH ON",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 83.17,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "HOME INTERNET SERVICE PROVIDER",
+        "predicted_category": "Other",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 76.08,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "HOME INTERNET SERVICE PROVIDER",
+        "predicted_category": "Other",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 37.4,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "INDIGO BOOKS AND MUSIC",
+        "predicted_category": "Food & Dining",
+        "true_category": "Shopping"
+      },
+      {
+        "amount": 27.27,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "INDIGO #212 YORKDALE",
+        "predicted_category": "Food & Dining",
+        "true_category": "Shopping"
+      },
+      {
+        "amount": 25.56,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "INDIGO #212 YORKDALE",
+        "predicted_category": "Food & Dining",
+        "true_category": "Shopping"
+      },
+      {
+        "amount": 59.24,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "LONDON DRUGS #71 VANCOUVER BC",
+        "predicted_category": "Food & Dining",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 15.26,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "LONDON DRUGS STORE #0071",
+        "predicted_category": "Shopping",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 35.93,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "LYFT *RIDE THU 4PM",
+        "predicted_category": "Food & Dining",
+        "true_category": "Transport"
+      },
+      {
+        "amount": 10.0,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "NOTION.SO SUBSCRIPTION",
+        "predicted_category": "Entertainment",
+        "true_category": "Subscriptions"
+      },
+      {
+        "amount": 44.97,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "VISION CARE CENTRE EXAM",
+        "predicted_category": "Food & Dining",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 104.09,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "OPTOMETRIST EYE EXAM FEE",
+        "predicted_category": "Other",
+        "true_category": "Healthcare"
+      },
+      {
+        "amount": 71.82,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "PARK N FLY PEARSON AIRPORT",
+        "predicted_category": "Food & Dining",
+        "true_category": "Transport"
+      },
+      {
+        "amount": 116.37,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "PARK'N FLY YYZ LOT 3",
+        "predicted_category": "Food & Dining",
+        "true_category": "Transport"
+      },
+      {
+        "amount": 95.04,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "PARK'N FLY YYZ LOT 3",
+        "predicted_category": "Food & Dining",
+        "true_category": "Transport"
+      },
+      {
+        "amount": -43.8,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "refund_credit (negative amount; V1's ingest.py does not net debits/credits)",
+        "merchant_description": "MERCHANT REFUND CREDIT ADJ",
+        "predicted_category": "Food & Dining",
+        "true_category": "Other"
+      },
+      {
+        "amount": -46.01,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "refund_credit (negative amount; V1's ingest.py does not net debits/credits)",
+        "merchant_description": "REFUND - RETURNED ITEM",
+        "predicted_category": "Food & Dining",
+        "true_category": "Other"
+      },
+      {
+        "amount": 4.5,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS CANADA #0442",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 9.27,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS CANADA #0442",
+        "predicted_category": "Shopping",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 4.46,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS COFFEE #0442 TORONTO ON",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 6.33,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "STARBUCKS COFFEE #0442 TORONTO ON",
+        "predicted_category": "Transport",
+        "true_category": "Food & Dining"
+      },
+      {
+        "amount": 105.5,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "TELUS COMMUNICATIONS",
+        "predicted_category": "Food & Dining",
+        "true_category": "Rent & Utilities"
+      },
+      {
+        "amount": 86.11,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "WINNERS #4415",
+        "predicted_category": "Food & Dining",
+        "true_category": "Shopping"
+      },
+      {
+        "amount": 37.86,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "WINNERS MERCHANTS INTL 4415",
+        "predicted_category": "Food & Dining",
+        "true_category": "Shopping"
+      },
+      {
+        "amount": 11.78,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "XBOX GAME PASS ULTIMATE",
+        "predicted_category": "Food & Dining",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 16.28,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "XBOX GAME PASS ULTIMATE",
+        "predicted_category": "Food & Dining",
+        "true_category": "Entertainment"
+      },
+      {
+        "amount": 16.99,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "ZOOM PRO SUBSCRIPTION",
+        "predicted_category": "Entertainment",
+        "true_category": "Subscriptions"
+      },
+      {
+        "amount": 16.99,
+        "candidate_model": "tfidf_logreg",
+        "error_analysis_tag": "",
+        "merchant_description": "ZOOM VIDEO COMMUNICATIONS",
+        "predicted_category": "Food & Dining",
+        "true_category": "Subscriptions"
+      }
+    ],
+    "n_errors": 34,
+    "n_validation_rows": 50
+  }
+}

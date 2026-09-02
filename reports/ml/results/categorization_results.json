@@ -1,0 +1,901 @@
+{
+  "candidates": {
+    "kmeans": {
+      "config": {
+        "cluster_to_category_mapping": {
+          "0": "Transport",
+          "1": "Food & Dining",
+          "2": "Food & Dining",
+          "3": "Entertainment",
+          "4": "Rent & Utilities",
+          "5": "Transport",
+          "6": "Entertainment",
+          "7": "Healthcare",
+          "8": "Shopping",
+          "9": "Food & Dining",
+          "10": "Other",
+          "11": "Other"
+        },
+        "feature_config": "pipeline.features.build_feature_matrix (amount x0.2 StandardScaler, TF-IDF merchant top-50 L2-normalized, day_of_week x0.1, is_weekend x0.1)",
+        "isolation": "scaler/vectorizer/kmeans/mapping fit on TRAIN only (n=133)",
+        "n_clusters": 12,
+        "name": "kmeans",
+        "random_state": 42
+      },
+      "train_diagnostic": {
+        "accuracy": 0.42105263157894735,
+        "confusion_matrix": {
+          "Entertainment": {
+            "Entertainment": 6,
+            "Food & Dining": 1,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 11
+          },
+          "Food & Dining": {
+            "Entertainment": 0,
+            "Food & Dining": 11,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 3,
+            "Subscriptions": 0,
+            "Transport": 11
+          },
+          "Healthcare": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 4,
+            "Other": 1,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 6
+          },
+          "Other": {
+            "Entertainment": 2,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 7,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 3
+          },
+          "Rent & Utilities": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 3,
+            "Rent & Utilities": 7,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 7
+          },
+          "Shopping": {
+            "Entertainment": 0,
+            "Food & Dining": 3,
+            "Healthcare": 1,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 4,
+            "Subscriptions": 0,
+            "Transport": 9
+          },
+          "Subscriptions": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 1,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 12
+          },
+          "Transport": {
+            "Entertainment": 1,
+            "Food & Dining": 2,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 17
+          }
+        },
+        "macro_f1": 0.4153025793650793,
+        "n": 133,
+        "per_category": {
+          "Entertainment": {
+            "f1": 0.4444444444444444,
+            "precision": 0.6666666666666666,
+            "recall": 0.3333333333333333,
+            "support": 18
+          },
+          "Food & Dining": {
+            "f1": 0.5238095238095238,
+            "precision": 0.6470588235294118,
+            "recall": 0.44,
+            "support": 25
+          },
+          "Healthcare": {
+            "f1": 0.5,
+            "precision": 0.8,
+            "recall": 0.36363636363636365,
+            "support": 11
+          },
+          "Other": {
+            "f1": 0.5833333333333334,
+            "precision": 0.5833333333333334,
+            "recall": 0.5833333333333334,
+            "support": 12
+          },
+          "Rent & Utilities": {
+            "f1": 0.5833333333333334,
+            "precision": 1.0,
+            "recall": 0.4117647058823529,
+            "support": 17
+          },
+          "Shopping": {
+            "f1": 0.3333333333333333,
+            "precision": 0.5714285714285714,
+            "recall": 0.23529411764705882,
+            "support": 17
+          },
+          "Subscriptions": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 13
+          },
+          "Transport": {
+            "f1": 0.3541666666666667,
+            "precision": 0.2236842105263158,
+            "recall": 0.85,
+            "support": 20
+          }
+        }
+      },
+      "validation": {
+        "accuracy": 0.12,
+        "confusion_matrix": {
+          "Entertainment": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 7
+          },
+          "Food & Dining": {
+            "Entertainment": 0,
+            "Food & Dining": 2,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 4,
+            "Subscriptions": 0,
+            "Transport": 7
+          },
+          "Healthcare": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 1,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 3
+          },
+          "Other": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 4
+          },
+          "Rent & Utilities": {
+            "Entertainment": 2,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 5
+          },
+          "Shopping": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 5
+          },
+          "Subscriptions": {
+            "Entertainment": 2,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 2
+          },
+          "Transport": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 2,
+            "Subscriptions": 0,
+            "Transport": 4
+          }
+        },
+        "macro_f1": 0.056589147286821705,
+        "n": 50,
+        "per_category": {
+          "Entertainment": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 7
+          },
+          "Food & Dining": {
+            "f1": 0.26666666666666666,
+            "precision": 1.0,
+            "recall": 0.15384615384615385,
+            "support": 13
+          },
+          "Healthcare": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Other": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Rent & Utilities": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 7
+          },
+          "Shopping": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 5
+          },
+          "Subscriptions": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Transport": {
+            "f1": 0.18604651162790697,
+            "precision": 0.10810810810810811,
+            "recall": 0.6666666666666666,
+            "support": 6
+          }
+        }
+      }
+    },
+    "tfidf_linear_svm": {
+      "config": {
+        "C": 1.0,
+        "isolation": "vectorizer/model fit on TRAIN only (n=133)",
+        "max_iter": 5000,
+        "name": "tfidf_linear_svm",
+        "note": "LinearSVC does not produce calibrated probabilities; none fabricated (ML Spec Section 5/7).",
+        "random_state": 42,
+        "tfidf_config": {
+          "max_features": 50,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true,
+          "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+        }
+      },
+      "train_diagnostic": {
+        "accuracy": 0.8195488721804511,
+        "confusion_matrix": {
+          "Entertainment": {
+            "Entertainment": 14,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 4,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Food & Dining": {
+            "Entertainment": 0,
+            "Food & Dining": 23,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 2,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Healthcare": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 8,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 3,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Other": {
+            "Entertainment": 1,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 9,
+            "Rent & Utilities": 1,
+            "Shopping": 1,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Rent & Utilities": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 1,
+            "Rent & Utilities": 15,
+            "Shopping": 0,
+            "Subscriptions": 1,
+            "Transport": 0
+          },
+          "Shopping": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 17,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Subscriptions": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 3,
+            "Shopping": 2,
+            "Subscriptions": 8,
+            "Transport": 0
+          },
+          "Transport": {
+            "Entertainment": 1,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 4,
+            "Subscriptions": 0,
+            "Transport": 15
+          }
+        },
+        "macro_f1": 0.8174873430233337,
+        "n": 133,
+        "per_category": {
+          "Entertainment": {
+            "f1": 0.8235294117647058,
+            "precision": 0.875,
+            "recall": 0.7777777777777778,
+            "support": 18
+          },
+          "Food & Dining": {
+            "f1": 0.9583333333333334,
+            "precision": 1.0,
+            "recall": 0.92,
+            "support": 25
+          },
+          "Healthcare": {
+            "f1": 0.8421052631578947,
+            "precision": 1.0,
+            "recall": 0.7272727272727273,
+            "support": 11
+          },
+          "Other": {
+            "f1": 0.8181818181818182,
+            "precision": 0.9,
+            "recall": 0.75,
+            "support": 12
+          },
+          "Rent & Utilities": {
+            "f1": 0.8333333333333334,
+            "precision": 0.7894736842105263,
+            "recall": 0.8823529411764706,
+            "support": 17
+          },
+          "Shopping": {
+            "f1": 0.68,
+            "precision": 0.5151515151515151,
+            "recall": 1.0,
+            "support": 17
+          },
+          "Subscriptions": {
+            "f1": 0.7272727272727273,
+            "precision": 0.8888888888888888,
+            "recall": 0.6153846153846154,
+            "support": 13
+          },
+          "Transport": {
+            "f1": 0.8571428571428571,
+            "precision": 1.0,
+            "recall": 0.75,
+            "support": 20
+          }
+        }
+      },
+      "validation": {
+        "accuracy": 0.26,
+        "confusion_matrix": {
+          "Entertainment": {
+            "Entertainment": 1,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 4,
+            "Subscriptions": 0,
+            "Transport": 2
+          },
+          "Food & Dining": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 11,
+            "Subscriptions": 0,
+            "Transport": 2
+          },
+          "Healthcare": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 1,
+            "Rent & Utilities": 0,
+            "Shopping": 3,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Other": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 4,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Rent & Utilities": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 2,
+            "Rent & Utilities": 4,
+            "Shopping": 1,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Shopping": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 5,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Subscriptions": {
+            "Entertainment": 2,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 1,
+            "Subscriptions": 1,
+            "Transport": 0
+          },
+          "Transport": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 4,
+            "Subscriptions": 0,
+            "Transport": 2
+          }
+        },
+        "macro_f1": 0.24047049441786283,
+        "n": 50,
+        "per_category": {
+          "Entertainment": {
+            "f1": 0.2,
+            "precision": 0.3333333333333333,
+            "recall": 0.14285714285714285,
+            "support": 7
+          },
+          "Food & Dining": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 13
+          },
+          "Healthcare": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Other": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Rent & Utilities": {
+            "f1": 0.7272727272727273,
+            "precision": 1.0,
+            "recall": 0.5714285714285714,
+            "support": 7
+          },
+          "Shopping": {
+            "f1": 0.2631578947368421,
+            "precision": 0.15151515151515152,
+            "recall": 1.0,
+            "support": 5
+          },
+          "Subscriptions": {
+            "f1": 0.4,
+            "precision": 1.0,
+            "recall": 0.25,
+            "support": 4
+          },
+          "Transport": {
+            "f1": 0.3333333333333333,
+            "precision": 0.3333333333333333,
+            "recall": 0.3333333333333333,
+            "support": 6
+          }
+        }
+      }
+    },
+    "tfidf_logreg": {
+      "config": {
+        "C": 1.0,
+        "isolation": "vectorizer/model fit on TRAIN only (n=133)",
+        "max_iter": 1000,
+        "name": "tfidf_logreg",
+        "random_state": 42,
+        "tfidf_config": {
+          "max_features": 50,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true,
+          "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+        }
+      },
+      "train_diagnostic": {
+        "accuracy": 0.7819548872180451,
+        "confusion_matrix": {
+          "Entertainment": {
+            "Entertainment": 14,
+            "Food & Dining": 2,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 2,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Food & Dining": {
+            "Entertainment": 0,
+            "Food & Dining": 24,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 1,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Healthcare": {
+            "Entertainment": 0,
+            "Food & Dining": 3,
+            "Healthcare": 7,
+            "Other": 1,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Other": {
+            "Entertainment": 1,
+            "Food & Dining": 1,
+            "Healthcare": 0,
+            "Other": 9,
+            "Rent & Utilities": 1,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Rent & Utilities": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 1,
+            "Rent & Utilities": 15,
+            "Shopping": 0,
+            "Subscriptions": 1,
+            "Transport": 0
+          },
+          "Shopping": {
+            "Entertainment": 0,
+            "Food & Dining": 5,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 12,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Subscriptions": {
+            "Entertainment": 0,
+            "Food & Dining": 2,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 3,
+            "Shopping": 0,
+            "Subscriptions": 8,
+            "Transport": 0
+          },
+          "Transport": {
+            "Entertainment": 1,
+            "Food & Dining": 3,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 1,
+            "Subscriptions": 0,
+            "Transport": 15
+          }
+        },
+        "macro_f1": 0.7834248835847302,
+        "n": 133,
+        "per_category": {
+          "Entertainment": {
+            "f1": 0.8235294117647058,
+            "precision": 0.875,
+            "recall": 0.7777777777777778,
+            "support": 18
+          },
+          "Food & Dining": {
+            "f1": 0.7384615384615385,
+            "precision": 0.6,
+            "recall": 0.96,
+            "support": 25
+          },
+          "Healthcare": {
+            "f1": 0.7777777777777778,
+            "precision": 1.0,
+            "recall": 0.6363636363636364,
+            "support": 11
+          },
+          "Other": {
+            "f1": 0.782608695652174,
+            "precision": 0.8181818181818182,
+            "recall": 0.75,
+            "support": 12
+          },
+          "Rent & Utilities": {
+            "f1": 0.8333333333333334,
+            "precision": 0.7894736842105263,
+            "recall": 0.8823529411764706,
+            "support": 17
+          },
+          "Shopping": {
+            "f1": 0.7272727272727273,
+            "precision": 0.75,
+            "recall": 0.7058823529411765,
+            "support": 17
+          },
+          "Subscriptions": {
+            "f1": 0.7272727272727273,
+            "precision": 0.8888888888888888,
+            "recall": 0.6153846153846154,
+            "support": 13
+          },
+          "Transport": {
+            "f1": 0.8571428571428571,
+            "precision": 1.0,
+            "recall": 0.75,
+            "support": 20
+          }
+        }
+      },
+      "validation": {
+        "accuracy": 0.32,
+        "confusion_matrix": {
+          "Entertainment": {
+            "Entertainment": 1,
+            "Food & Dining": 4,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 2
+          },
+          "Food & Dining": {
+            "Entertainment": 0,
+            "Food & Dining": 8,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 3,
+            "Subscriptions": 0,
+            "Transport": 2
+          },
+          "Healthcare": {
+            "Entertainment": 0,
+            "Food & Dining": 2,
+            "Healthcare": 0,
+            "Other": 1,
+            "Rent & Utilities": 0,
+            "Shopping": 1,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Other": {
+            "Entertainment": 0,
+            "Food & Dining": 4,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Rent & Utilities": {
+            "Entertainment": 0,
+            "Food & Dining": 1,
+            "Healthcare": 0,
+            "Other": 2,
+            "Rent & Utilities": 4,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Shopping": {
+            "Entertainment": 0,
+            "Food & Dining": 5,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Subscriptions": {
+            "Entertainment": 2,
+            "Food & Dining": 1,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 1,
+            "Transport": 0
+          },
+          "Transport": {
+            "Entertainment": 0,
+            "Food & Dining": 4,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 2
+          }
+        },
+        "macro_f1": 0.2551948051948052,
+        "n": 50,
+        "per_category": {
+          "Entertainment": {
+            "f1": 0.2,
+            "precision": 0.3333333333333333,
+            "recall": 0.14285714285714285,
+            "support": 7
+          },
+          "Food & Dining": {
+            "f1": 0.38095238095238093,
+            "precision": 0.27586206896551724,
+            "recall": 0.6153846153846154,
+            "support": 13
+          },
+          "Healthcare": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Other": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Rent & Utilities": {
+            "f1": 0.7272727272727273,
+            "precision": 1.0,
+            "recall": 0.5714285714285714,
+            "support": 7
+          },
+          "Shopping": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 5
+          },
+          "Subscriptions": {
+            "f1": 0.4,
+            "precision": 1.0,
+            "recall": 0.25,
+            "support": 4
+          },
+          "Transport": {
+            "f1": 0.3333333333333333,
+            "precision": 0.3333333333333333,
+            "recall": 0.3333333333333333,
+            "support": 6
+          }
+        }
+      }
+    }
+  },
+  "dataset_id": "tier_b_benchmark_v1",
+  "evidence_tier": "Tier B (independently curated/constructed benchmark; NOT real-world data, ML Spec Section 3.2)",
+  "final_test_sealed": true,
+  "partition_counts": {
+    "FINAL_TEST": 45,
+    "TRAIN": 133,
+    "VALIDATION": 50
+  },
+  "partition_merchant_group_counts": {
+    "FINAL_TEST": 17,
+    "TRAIN": 47,
+    "VALIDATION": 17
+  },
+  "seed": 42,
+  "split_definition_ref": "data\\evaluation\\tier_b_split_v1.json"
+}

@@ -1,0 +1,801 @@
+{
+  "by_candidate_strategy": {
+    "naive__n/a": {
+      "by_category": {
+        "Entertainment": {
+          "mae": 35.94384615384615,
+          "mape_all": 759512820558.1805,
+          "mape_nonzero_only": 49.140214468955776,
+          "n": 39,
+          "n_near_zero_actual": 3,
+          "n_rows": 39,
+          "rmse": 45.40706595301592,
+          "wape": 0.5247964359919886
+        },
+        "Food & Dining": {
+          "mae": 36.63025641025641,
+          "mape_all": 12.819139579966562,
+          "mape_nonzero_only": 12.819139579966562,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 50.426743718500035,
+          "wape": 0.12906600654102596
+        },
+        "Healthcare": {
+          "mae": 64.23051282051283,
+          "mape_all": 15.082430366260173,
+          "mape_nonzero_only": 15.082430366260173,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 78.11327296190137,
+          "wape": 0.14731846969314702
+        },
+        "Other": {
+          "mae": 0.0,
+          "mape_all": 0.0,
+          "mape_nonzero_only": NaN,
+          "n": 39,
+          "n_near_zero_actual": 39,
+          "n_rows": 39,
+          "rmse": 0.0,
+          "wape": NaN
+        },
+        "Rent & Utilities": {
+          "mae": 62.951282051282064,
+          "mape_all": 41.5642128201423,
+          "mape_nonzero_only": 41.5642128201423,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 84.72058824037326,
+          "wape": 0.32750736361307947
+        },
+        "Shopping": {
+          "mae": 50.42102564102566,
+          "mape_all": 16.235048723391685,
+          "mape_nonzero_only": 16.235048723391685,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 58.84939979651668,
+          "wape": 0.16265344762412093
+        },
+        "Subscriptions": {
+          "mae": 0.32384615384615556,
+          "mape_all": 0.7050137904899437,
+          "mape_nonzero_only": 0.7050137904899437,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 0.40515587377117407,
+          "wape": 0.007056614947955407
+        },
+        "Transport": {
+          "mae": 28.043076923076917,
+          "mape_all": 22.31625241507127,
+          "mape_nonzero_only": 22.31625241507127,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 34.2200210553068,
+          "wape": 0.22021230328119712
+        }
+      },
+      "by_horizon": {
+        "1": {
+          "mae": 37.034642857142856,
+          "mape_all": 71767857162.8204,
+          "mape_nonzero_only": 23.05039105372926,
+          "n": 112,
+          "n_near_zero_actual": 15,
+          "n_rows": 112,
+          "rmse": 56.2959707547022,
+          "wape": 0.20200294539334246
+        },
+        "2": {
+          "mae": 34.76855769230769,
+          "mape_all": 106048076942.99234,
+          "mape_nonzero_only": 23.01336396666444,
+          "n": 104,
+          "n_near_zero_actual": 14,
+          "n_rows": 104,
+          "rmse": 50.44567717051985,
+          "wape": 0.1904105174358537
+        },
+        "3": {
+          "mae": 32.28541666666667,
+          "mape_all": 109937500017.73036,
+          "mape_nonzero_only": 20.507455925161747,
+          "n": 96,
+          "n_near_zero_actual": 13,
+          "n_rows": 96,
+          "rmse": 51.901881047318504,
+          "wape": 0.17648371821823988
+        }
+      },
+      "combined": {
+        "mae": 34.817980769230765,
+        "mape_all": 94939102583.36284,
+        "mape_nonzero_only": 22.256331596296164,
+        "n": 312,
+        "n_near_zero_actual": 42,
+        "n_rows": 312,
+        "rmse": 53.054624508432525,
+        "wape": 0.1902958523908706
+      },
+      "n_eligible_rows": 312,
+      "n_total_rows": 312
+    },
+    "random_forest__last_known_history": {
+      "by_category": {
+        "Entertainment": {
+          "mae": 46.509375811116826,
+          "mape_all": 776681690986.5405,
+          "mape_nonzero_only": 66.12985075247974,
+          "n": 39,
+          "n_near_zero_actual": 3,
+          "n_rows": 39,
+          "rmse": 61.722541487298386,
+          "wape": 0.6790579550506548
+        },
+        "Food & Dining": {
+          "mae": 40.04433342738209,
+          "mape_all": 13.62413772740154,
+          "mape_nonzero_only": 13.62413772740154,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 56.10685736295689,
+          "wape": 0.14109544148924902
+        },
+        "Healthcare": {
+          "mae": 65.05271456369984,
+          "mape_all": 14.411883339253851,
+          "mape_nonzero_only": 14.411883339253851,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 87.74416501008928,
+          "wape": 0.14920426348906182
+        },
+        "Other": {
+          "mae": 37.82889888783713,
+          "mape_all": 3782889888783.7124,
+          "mape_nonzero_only": NaN,
+          "n": 39,
+          "n_near_zero_actual": 39,
+          "n_rows": 39,
+          "rmse": 70.66005736678613,
+          "wape": NaN
+        },
+        "Rent & Utilities": {
+          "mae": 60.780166525510836,
+          "mape_all": 42.04537975706194,
+          "mape_nonzero_only": 42.04537975706194,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 73.09302729460809,
+          "wape": 0.31621202063077913
+        },
+        "Shopping": {
+          "mae": 44.53740996014502,
+          "mape_all": 14.512260740635273,
+          "mape_nonzero_only": 14.512260740635273,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 50.482485602598075,
+          "wape": 0.14367346134213008
+        },
+        "Subscriptions": {
+          "mae": 23.389302212835027,
+          "mape_all": 51.0395946769525,
+          "mape_nonzero_only": 51.0395946769525,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 50.47613366146865,
+          "wape": 0.5096534192459345
+        },
+        "Transport": {
+          "mae": 36.54788190847074,
+          "mape_all": 30.618215815293624,
+          "mape_nonzero_only": 30.618215815293624,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 44.990951220122795,
+          "wape": 0.28699751019441516
+        }
+      },
+      "by_horizon": {
+        "1": {
+          "mae": 44.48028253033802,
+          "mape_all": 522821893056.4795,
+          "mape_nonzero_only": 31.331874027508853,
+          "n": 112,
+          "n_near_zero_actual": 15,
+          "n_rows": 112,
+          "rmse": 64.35513162114128,
+          "wape": 0.24261468154872068
+        },
+        "2": {
+          "mae": 42.97821232122229,
+          "mape_all": 587224779233.1257,
+          "mape_nonzero_only": 32.48821228966069,
+          "n": 104,
+          "n_near_zero_actual": 14,
+          "n_rows": 104,
+          "rmse": 60.63129934402742,
+          "wape": 0.23537081172517152
+        },
+        "3": {
+          "mae": 45.63945337268674,
+          "mape_all": 606206901614.0922,
+          "mape_nonzero_only": 34.95603795853977,
+          "n": 96,
+          "n_near_zero_actual": 13,
+          "n_rows": 96,
+          "rmse": 65.04928207007399,
+          "wape": 0.24948169360241834
+        }
+      },
+      "combined": {
+        "mae": 44.336260412124695,
+        "mape_all": 569946447492.0629,
+        "mape_nonzero_only": 32.831414952950446,
+        "n": 312,
+        "n_near_zero_actual": 42,
+        "n_rows": 312,
+        "rmse": 63.35675923293673,
+        "wape": 0.24231751183011754
+      },
+      "n_eligible_rows": 312,
+      "n_total_rows": 312
+    },
+    "random_forest__recursive": {
+      "by_category": {
+        "Entertainment": {
+          "mae": 48.218304532144494,
+          "mape_all": 826660004653.5953,
+          "mape_nonzero_only": 67.620405609637,
+          "n": 39,
+          "n_near_zero_actual": 3,
+          "n_rows": 39,
+          "rmse": 63.44806528984426,
+          "wape": 0.7040090885025684
+        },
+        "Food & Dining": {
+          "mae": 40.03920686566746,
+          "mape_all": 13.613509020363653,
+          "mape_nonzero_only": 13.613509020363653,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 55.56724226664869,
+          "wape": 0.1410773781472843
+        },
+        "Healthcare": {
+          "mae": 64.97270809717489,
+          "mape_all": 14.384838806526624,
+          "mape_nonzero_only": 14.384838806526624,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 87.99100674364136,
+          "wape": 0.1490207614477976
+        },
+        "Other": {
+          "mae": 45.979104259498456,
+          "mape_all": 4597910425949.844,
+          "mape_nonzero_only": NaN,
+          "n": 39,
+          "n_near_zero_actual": 39,
+          "n_rows": 39,
+          "rmse": 73.65935389683548,
+          "wape": NaN
+        },
+        "Rent & Utilities": {
+          "mae": 61.91870587593585,
+          "mape_all": 42.500530830563804,
+          "mape_nonzero_only": 42.500530830563804,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 75.2531614567413,
+          "wape": 0.32213533162425
+        },
+        "Shopping": {
+          "mae": 44.52842949808011,
+          "mape_all": 14.446607342618412,
+          "mape_nonzero_only": 14.446607342618412,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 50.83341381981503,
+          "wape": 0.14364449122306677
+        },
+        "Subscriptions": {
+          "mae": 23.32982632488071,
+          "mape_all": 50.90890071011947,
+          "mape_nonzero_only": 50.90890071011947,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 50.93540978980222,
+          "wape": 0.5083574383148757
+        },
+        "Transport": {
+          "mae": 46.44635377094609,
+          "mape_all": 39.30025038792599,
+          "mape_nonzero_only": 39.30025038792599,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 57.92661755424829,
+          "wape": 0.36472668712385786
+        }
+      },
+      "by_horizon": {
+        "1": {
+          "mae": 44.48028253033802,
+          "mape_all": 522821893056.4795,
+          "mape_nonzero_only": 31.331874027508853,
+          "n": 112,
+          "n_near_zero_actual": 15,
+          "n_rows": 112,
+          "rmse": 64.35513162114128,
+          "wape": 0.24261468154872068
+        },
+        "2": {
+          "mae": 46.094614256758355,
+          "mape_all": 713572296780.6517,
+          "mape_nonzero_only": 34.306852499600595,
+          "n": 104,
+          "n_near_zero_actual": 14,
+          "n_rows": 104,
+          "rmse": 62.754559159040966,
+          "wape": 0.25243783274844517
+        },
+        "3": {
+          "mae": 50.69001462133402,
+          "mape_all": 820736207425.5386,
+          "mape_nonzero_only": 37.8139390739894,
+          "n": 96,
+          "n_near_zero_actual": 13,
+          "n_rows": 96,
+          "rmse": 70.06226970488532,
+          "wape": 0.27708988083608355
+        }
+      },
+      "combined": {
+        "mae": 46.92907990304101,
+        "mape_all": 678071303847.3245,
+        "mape_nonzero_only": 34.316168328790866,
+        "n": 312,
+        "n_near_zero_actual": 42,
+        "n_rows": 312,
+        "rmse": 65.64913970108988,
+        "wape": 0.25648843111431713
+      },
+      "n_eligible_rows": 312,
+      "n_total_rows": 312
+    },
+    "ridge__last_known_history": {
+      "by_category": {
+        "Entertainment": {
+          "mae": 36.84785246044361,
+          "mape_all": 817588969426.1431,
+          "mape_nonzero_only": 54.14809403747669,
+          "n": 39,
+          "n_near_zero_actual": 3,
+          "n_rows": 39,
+          "rmse": 46.250399921823465,
+          "wape": 0.5379953375726938
+        },
+        "Food & Dining": {
+          "mae": 42.28254537558984,
+          "mape_all": 15.432085582155622,
+          "mape_nonzero_only": 15.432085582155622,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 54.38681445903112,
+          "wape": 0.14898173839943657
+        },
+        "Healthcare": {
+          "mae": 50.16981152319472,
+          "mape_all": 11.341481659377065,
+          "mape_nonzero_only": 11.341481659377065,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 63.696097937811125,
+          "wape": 0.11506898409863342
+        },
+        "Other": {
+          "mae": 23.58425752288756,
+          "mape_all": 2358425752288.756,
+          "mape_nonzero_only": NaN,
+          "n": 39,
+          "n_near_zero_actual": 39,
+          "n_rows": 39,
+          "rmse": 30.97694826954526,
+          "wape": NaN
+        },
+        "Rent & Utilities": {
+          "mae": 68.01215815614977,
+          "mape_all": 46.559250064795656,
+          "mape_nonzero_only": 46.559250064795656,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 84.88402020340602,
+          "wape": 0.35383683835399776
+        },
+        "Shopping": {
+          "mae": 44.16836803097635,
+          "mape_all": 13.922248027317961,
+          "mape_nonzero_only": 13.922248027317961,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 57.946275459478684,
+          "wape": 0.1424829670724479
+        },
+        "Subscriptions": {
+          "mae": 24.359537915784106,
+          "mape_all": 53.14766521283429,
+          "mape_nonzero_only": 53.14766521283429,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 31.743595209457606,
+          "wape": 0.5307948769509502
+        },
+        "Transport": {
+          "mae": 38.04329717727552,
+          "mape_all": 31.82339260486362,
+          "mape_nonzero_only": 31.82339260486362,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 48.71949738377537,
+          "wape": 0.298740474121258
+        }
+      },
+      "by_horizon": {
+        "1": {
+          "mae": 37.03565335504228,
+          "mape_all": 280654689227.40265,
+          "mape_nonzero_only": 26.84020346729146,
+          "n": 112,
+          "n_near_zero_actual": 15,
+          "n_rows": 112,
+          "rmse": 50.14058913372066,
+          "wape": 0.2020084570855379
+        },
+        "2": {
+          "mae": 40.810308943728856,
+          "mape_all": 408869814415.54816,
+          "mape_nonzero_only": 32.38517612255078,
+          "n": 104,
+          "n_near_zero_actual": 14,
+          "n_rows": 104,
+          "rmse": 53.25400571024075,
+          "wape": 0.22349825700166093
+        },
+        "3": {
+          "mae": 45.61437492101271,
+          "mape_all": 519883211051.16455,
+          "mape_nonzero_only": 37.92752531198488,
+          "n": 96,
+          "n_near_zero_actual": 13,
+          "n_rows": 96,
+          "rmse": 61.385590409825234,
+          "wape": 0.249344605751136
+        }
+      },
+      "combined": {
+        "mae": 40.933478520287686,
+        "mape_all": 397001840235.8906,
+        "mape_nonzero_only": 32.09685254907995,
+        "n": 312,
+        "n_near_zero_actual": 42,
+        "n_rows": 312,
+        "rmse": 54.838515529911334,
+        "wape": 0.2237197854168851
+      },
+      "n_eligible_rows": 312,
+      "n_total_rows": 312
+    },
+    "ridge__recursive": {
+      "by_category": {
+        "Entertainment": {
+          "mae": 37.388006747434424,
+          "mape_all": 794427653092.6709,
+          "mape_nonzero_only": 54.95284175681789,
+          "n": 39,
+          "n_near_zero_actual": 3,
+          "n_rows": 39,
+          "rmse": 46.59543995563684,
+          "wape": 0.545881834846393
+        },
+        "Food & Dining": {
+          "mae": 38.043514294576184,
+          "mape_all": 13.573734997355496,
+          "mape_nonzero_only": 13.573734997355496,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 48.09586414917035,
+          "wape": 0.1340455936151339
+        },
+        "Healthcare": {
+          "mae": 55.60118574303717,
+          "mape_all": 12.477698434729344,
+          "mape_nonzero_only": 12.477698434729344,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 74.10235285799797,
+          "wape": 0.12752633035451547
+        },
+        "Other": {
+          "mae": 29.36714522800923,
+          "mape_all": 2936714522800.922,
+          "mape_nonzero_only": NaN,
+          "n": 39,
+          "n_near_zero_actual": 39,
+          "n_rows": 39,
+          "rmse": 41.18896031989487,
+          "wape": NaN
+        },
+        "Rent & Utilities": {
+          "mae": 71.2753966114565,
+          "mape_all": 47.40944044033436,
+          "mape_nonzero_only": 47.40944044033436,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 87.32743708367586,
+          "wape": 0.3708140084530547
+        },
+        "Shopping": {
+          "mae": 46.01111743779968,
+          "mape_all": 14.374580779605676,
+          "mape_nonzero_only": 14.374580779605676,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 60.36577137678476,
+          "wape": 0.1484275019230686
+        },
+        "Subscriptions": {
+          "mae": 29.412723738660482,
+          "mape_all": 64.1452464879519,
+          "mape_nonzero_only": 64.1452464879519,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 40.26745872894603,
+          "wape": 0.6409039092460981
+        },
+        "Transport": {
+          "mae": 43.516748230222,
+          "mape_all": 36.08407346536738,
+          "mape_nonzero_only": 36.08407346536738,
+          "n": 39,
+          "n_near_zero_actual": 0,
+          "n_rows": 39,
+          "rmse": 56.854014284429816,
+          "wape": 0.34172153738234284
+        }
+      },
+      "by_horizon": {
+        "1": {
+          "mae": 37.03565335504228,
+          "mape_all": 280654689227.40265,
+          "mape_nonzero_only": 26.84020346729146,
+          "n": 112,
+          "n_near_zero_actual": 15,
+          "n_rows": 112,
+          "rmse": 50.14058913372066,
+          "wape": 0.2020084570855379
+        },
+        "2": {
+          "mae": 42.84816989322261,
+          "mape_all": 456388309036.28845,
+          "mape_nonzero_only": 34.10728456253705,
+          "n": 104,
+          "n_near_zero_actual": 14,
+          "n_rows": 104,
+          "rmse": 56.36667231816502,
+          "wape": 0.23465863245609844
+        },
+        "3": {
+          "mae": 52.81057123496607,
+          "mape_all": 693925370145.2247,
+          "mape_nonzero_only": 43.85148392648506,
+          "n": 96,
+          "n_near_zero_actual": 13,
+          "n_rows": 96,
+          "rmse": 70.12175867393482,
+          "wape": 0.28868160720994374
+        }
+      },
+      "combined": {
+        "mae": 43.82697975389946,
+        "mape_all": 466392772010.2072,
+        "mape_nonzero_only": 34.491957455014315,
+        "n": 312,
+        "n_near_zero_actual": 42,
+        "n_rows": 312,
+        "rmse": 58.9448800983799,
+        "wape": 0.2395340650356153
+      },
+      "n_eligible_rows": 312,
+      "n_total_rows": 312
+    },
+    "seasonal_naive__n/a": {
+      "by_category": {
+        "Entertainment": {
+          "mae": 40.71777777777778,
+          "mape_all": 1160444444484.061,
+          "mape_nonzero_only": 44.56904942688262,
+          "n": 27,
+          "n_near_zero_actual": 3,
+          "n_rows": 27,
+          "rmse": 49.84761757373944,
+          "wape": 0.5687370022038055
+        },
+        "Food & Dining": {
+          "mae": 133.43444444444444,
+          "mape_all": 51.64567966185759,
+          "mape_nonzero_only": 51.64567966185759,
+          "n": 27,
+          "n_near_zero_actual": 0,
+          "n_rows": 27,
+          "rmse": 138.7661070931147,
+          "wape": 0.5129967492107972
+        },
+        "Healthcare": {
+          "mae": 54.322222222222216,
+          "mape_all": 12.187031499362625,
+          "mape_nonzero_only": 12.187031499362625,
+          "n": 27,
+          "n_near_zero_actual": 0,
+          "n_rows": 27,
+          "rmse": 73.26648134644442,
+          "wape": 0.12203858605979365
+        },
+        "Other": {
+          "mae": 0.0,
+          "mape_all": 0.0,
+          "mape_nonzero_only": NaN,
+          "n": 27,
+          "n_near_zero_actual": 27,
+          "n_rows": 27,
+          "rmse": 0.0,
+          "wape": NaN
+        },
+        "Rent & Utilities": {
+          "mae": 68.27222222222221,
+          "mape_all": 40.17784314536897,
+          "mape_nonzero_only": 40.17784314536897,
+          "n": 27,
+          "n_near_zero_actual": 0,
+          "n_rows": 27,
+          "rmse": 87.68326655259447,
+          "wape": 0.3844565550640395
+        },
+        "Shopping": {
+          "mae": 43.82444444444444,
+          "mape_all": 14.616137669885362,
+          "mape_nonzero_only": 14.616137669885362,
+          "n": 27,
+          "n_near_zero_actual": 0,
+          "n_rows": 27,
+          "rmse": 49.62284621690565,
+          "wape": 0.14101940706205393
+        },
+        "Subscriptions": {
+          "mae": 0.35888888888889015,
+          "mape_all": 0.7817691719917064,
+          "mape_nonzero_only": 0.7817691719917064,
+          "n": 27,
+          "n_near_zero_actual": 0,
+          "n_rows": 27,
+          "rmse": 0.39410940387438503,
+          "wape": 0.007810421956232647
+        },
+        "Transport": {
+          "mae": 36.205555555555556,
+          "mape_all": 31.00571532553181,
+          "mape_nonzero_only": 31.00571532553181,
+          "n": 27,
+          "n_near_zero_actual": 0,
+          "n_rows": 27,
+          "rmse": 41.85400883494382,
+          "wape": 0.2955126693631763
+        }
+      },
+      "by_horizon": {
+        "1": {
+          "mae": 47.141944444444434,
+          "mape_all": 145055555579.30945,
+          "mape_nonzero_only": 27.585161027113603,
+          "n": 72,
+          "n_near_zero_actual": 10,
+          "n_rows": 72,
+          "rmse": 69.83148486018165,
+          "wape": 0.26306113876234416
+        },
+        "2": {
+          "mae": 47.141944444444434,
+          "mape_all": 145055555579.30945,
+          "mape_nonzero_only": 27.585161027113603,
+          "n": 72,
+          "n_near_zero_actual": 10,
+          "n_rows": 72,
+          "rmse": 69.83148486018165,
+          "wape": 0.26306113876234416
+        },
+        "3": {
+          "mae": 47.141944444444434,
+          "mape_all": 145055555579.30945,
+          "mape_nonzero_only": 27.585161027113603,
+          "n": 72,
+          "n_near_zero_actual": 10,
+          "n_rows": 72,
+          "rmse": 69.83148486018165,
+          "wape": 0.26306113876234416
+        }
+      },
+      "combined": {
+        "mae": 47.14194444444444,
+        "mape_all": 145055555579.30942,
+        "mape_nonzero_only": 27.585161027113603,
+        "n": 216,
+        "n_near_zero_actual": 30,
+        "n_rows": 216,
+        "rmse": 69.83148486018165,
+        "wape": 0.26306113876234427
+      },
+      "n_eligible_rows": 216,
+      "n_total_rows": 312
+    }
+  },
+  "dataset_id": "synthetic_24mo_kmeans_categorized_v1",
+  "evidence_tier": "Synthetic (ML Spec Section 3.1) -- pipeline-behavior/mechanism evaluation only, NEVER a real-world accuracy claim (Section 21)",
+  "final_test_sealed": true,
+  "fold_origin_months": [
+    "2023-07",
+    "2023-08",
+    "2023-09",
+    "2023-10",
+    "2023-11",
+    "2023-12",
+    "2024-01",
+    "2024-02",
+    "2024-03",
+    "2024-04",
+    "2024-05",
+    "2024-06",
+    "2024-07",
+    "2024-08"
+  ],
+  "n_folds": 14,
+  "reserved_final_period": {
+    "months": [
+      "2024-10",
+      "2024-11",
+      "2024-12"
+    ],
+    "n_months": 3
+  },
+  "seed": 42
+}
