@@ -2,15 +2,25 @@ import * as React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { getDemoStatus } from "@/api/health";
+import { useClearDemo, useLoadDemo } from "@/hooks/useDemo";
 import type { DataMode } from "@/types/common";
+import type { DemoClearResponse, DemoLoadResponse } from "@/types/demo";
 
 interface AppStateValue {
   mode: DataMode;
   canLoadDemo: boolean;
   isLoading: boolean;
   /** Call after any mutation that may change data_mode (import confirm,
-   * manual transaction create, holding create, demo load/clear). */
+   * manual transaction create, holding create). loadDemo/clearDemo below
+   * already invalidate this themselves — this is for other callers. */
   refresh: () => void;
+  /** PRD §10a onboarding: EMPTY -> DEMO. Rejects (ApiError, 409) if mode
+   * isn't EMPTY — callers surface that themselves. */
+  loadDemo: () => Promise<DemoLoadResponse>;
+  isLoadingDemo: boolean;
+  /** TRD §14.3/§14.4: full demo reset, DEMO/EMPTY -> EMPTY. Idempotent. */
+  clearDemo: () => Promise<DemoClearResponse>;
+  isClearingDemo: boolean;
 }
 
 const AppStateContext = React.createContext<AppStateValue | null>(null);
@@ -28,6 +38,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     queryKey: APP_STATE_QUERY_KEY,
     queryFn: getDemoStatus,
   });
+  const loadDemoMutation = useLoadDemo();
+  const clearDemoMutation = useClearDemo();
 
   const refresh = React.useCallback(() => {
     queryClient.invalidateQueries({ queryKey: APP_STATE_QUERY_KEY });
@@ -38,6 +50,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     canLoadDemo: data?.can_load_demo ?? true,
     isLoading,
     refresh,
+    loadDemo: () => loadDemoMutation.mutateAsync(),
+    isLoadingDemo: loadDemoMutation.isPending,
+    clearDemo: () => clearDemoMutation.mutateAsync(),
+    isClearingDemo: clearDemoMutation.isPending,
   };
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

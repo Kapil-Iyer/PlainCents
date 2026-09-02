@@ -23,3 +23,11 @@ class PriceCacheRepository:
             "VALUES (?, ?, ?)",
             (ticker, round_money(price), fetched_at),
         )
+
+    def delete(self, ticker: str) -> bool:
+        """price_cache has no data_mode column (TRD §4.5/§4.8 — cached
+        prices are mode-agnostic commodity data), so callers (DemoService
+        .clear_demo()) must decide per-ticker whether a row is safe to
+        delete — this method never filters by mode itself."""
+        cur = self._conn.execute("DELETE FROM price_cache WHERE ticker = ?", (ticker,))
+        return cur.rowcount > 0

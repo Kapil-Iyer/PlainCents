@@ -1,9 +1,8 @@
-import { LayoutDashboard, Plus, UploadCloud } from "lucide-react";
-import { Link } from "react-router-dom";
+import { LayoutDashboard } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { OnboardingEmptyState } from "@/components/OnboardingEmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboardSummary } from "@/hooks/useDashboard";
 import { formatMonthLabel } from "@/lib/utils";
@@ -36,27 +35,7 @@ export function DashboardPage() {
           description="Something went wrong talking to the server. Try refreshing the page."
         />
       ) : !data ? null : data.data_mode === "EMPTY" ? (
-        <EmptyState
-          icon={LayoutDashboard}
-          title="No data yet"
-          description="Import a bank statement or add a transaction manually to see your spending here."
-          action={
-            <div className="flex gap-2">
-              <Button asChild>
-                <Link to="/import">
-                  <UploadCloud className="h-4 w-4" />
-                  Import transactions
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link to="/transactions">
-                  <Plus className="h-4 w-4" />
-                  Add manually
-                </Link>
-              </Button>
-            </div>
-          }
-        />
+        <OnboardingEmptyState />
       ) : (
         <div className="flex flex-col gap-5">
           <SpendingOverview summary={data} />

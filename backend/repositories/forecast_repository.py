@@ -86,3 +86,12 @@ class ForecastRepository:
             (reason, run_id),
         )
         return cur.rowcount > 0
+
+    def delete_runs_by_data_mode(self, data_mode: str) -> int:
+        """Bulk delete, scoped by data_mode (Build Plan Phase 9 —
+        DemoService.clear_demo()'s full-reset deletion). forecast_predictions
+        rows cascade via their FK's ON DELETE CASCADE (every V2 connection
+        has PRAGMA foreign_keys = ON — backend/db/connection.py), so no
+        separate predictions-deletion call is needed."""
+        cur = self._conn.execute("DELETE FROM forecast_runs WHERE data_mode = ?", (data_mode,))
+        return cur.rowcount

@@ -12,6 +12,7 @@ vi.mock("@/api/imports", () => ({
   confirmImport: vi.fn(),
 }));
 vi.mock("@/api/demo", () => ({
+  loadDemo: vi.fn(),
   clearDemo: vi.fn(),
 }));
 

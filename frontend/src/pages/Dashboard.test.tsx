@@ -11,6 +11,11 @@ vi.mock("@/api/dashboard", () => ({
   getDashboardSummary: vi.fn(),
 }));
 
+vi.mock("@/api/demo", () => ({
+  loadDemo: vi.fn(),
+  clearDemo: vi.fn(),
+}));
+
 const baseTransaction: TransactionResponse = {
   id: 1,
   date: "2026-06-15",
@@ -75,8 +80,9 @@ describe("DashboardPage", () => {
 
     renderWithProviders(<DashboardPage />);
 
-    expect(await screen.findByText("No data yet")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Import transactions/ })).toBeInTheDocument();
+    expect(await screen.findByText("Welcome to PlainCents")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Import real data/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Load demo data/ })).toBeInTheDocument();
   });
 
   it("renders an error state when the API call fails", async () => {

@@ -118,6 +118,14 @@ class TransactionRepository:
         cur = self._conn.execute("DELETE FROM transactions WHERE id = ?", (transaction_id,))
         return cur.rowcount > 0
 
+    def delete_by_data_mode(self, data_mode: str) -> int:
+        """Bulk delete, scoped by data_mode (Build Plan Phase 9 —
+        DemoService.clear_demo()'s full-reset deletion). Never used with a
+        None data_mode; that would delete every transaction regardless of
+        mode, which is not a case this method is meant to support."""
+        cur = self._conn.execute("DELETE FROM transactions WHERE data_mode = ?", (data_mode,))
+        return cur.rowcount
+
     def exists_by_dedup_key(self, dedup_key: str) -> bool:
         row = self._conn.execute(
             "SELECT 1 FROM transactions WHERE dedup_key = ?", (dedup_key,)

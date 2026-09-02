@@ -1,19 +1,21 @@
 """
-Demo endpoints (TRD §5.2, Build Plan §2.5).
+Demo endpoints (TRD §5.2, §14; Build Plan Phase 9).
 
-GET /api/demo/status is functional now — it reads the real app_state.mode.
-POST /api/demo/load and DELETE /api/demo/clear are explicitly NOT implemented
-until Phase 9: they return 501 so no later phase mistakes the stub for a
-working demo-load/clear implementation.
+GET /api/demo/status reads app_state.mode directly (no DemoService needed —
+it's a pure read, same as before Phase 9). POST /api/demo/load and
+DELETE /api/demo/clear now delegate to the real DemoService: load seeds a
+full deterministic demo dataset and flips EMPTY -> DEMO (409 if not EMPTY);
+clear deletes every demo-flagged row and flips back to EMPTY (200,
+idempotent even if already empty).
 """
 import sqlite3
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
 
 from backend.api.deps import get_db
-from backend.schemas.common import DemoStatusResponse
+from backend.schemas.common import DemoClearResponse, DemoLoadResponse, DemoStatusResponse
 from backend.services.app_state_service import AppStateService
+from backend.services.demo_service import DemoService
 
 router = APIRouter()
 
@@ -25,25 +27,15 @@ def get_demo_status(conn: sqlite3.Connection = Depends(get_db)) -> DemoStatusRes
     return DemoStatusResponse(mode=mode, can_load_demo=(mode == "EMPTY"))
 
 
-@router.post("/api/demo/load")
-def load_demo() -> JSONResponse:
-    return JSONResponse(
-        status_code=501,
-        content={
-            "error": "not_implemented",
-            "message": "Demo load is not implemented until Phase 9.",
-            "details": {},
-        },
-    )
+@router.post("/api/demo/load", response_model=DemoLoadResponse)
+def load_demo(conn: sqlite3.Connection = Depends(get_db)) -> DemoLoadResponse:
+    service = DemoService(conn)
+    result = service.load_demo()
+    return DemoLoadResponse(**result)
 
 
-@router.delete("/api/demo/clear")
-def clear_demo() -> JSONResponse:
-    return JSONResponse(
-        status_code=501,
-        content={
-            "error": "not_implemented",
-            "message": "Demo clear is not implemented until Phase 9.",
-            "details": {},
-        },
-    )
+@router.delete("/api/demo/clear", response_model=DemoClearResponse)
+def clear_demo(conn: sqlite3.Connection = Depends(get_db)) -> DemoClearResponse:
+    service = DemoService(conn)
+    result = service.clear_demo()
+    return DemoClearResponse(**result)

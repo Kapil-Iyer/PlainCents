@@ -10,41 +10,33 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useClearDemo } from "@/hooks/useImport";
+import { useClearDemo } from "@/hooks/useDemo";
 import { ApiError } from "@/types/common";
 
 interface DemoConflictDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Retried after the (attempted) demo clear, regardless of whether the
-   * clear itself actually succeeded — see the 501 note below. */
+  /** Retried after a successful demo clear. */
   onRetry: () => void;
 }
 
 /**
- * TRD §5.2: a real import while mode === 'DEMO' returns 409 demo_conflict.
- * The sanctioned flow is DELETE /api/demo/clear then retry the import — but
- * that endpoint is still a Phase-9 501 stub (Build Plan §2.5), so this
- * dialog explains that plainly rather than claiming the clear worked.
+ * TRD §5.2/§14.4: a real import while mode === 'DEMO' returns 409
+ * demo_conflict. The sanctioned flow is DELETE /api/demo/clear then retry
+ * the import — both are real as of Phase 9.
  */
 export function DemoConflictDialog({ open, onOpenChange, onRetry }: DemoConflictDialogProps) {
   const clearDemoMutation = useClearDemo();
-  const [notice, setNotice] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleClearAndRetry = async () => {
-    setNotice(null);
+    setError(null);
     try {
       await clearDemoMutation.mutateAsync();
       onOpenChange(false);
       onRetry();
     } catch (err) {
-      if (err instanceof ApiError && err.status === 501) {
-        setNotice(
-          "Clearing demo data isn't implemented yet (it lands in a later phase). You can't import real data while demo data is loaded.",
-        );
-      } else {
-        setNotice("Couldn't clear demo data. Please try again.");
-      }
+      setError(err instanceof ApiError ? err.message : "Couldn't clear demo data. Please try again.");
     }
   };
 
@@ -58,7 +50,7 @@ export function DemoConflictDialog({ open, onOpenChange, onRetry }: DemoConflict
             first, then this import will be retried automatically.
           </DialogDescription>
         </DialogHeader>
-        {notice && <p className="text-sm text-warning">{notice}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel

@@ -1,9 +1,12 @@
 import { apiClient } from "@/api/client";
+import type { DemoClearResponse, DemoLoadResponse } from "@/types/demo";
 
-/**
- * DELETE /api/demo/clear returns 501 until Phase 9 (Build Plan §2.5) — this
- * function is wired now so the Import page's demo-conflict flow is fully
- * built, but callers must handle the 501 ApiError gracefully rather than
- * assuming it succeeds.
- */
-export const clearDemo = () => apiClient.delete<unknown>("/demo/clear");
+/** POST /api/demo/load — TRD §5.2/§14.2: 200 + summary on success, 409
+ * demo_conflict if mode isn't EMPTY. Real data is never deleted to make
+ * room for demo data. */
+export const loadDemo = () => apiClient.post<DemoLoadResponse>("/demo/load");
+
+/** DELETE /api/demo/clear — TRD §5.2: 200 on success, idempotent even if
+ * already EMPTY. Full reset of demo-flagged data only; never touches real
+ * data. */
+export const clearDemo = () => apiClient.delete<DemoClearResponse>("/demo/clear");
