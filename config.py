@@ -9,6 +9,12 @@ EXPORTS_DIR = DATA_EXPORTS
 DB_PATH = BASE_DIR / "plaincents.db"
 KMEANS_MODEL_PATH = BASE_DIR / "models" / "kmeans_model.pkl"
 RF_MODEL_PATH = BASE_DIR / "models" / "rf_model.pkl"
+# ML-D: production categorization artifact — ML-C selected TF-IDF + Logistic
+# Regression (ml/categorization/candidates.py::TfidfLogRegCandidate), built by
+# scripts/build_production_logreg_model.py. KMEANS_MODEL_PATH/RF_MODEL_PATH
+# above are preserved (V1/ML-B evidence, no longer the selected production
+# path) rather than removed.
+LOGREG_MODEL_PATH = BASE_DIR / "models" / "tfidf_logreg_v1.pkl"
 
 # -- Category Labels (8) ----------------------------------
 CATEGORIES = [

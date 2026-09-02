@@ -30,7 +30,9 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 FRONTEND_DIR = ROOT_DIR / "frontend"
 FRONTEND_DIST = FRONTEND_DIR / "dist"
 FRONTEND_SRC = FRONTEND_DIR / "src"
-MODEL_PATH = ROOT_DIR / "models" / "kmeans_model.pkl"
+# ML-D: the production categorizer is now the ML-C selected TF-IDF + Logistic
+# Regression artifact, not the retired K-Means one.
+MODEL_PATH = ROOT_DIR / "models" / "tfidf_logreg_v1.pkl"
 
 HOST = "127.0.0.1"
 PORT = "8000"
@@ -74,9 +76,9 @@ def ensure_frontend_built() -> None:
 def warn_if_model_missing() -> None:
     if not MODEL_PATH.is_file():
         print(
-            "[reviewer] WARNING: models/kmeans_model.pkl not found. Real CSV import will "
+            "[reviewer] WARNING: models/tfidf_logreg_v1.pkl not found. Real CSV import will "
             "report the categorization model as unavailable. Explore Demo does not need "
-            "it and will still work. See README's ML model section to train one.",
+            "it and will still work. Build it with: python -m scripts.build_production_logreg_model",
             file=sys.stderr,
         )
 

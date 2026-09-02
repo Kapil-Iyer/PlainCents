@@ -21,7 +21,7 @@ from backend.services.dedup import compute_dedup_key
 from backend.services.transaction_service import TransactionService
 
 FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent / "fixtures"
-TEST_MODEL_PATH = FIXTURES_DIR / "kmeans_model_test.pkl"
+TEST_MODEL_PATH = FIXTURES_DIR / "logreg_model_test.pkl"
 
 
 class FakeForecastService:

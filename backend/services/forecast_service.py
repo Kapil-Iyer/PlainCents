@@ -4,9 +4,9 @@ ForecastService (TRD Section 7.4, Section 12; Build Plan Phase 7).
 Replaces the Phase 3 stub. check_status()/get_latest() are DB-only reads —
 neither ever touches pipeline.forecast, verified by the "no fit on read"
 tests in tests/backend/api/test_forecasts.py. run_forecast() is the only
-method that fits a model: it calls pipeline.forecast.aggregate_monthly
-(reused as-is) and pipeline.forecast.train_and_predict (new in Phase 7, the
-single-fit/no-walk-forward/no-GridSearchCV path, Build Plan Section 2.2) and
+method that touches a model: it calls pipeline.forecast.aggregate_monthly
+(reused as-is) and pipeline.forecast.train_and_predict (ML-D: now the ML-C
+selected Naive baseline, no fitting step, previously Random Forest) and
 persists the result via ForecastRepository inside one unit-of-work
 transaction (TRD Section 4.6). mark_stale(reason) replaces the Phase 3
 no-op stub with real persistence — TransactionService/IngestionService's
@@ -39,10 +39,15 @@ from pipeline.forecast import aggregate_monthly, train_and_predict
 # aggregate_monthly() raise threshold exactly.
 MONTHS_REQUIRED = 12
 
-# ML Spec Section 18: identifies the forecasting implementation + fixed
-# hyperparameter configuration actually used to generate a run — not a
-# persisted artifact (Section 18's explicit asymmetry with categorization).
-MODEL_IMPL_VERSION = "rf_v1_default_hparams"
+# ML Spec Section 18: identifies the forecasting implementation actually
+# used to generate a run — not a persisted artifact (Section 18's explicit
+# asymmetry with categorization). ML-D Production Integration: the ML-C
+# selected candidate is Naive (ml/forecasting/baselines.py::naive_predict),
+# selected strategy "N/A" — Naive has no per-horizon/recursive variant, so
+# "naive_v1" alone unambiguously identifies both the family and the (only
+# possible) strategy; there is no separate strategy field to persist
+# (no DB schema change — ML Spec Section 22).
+MODEL_IMPL_VERSION = "naive_v1"
 
 
 class ForecastService:

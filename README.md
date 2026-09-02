@@ -16,9 +16,11 @@ see [V1 — historical predecessor](#v1--historical-predecessor) below.
 ```
 React + TypeScript (Vite)  →  FastAPI  →  service / repository layers  →  SQLite
                                              ↑
-                              ML/analytics: K-Means categorizer, Random
-                              Forest forecaster (reused from V1's pipeline/,
-                              wrapped behind V2's service boundaries)
+                              ML: TF-IDF + Logistic Regression categorizer,
+                              Naive spend forecaster — selected via an
+                              evidence-based evaluation pipeline (see
+                              reports/ml/), integrated behind V2's service
+                              boundaries
 ```
 
 - **Frontend:** `frontend/` — React 19 + TypeScript + Vite, Tailwind, a
@@ -27,9 +29,17 @@ React + TypeScript (Vite)  →  FastAPI  →  service / repository layers  →  
 - **Backend:** `backend/` — FastAPI, with `api/routes` → `services` →
   `repositories` → SQLite (`plaincents_v2.db`, separate from V1's
   `plaincents.db`).
-- **ML:** categorization (K-Means) and forecasting (Random Forest) reuse
-  V1's `pipeline/` implementations, called from `backend/services/` — no ML
-  logic is duplicated between V1 and V2.
+- **ML:** categorization is TF-IDF + Logistic Regression
+  (`ml/categorization/candidates.py::TfidfLogRegCandidate`, merchant text
+  only), forecasting is a Naive (lag-1) baseline
+  (`ml/forecasting/baselines.py::naive_predict`) — both selected over
+  several alternatives (K-Means/Linear SVM; Random Forest/Ridge/Seasonal
+  Naive) through a merchant-grouped/temporal, leakage-safe evaluation
+  documented in `reports/ml/`. `backend/services/categorization_service.py`
+  and `pipeline/forecast.py::train_and_predict` are the production
+  integration points; V1's original K-Means/Random Forest implementations
+  remain in the repo untouched as historical/evaluation baselines, no longer
+  what the running app uses.
 
 Product surfaces: **Dashboard**, **Transactions**, **Import**, **Forecast**,
 **Portfolio** — plus a demo/onboarding flow for a brand-new, empty install.
@@ -41,13 +51,19 @@ Product surfaces: **Dashboard**, **Transactions**, **Import**, **Forecast**,
 - **M5 — App-Demonstrable MVP: complete.** All five product surfaces work
   end-to-end, packaged reviewer mode works, and the acceptance criteria in
   the frozen V2 PRD (§19) pass under manual verification.
-- **ML scientific evaluation is a separate, ongoing track.** The
-  categorizer and forecaster currently running in the app are V1's
-  original K-Means/Random Forest implementations, used as-is behind V2's
-  service boundaries so app development wasn't blocked on model research.
-  A rigorous scientific evaluation/model-selection pass (baselines, error
-  analysis, candidate models, acceptance gates) is planned as a separate
-  milestone and is **not** claimed complete by M5/Phase 10 being done.
+- **ML scientific evaluation and production integration: complete.** A
+  leakage-safe evaluation (merchant-grouped splits for categorization,
+  temporal expanding-window validation for forecasting) benchmarked
+  multiple candidates per problem and selected TF-IDF + Logistic Regression
+  (categorization) and Naive (forecasting), now integrated as the running
+  app's production implementations. Full methodology, evidence, and exact
+  numbers — with their evidence-tier caveats — are in `reports/ml/`,
+  particularly `ML_E_FINAL_ML_REPORT.md` and `ML_E_CLAIM_MATRIX.json`.
+  **In one sentence, with the caveat attached:** the selected categorizer
+  scored 42.2% accuracy / 0.4405 macro F1 on a held-out slice of an
+  independently curated (not real-world) benchmark; the selected forecaster
+  scored 18.9% WAPE on a reserved period of a synthetic (not real-world)
+  dataset — neither number should be read as real-world accuracy.
 - **TD CSV import is fixture-tested, not field-verified.** Import has been
   tested against synthetic fixtures shaped like TD's CSV export format
   (`tests/fixtures/td_csv/`), including a plausible headerless/positional
@@ -72,10 +88,10 @@ cp .env.example .env      # optional — defaults work out of the box
 cd frontend && npm install && cd ..
 ```
 
-If you already have a trained categorizer at `models/kmeans_model.pkl`,
-nothing else is needed. If not, run `python -m pipeline.cluster` once (see
-[Model artifact](#model-artifact) below) — or just use **Explore demo**,
-which doesn't need it at all.
+If you already have a trained categorizer at `models/tfidf_logreg_v1.pkl`,
+nothing else is needed. If not, run `python -m scripts.build_production_logreg_model`
+once (see [Model artifact](#model-artifact) below) — or just use **Explore
+demo**, which doesn't need it at all.
 
 ## Development workflow
 
@@ -90,7 +106,17 @@ cd frontend && npm run dev
 ```
 
 Open `http://localhost:5173`. Frontend tests: `cd frontend && npm test`.
-Backend tests: `pytest` from the repo root.
+Backend tests: from the repo root, first build the deterministic test
+categorizer fixture (once per fresh clone), then run pytest:
+
+```bash
+python tests/fixtures/build_test_logreg_model.py
+pytest
+```
+
+(`tests/fixtures/logreg_model_test.pkl` is gitignored — see
+`tests/fixtures/README.md`. Production artifact:
+`python -m scripts.build_production_logreg_model`.)
 
 ## Reviewer / demo launch (one command)
 
@@ -130,18 +156,29 @@ loading the interactive demo).
 
 ## Model artifact
 
-The categorizer needs a trained artifact at `models/kmeans_model.pkl`
-(gitignored — never committed). To produce one from the included synthetic
-training data:
+The categorizer needs a trained artifact at `models/tfidf_logreg_v1.pkl`
+(gitignored — never committed) — TF-IDF + Logistic Regression, the model
+selected by the evaluation in `reports/ml/` (see
+[ML scientific evaluation](#mvp--product-status) above). To build it from
+the frozen benchmark evidence committed in this repo:
 
 ```bash
-python -m pipeline.cluster
+python -m scripts.build_production_logreg_model
 ```
+
+This fits on the frozen TRAIN partition only (never on the held-out
+VALIDATION/FINAL_TEST rows scored during evaluation) and refuses to run if
+the ML-C selection record doesn't name this model as selected. See
+`reports/ml/ML_E_REPRODUCIBILITY.md` for the full reproducibility workflow.
 
 If this file is missing, the app still runs: `/api/health` reports the
 categorizer as unavailable, real CSV import is blocked with a clear message
 until a model is present, and **Explore demo** is unaffected (its data is
 pre-labeled, not run through the categorizer).
+
+Forecasting has no equivalent artifact — the selected Naive model is
+stateless code, recomputed fresh on every forecast run
+(`pipeline/forecast.py::train_and_predict`), nothing to build ahead of time.
 
 ---
 
@@ -163,7 +200,7 @@ pre-labeled, not run through the categorizer).
 
 | Suite | Command | Count |
 |---|---|---|
-| Backend (pytest) | `pytest` | 210 tests |
+| Backend (pytest) | `pytest` | 270 tests |
 | Frontend (Vitest) | `cd frontend && npm test` | 39 tests |
 | E2E (Playwright) | `npm run e2e:install` once, then `npm run e2e` | 4 flows |
 
@@ -192,15 +229,20 @@ data being reachable — see that package's docstring for exactly how and why.
 PlainCents/
 ├── backend/            # V2 FastAPI app: api/, services/, repositories/, db/, scripts/
 ├── frontend/            # V2 React app
-├── pipeline/            # ML: ingest, features, cluster (K-Means), forecast (RF), portfolio
+├── pipeline/            # ingest, features, cluster (V1 K-Means, retired), forecast (train_and_predict = selected Naive; V1 RF retained), portfolio
+├── ml/                   # ML-B/C evaluation: candidates, splitting, metrics, bake-offs, FINAL runners
 ├── db/                  # V1 schema/seed (untouched) + db/migrations/ (V2 SQLite migrations)
+├── data/evaluation/      # Frozen Tier B categorization benchmark + split (committed evidence)
+├── reports/ml/           # ML-B/C/E reports, selection record, claim matrix, results (committed evidence)
 ├── docs/                 # Frozen V2 PRD / TRD / Build Plan / ML Spec
 ├── tests/
 │   ├── backend/          # V2 backend unit + API tests
+│   ├── ml/               # ML evaluation-infrastructure tests
 │   ├── e2e/              # Playwright E2E (4 flows)
-│   └── fixtures/         # td_csv/ fixtures, deterministic test ML artifact
-├── models/               # kmeans_model.pkl, rf_model.pkl (gitignored)
-├── main.py, viz/, scripts/, data/   # V1 — see below
+│   └── fixtures/         # td_csv/ fixtures, deterministic test ML artifacts
+├── models/               # tfidf_logreg_v1.pkl (selected, production), kmeans_model.pkl, rf_model.pkl (retired) — all gitignored
+├── scripts/              # build_production_logreg_model.py + V1 synthetic-data generators
+├── main.py, viz/, data/  # V1 — see below
 └── playwright.config.ts, package.json   # E2E tooling only (no app code here)
 ```
 

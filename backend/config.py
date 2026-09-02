@@ -3,16 +3,22 @@ V2 backend configuration (TRD §16).
 
 Reads environment variables (via .env, loaded with python-dotenv) for values
 that differ between environments. Shared constants that already live in the
-root config.py (CATEGORIES, BANK_DATE_FORMATS, KMEANS_MODEL_PATH) are
-imported from there rather than duplicated (TRD §16, §18.3) — this module
-must never redefine them.
+root config.py (CATEGORIES, BANK_DATE_FORMATS, KMEANS_MODEL_PATH,
+LOGREG_MODEL_PATH) are imported from there rather than duplicated (TRD §16,
+§18.3) — this module must never redefine them.
+
+LOGREG_MODEL_PATH (ML-D): the production categorization artifact path
+CategorizationService actually loads at startup (backend/main.py). KMEANS_MODEL_PATH
+is still exported here for callers that need it (e.g. pipeline/cluster.py, V1),
+but the backend lifespan hook no longer wires it into CategorizationService —
+K-Means is preserved as historical/ML-B evidence, not the selected production path.
 """
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-from config import BANK_DATE_FORMATS, CATEGORIES, KMEANS_MODEL_PATH
+from config import BANK_DATE_FORMATS, CATEGORIES, KMEANS_MODEL_PATH, LOGREG_MODEL_PATH
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
@@ -29,4 +35,5 @@ __all__ = [
     "CATEGORIES",
     "BANK_DATE_FORMATS",
     "KMEANS_MODEL_PATH",
+    "LOGREG_MODEL_PATH",
 ]

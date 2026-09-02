@@ -1,26 +1,41 @@
 """
-CategorizationService (TRD §7.3, §11.1-§11.4; Build Plan Phase 3, Option A).
+CategorizationService (TRD §7.3, §11.1-§11.4; Build Plan Phase 3, Option A;
+ML-D Production Integration).
 
 Loaded once (at FastAPI startup, via the lifespan hook), never per-request.
-predict()/predict_batch() reimplement pipeline.cluster.predict_categories()'s
-three inner steps (build_feature_matrix -> kmeans.predict -> cluster->category
-mapping) directly against the artifact cached in memory, rather than calling
-predict_categories() itself — that function reloads the pickle from disk on
-every call (pipeline/cluster.py:160-162), which TRD §7.3 explicitly forbids
-on the request path.
 
-No confidence score is fabricated (TRD §11.2): K-Means + majority-vote
-mapping does not produce a defensible per-prediction confidence.
+ML-C selected candidate (frozen in reports/ml/ML_C_SELECTION_RECORD.json):
+TF-IDF + Logistic Regression (ml/categorization/candidates.py::TfidfLogRegCandidate).
+The production artifact this service loads (config.LOGREG_MODEL_PATH,
+models/tfidf_logreg_v1.pkl) is built by scripts/build_production_logreg_model.py,
+which fits that exact recipe on the frozen Tier B TRAIN partition only
+(data/evaluation/tier_b_split_v1.json — 133 rows / 47 merchant groups) —
+never VALIDATION, never FINAL_TEST. This service itself never fits anything;
+it only loads the already-fitted vectorizer + model and calls .transform()/
+.predict() at inference time.
+
+Input is merchant text only (config.CATEGORIES taxonomy) — the selected
+recipe does NOT use amount/day-of-week/is_weekend (that was the retired
+K-Means path's feature set; adding those features to LogReg here would
+create a new, unevaluated model, which ML-D explicitly forbids). amount/date
+are still accepted in predict()/predict_batch()'s input dicts for interface
+compatibility with existing callers (TransactionService, IngestionService)
+but are not used.
+
+No confidence score is exposed, consistent with the prior K-Means behavior,
+even though predict_proba is available on the underlying LogisticRegression.
+
+The retired K-Means artifact/path (pipeline/cluster.py, models/kmeans_model.pkl)
+is preserved untouched as ML-B evidence — this service simply no longer loads it.
 """
 import logging
 from pathlib import Path
 from typing import Literal
 
-import pandas as pd
 import joblib
+import pandas as pd
 
 from backend.api.errors import CategorizationUnavailableError
-from pipeline.features import build_feature_matrix
 
 logger = logging.getLogger("backend")
 
@@ -31,10 +46,10 @@ class CategorizationService:
     def __init__(self, model_path: Path):
         self.model_path = Path(model_path)
         self.status: Status = "missing"
-        self._kmeans = None
-        self._scaler = None
         self._vectorizer = None
-        self._cluster_to_category: dict | None = None
+        self._model = None
+        self.model_impl_version: str | None = None
+        self.metadata: dict | None = None
         self._load()
 
     def _load(self) -> None:
@@ -44,12 +59,15 @@ class CategorizationService:
             return
         try:
             payload = joblib.load(self.model_path)
-            self._kmeans = payload["kmeans"]
-            self._scaler = payload["scaler"]
             self._vectorizer = payload["vectorizer"]
-            self._cluster_to_category = payload["cluster_to_category"]
+            self._model = payload["model"]
+            self.model_impl_version = payload.get("model_impl_version")
+            self.metadata = payload.get("metadata")
             self.status = "loaded"
-            logger.info("Categorization model loaded from %s", self.model_path)
+            logger.info(
+                "Categorization model loaded from %s (model_impl_version=%s)",
+                self.model_path, self.model_impl_version,
+            )
         except Exception:
             self.status = "error"
             logger.exception("Failed to load categorization model from %s", self.model_path)
@@ -62,24 +80,15 @@ class CategorizationService:
             )
 
     def _predict_frame(self, df: pd.DataFrame) -> list[str]:
-        X, _, _ = build_feature_matrix(
-            df, scaler=self._scaler, vectorizer=self._vectorizer, fit=False
-        )
-        cluster_ids = self._kmeans.predict(X)
-        return [self._cluster_to_category[cid] for cid in cluster_ids]
+        X = self._vectorizer.transform(df["merchant"].fillna("").astype(str))
+        return list(self._model.predict(X))
 
     def predict(self, transaction: dict) -> dict:
-        """transaction: {merchant, amount, date}. Returns {predicted_category}."""
+        """transaction: {merchant, amount, date}. Returns {predicted_category}.
+        amount/date are accepted for interface compatibility with existing
+        callers but are not used by the selected merchant-text-only recipe."""
         self._require_loaded()
-        df = pd.DataFrame(
-            [
-                {
-                    "date": transaction["date"],
-                    "merchant": transaction["merchant"],
-                    "amount": transaction["amount"],
-                }
-            ]
-        )
+        df = pd.DataFrame([{"merchant": transaction["merchant"]}])
         categories = self._predict_frame(df)
         return {"predicted_category": categories[0]}
 
@@ -90,8 +99,6 @@ class CategorizationService:
         self._require_loaded()
         if not rows:
             return []
-        df = pd.DataFrame(
-            [{"date": r["date"], "merchant": r["merchant"], "amount": r["amount"]} for r in rows]
-        )
+        df = pd.DataFrame([{"merchant": r["merchant"]} for r in rows])
         categories = self._predict_frame(df)
         return [{"predicted_category": c} for c in categories]

@@ -12,6 +12,11 @@ The lifespan hook opens the single shared DB connection (migrations applied
 once at startup) and loads the CategorizationService's model artifact, both
 closed/released at shutdown. This hook's structure was kept stable from
 Phase 2 specifically so Phase 3 only adds to it, per Phase 2's design note.
+
+ML-D Production Integration: CategorizationService now loads the ML-C
+selected TF-IDF + Logistic Regression artifact (LOGREG_MODEL_PATH,
+models/tfidf_logreg_v1.pkl, built by scripts/build_production_logreg_model.py)
+rather than the K-Means artifact — see backend/services/categorization_service.py.
 """
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
@@ -23,7 +28,7 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.api.error_handlers import register_error_handlers
 from backend.api.routes import dashboard, demo, forecasts, health, holdings, imports, transactions
-from backend.config import FRONTEND_ORIGIN, KMEANS_MODEL_PATH, ROOT_DIR, V2_DB_PATH
+from backend.config import FRONTEND_ORIGIN, LOGREG_MODEL_PATH, ROOT_DIR, V2_DB_PATH
 from backend.db.connection import get_connection
 from backend.services.categorization_service import CategorizationService
 
@@ -37,7 +42,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # never per-request. A missing/corrupt artifact does not crash startup;
     # the service just reports "missing"/"error" via /api/health, and
     # prediction-dependent writes get a 503 until a valid model is present.
-    app.state.categorization_service = CategorizationService(KMEANS_MODEL_PATH)
+    app.state.categorization_service = CategorizationService(LOGREG_MODEL_PATH)
 
     yield
 

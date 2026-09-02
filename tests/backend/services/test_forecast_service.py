@@ -110,9 +110,22 @@ def test_run_forecast_persists_run_with_model_impl_version(service, conn):
 
     stored = ForecastRepository(conn).get_run(run["run_id"])
     assert stored["model_impl_version"] == MODEL_IMPL_VERSION
+    # ML-D: production forecaster is the ML-C selected Naive baseline,
+    # strategy "N/A" — pinned literally so this test fails loudly if the
+    # constant drifts, not just self-consistently against its own import.
+    assert MODEL_IMPL_VERSION == "naive_v1"
     assert stored["months_available"] == 12
     assert stored["data_mode"] == "real"
     assert stored["is_stale"] == 0
+
+
+def test_run_forecast_never_fits_a_random_forest(service, conn):
+    seed_months(conn, 12, ["Food & Dining", "Transport"])
+
+    with patch("pipeline.forecast.RandomForestRegressor") as mock_rf_cls:
+        service.run_forecast("real")
+
+    mock_rf_cls.assert_not_called()
 
 
 def test_run_forecast_response_shape(service, conn):
@@ -145,9 +158,12 @@ def test_run_retention_two_consecutive_runs_create_two_distinct_rows(service, co
 # -- per-category availability --------------------------------------------------
 
 
-def test_run_forecast_marks_sparse_category_unavailable_not_zero(service, conn):
+def test_run_forecast_marks_absent_category_unavailable_not_zero(service, conn):
+    # ML-D: the selected Naive recipe only needs ONE historical data point
+    # to produce a prediction (unlike the retired RF path's 7-occurrence
+    # rolling-window floor) — so a category is unavailable only when it has
+    # ZERO recorded transactions at all, never merely "sparse".
     seed_months(conn, 12, ["Food & Dining"])
-    seed_sparse_category(conn, "Healthcare", ["2025-01", "2025-02"])
 
     run = service.run_forecast("real")
 
@@ -160,6 +176,19 @@ def test_run_forecast_marks_sparse_category_unavailable_not_zero(service, conn):
     food = [p for p in run["predictions"] if p["category"] == "Food & Dining"]
     assert all(p["is_available"] for p in food)
     assert all(p["predicted_amount"] is not None for p in food)
+
+
+def test_run_forecast_a_single_recorded_month_is_available_under_naive(service, conn):
+    seed_months(conn, 12, ["Food & Dining"])
+    seed_sparse_category(conn, "Healthcare", ["2025-01"])
+
+    run = service.run_forecast("real")
+
+    healthcare = [p for p in run["predictions"] if p["category"] == "Healthcare"]
+    assert all(p["is_available"] for p in healthcare)
+    assert all(p["predicted_amount"] is not None for p in healthcare)
+    # Naive/strategy N/A: identical predicted value reused at +1/+2/+3.
+    assert len({p["predicted_amount"] for p in healthcare}) == 1
 
 
 # -- effective category --------------------------------------------------------

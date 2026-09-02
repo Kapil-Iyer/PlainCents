@@ -1,0 +1,194 @@
+{
+  "purpose": "ML-E Final ML Certification: verdict + safest wording for every claim that could plausibly be made about PlainCents V2's ML work, so no claim outruns its evidence tier.",
+  "verdict_legend": {
+    "SUPPORTED": "Directly established by committed evidence, as stated.",
+    "SUPPORTED_WITH_QUALIFICATION": "True only with a stated limitation attached; the limitation must travel with the claim.",
+    "NOT_SUPPORTED": "Evidence does not establish this; must not be claimed."
+  },
+  "claims": [
+    {
+      "claim": "PlainCents V2 categorizes transactions using TF-IDF + Logistic Regression.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "PlainCents V2's production categorizer is TF-IDF + Logistic Regression, selected via evidence-based comparison against K-Means and Linear SVM.",
+      "evidence_artifacts": ["backend/services/categorization_service.py", "scripts/build_production_logreg_model.py", "reports/ml/ML_C_SELECTION_RECORD.json"],
+      "limitation": "None — this is a direct statement of the shipped implementation, verified via runtime equivalence (ML-E A).",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "PlainCents V2 uses evidence-based model selection.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "Model selection followed a documented protocol: frozen merchant-grouped/temporal splits, TRAIN-only fitting, VALIDATION-based comparison, and a single held-out FINAL evaluation of the selected candidate only.",
+      "evidence_artifacts": ["docs/V2_ML_SPEC.md", "reports/ml/ML_B_EXPERIMENT_REPORT.md", "reports/ml/ML_C_EXPERIMENT_REPORT.md", "reports/ml/ML_C_SELECTION_RECORD.json"],
+      "limitation": "The protocol is rigorous; the underlying benchmark sample sizes are still small (Tier B: 228 rows total; forecasting: synthetic).",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "PlainCents benchmarked K-Means, Logistic Regression, and Linear SVM.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "Three categorization candidates were benchmarked on the same frozen TRAIN/VALIDATION split: K-Means (isolated re-fit), TF-IDF + Logistic Regression, and TF-IDF + Linear SVM.",
+      "evidence_artifacts": ["reports/ml/ML_B_EXPERIMENT_REPORT.md", "ml/categorization/candidates.py", "reports/ml/results/categorization_results.json"],
+      "limitation": "None.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "Categorization evaluation used merchant-group separation.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "The categorization split assigns every transaction sharing a normalized merchant identity to exactly one of TRAIN/VALIDATION/FINAL_TEST, preventing a model from succeeding merely by memorizing a merchant string seen during training.",
+      "evidence_artifacts": ["ml/common/splitting.py", "data/evaluation/tier_b_split_v1.json", "docs/V2_ML_SPEC.md"],
+      "limitation": "None.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "Merchant groups do not overlap TRAIN/VALIDATION/FINAL.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "Verified structurally (empty pairwise intersections) both in ML-B's own runner and as a defense-in-depth assertion inside ml/categorization/run_final.py and scripts/build_production_logreg_model.py.",
+      "evidence_artifacts": ["ml/common/splitting.py::verify_split_isolation", "ml/categorization/run_final.py", "scripts/build_production_logreg_model.py", "tests/ml/test_splitting.py"],
+      "limitation": "None.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "PlainCents achieved 42.2% categorization accuracy.",
+      "verdict": "SUPPORTED_WITH_QUALIFICATION",
+      "safest_wording": "On a 45-row, 17-merchant-group held-out FINAL_TEST slice of an independently curated Tier B benchmark, the selected LogReg model scored 42.2% accuracy — a single, small-sample measurement, not a production accuracy guarantee.",
+      "evidence_artifacts": ["reports/ml/results/final_categorization.json"],
+      "limitation": "n=45 rows / 17 merchant groups. Not real-world bank-transaction data. A single held-out measurement, not a distribution.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "PlainCents achieved 0.4405 macro F1.",
+      "verdict": "SUPPORTED_WITH_QUALIFICATION",
+      "safest_wording": "Macro F1 of 0.4405 on the same 45-row Tier B FINAL_TEST slice described above.",
+      "evidence_artifacts": ["reports/ml/results/final_categorization.json"],
+      "limitation": "Same small-sample/Tier-B limitation as the accuracy figure; per-category F1 ranges from 0.22 to 1.0 across only 4-9 support rows per category.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "PlainCents categorizes real-world bank transactions at 42.2% accuracy.",
+      "verdict": "NOT_SUPPORTED",
+      "safest_wording": "Do not make this claim. Say instead: 42.2% accuracy on a curated Tier B benchmark (not real-world bank data).",
+      "evidence_artifacts": ["reports/ml/results/final_categorization.json"],
+      "limitation": "Tier B is an independently curated/constructed benchmark (ML Spec Section 3.2), explicitly not real-world bank export data. No real bank CSV has ever been scored.",
+      "allowed_context": ["nowhere"]
+    },
+    {
+      "claim": "PlainCents V2 forecasting achieved approximately 18.9% WAPE.",
+      "verdict": "SUPPORTED_WITH_QUALIFICATION",
+      "safest_wording": "On a reserved 3-month period (2024-10/11/12) of a synthetic 24-month dataset, the selected Naive forecaster scored 18.87% combined WAPE.",
+      "evidence_artifacts": ["reports/ml/results/final_forecasting.json"],
+      "limitation": "Fully synthetic dataset (data/raw/synthetic_24mo.csv), categorized by the production K-Means artifact read-only. Never real spending data.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "PlainCents forecasts real-world personal spending at approximately 18.9% WAPE.",
+      "verdict": "NOT_SUPPORTED",
+      "safest_wording": "Do not make this claim. Say instead: 18.9% WAPE on a synthetic 3-month reserved evaluation period — a mechanism/behavior check, not a real-world accuracy figure.",
+      "evidence_artifacts": ["reports/ml/results/final_forecasting.json"],
+      "limitation": "Evidence tier is synthetic throughout (ML Spec Section 3.1/21) — no real transaction history has ever been forecast-evaluated.",
+      "allowed_context": ["nowhere"]
+    },
+    {
+      "claim": "Naive forecasting outperformed RF/Ridge under the frozen synthetic validation protocol.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "Across 14 expanding-window VALIDATION origins, Naive's mean WAPE (0.191) was lower than every RF/Ridge variant tested (0.235-0.257), and Naive beat Seasonal Naive in 11/11 comparable origins.",
+      "evidence_artifacts": ["reports/ml/ML_C_FOLD_STABILITY.json", "reports/ml/ML_C_SELECTION_RECORD.json"],
+      "limitation": "Synthetic evidence tier; a 14-origin sample.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "Random Forest was rejected because it failed to consistently beat the required baseline.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "RF (both strategies) beat Naive in fewer than half of the 14 VALIDATION origins (last-known-history: 6/14; recursive: 4/14), so the ML Spec's Section 14 rule selected the simpler Naive baseline instead.",
+      "evidence_artifacts": ["reports/ml/ML_C_FOLD_STABILITY.json", "docs/V2_ML_SPEC.md"],
+      "limitation": "None beyond the synthetic evidence tier already noted.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "V2 categorization improved over V1.",
+      "verdict": "NOT_SUPPORTED",
+      "safest_wording": "Do not claim a V1-to-V2 accuracy improvement. V1's 90% figure and V2's 42.2% figure come from different, non-comparable evidence tiers (V1: same-distribution synthetic keyword-labeled diagnostic; V2: independently curated Tier B benchmark with merchant-group separation) — a lower V2 number reflects a harder, more honest test, not a regression.",
+      "evidence_artifacts": ["README.md (V1 section)", "reports/ml/PRE_EXPERIMENT_REPORT.md", "reports/ml/results/final_categorization.json"],
+      "limitation": "The two numbers are not on the same scale and must never be subtracted or ratioed against each other.",
+      "allowed_context": ["nowhere"]
+    },
+    {
+      "claim": "V2 categorization generalizes to unseen merchants.",
+      "verdict": "SUPPORTED_WITH_QUALIFICATION",
+      "safest_wording": "The FINAL_TEST evaluation specifically measures performance on merchant groups never seen during fitting (that is the point of the merchant-grouped split); the selected model scored 42.2% accuracy under that condition.",
+      "evidence_artifacts": ["reports/ml/results/final_categorization.json", "ml/common/splitting.py"],
+      "limitation": "\"Generalizes\" should not be read as \"generalizes well\" — 42.2% on 8 categories is well above chance (~12.5%) but far from production-grade.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "Logistic Regression outperformed K-Means on the Tier B validation set.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "On VALIDATION, LogReg scored 0.2552 macro F1 / 32.0% accuracy versus K-Means's 0.0566 macro F1 / 12.0% accuracy (statistically indistinguishable from the ~12.5% random-chance floor for 8 categories).",
+      "evidence_artifacts": ["reports/ml/ML_B_EXPERIMENT_REPORT.md", "reports/ml/ML_C_SELECTION_RECORD.json"],
+      "limitation": "None.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "TD CSV support is verified against a real TD export.",
+      "verdict": "NOT_SUPPORTED",
+      "safest_wording": "Do not make this claim. Say instead: fixture-tested against synthetic files shaped like TD's documented export format, not verified against an actual TD account export.",
+      "evidence_artifacts": ["tests/fixtures/td_csv/", "README.md"],
+      "limitation": "No real TD export has ever been used in this repo.",
+      "allowed_context": ["nowhere"]
+    },
+    {
+      "claim": "TD CSV support is fixture-tested against publicly researched TD format assumptions.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "TD import is tested against synthetic fixtures (clean, unparseable-date, unrecognized-format, duplicate-row variants) shaped like TD's publicly documented export columns — not field-verified against a real export.",
+      "evidence_artifacts": ["tests/fixtures/td_csv/", "pipeline/ingest.py"],
+      "limitation": "Format assumptions are researched, not field-confirmed.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "PlainCents uses real bank transaction data for ML evaluation.",
+      "verdict": "NOT_SUPPORTED",
+      "safest_wording": "Do not make this claim. Categorization evidence is an independently curated Tier B benchmark (not a real bank export); forecasting evidence is fully synthetic.",
+      "evidence_artifacts": ["reports/ml/results/final_categorization.json", "reports/ml/results/final_forecasting.json"],
+      "limitation": "No real bank transaction data has ever been used anywhere in this repo's ML evaluation.",
+      "allowed_context": ["nowhere"]
+    },
+    {
+      "claim": "PlainCents uses synthetic data for forecasting evaluation.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "Forecasting evaluation uses data/raw/synthetic_24mo.csv (779 synthetic transactions, 24 months), categorized read-only by the production K-Means artifact.",
+      "evidence_artifacts": ["ml/forecasting/data_prep.py", "reports/ml/results/final_forecasting.json"],
+      "limitation": "None — this is an accurate, disclosed limitation, not an overclaim.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "PlainCents preserves user corrections separately from model predictions.",
+      "verdict": "SUPPORTED",
+      "safest_wording": "predicted_category is written once at import/creation time and is immutable thereafter; a user correction writes confirmed_category instead, and effective_category = COALESCE(confirmed_category, predicted_category) — the original prediction is never overwritten.",
+      "evidence_artifacts": ["db/migrations/001_initial_v2.sql", "backend/repositories/transaction_repository.py", "backend/services/transaction_service.py"],
+      "limitation": "None.",
+      "allowed_context": ["resume", "README", "interview", "internal_only"]
+    },
+    {
+      "claim": "PlainCents automatically retrains from user corrections.",
+      "verdict": "NOT_SUPPORTED",
+      "safest_wording": "Do not make this claim. There is no online learning: a correction only ever writes confirmed_category; CategorizationService's model artifact is fit offline (scripts/build_production_logreg_model.py) and never refit at request time or on correction.",
+      "evidence_artifacts": ["backend/services/categorization_service.py", "backend/services/transaction_service.py", "tests/backend/services/test_categorization_service.py"],
+      "limitation": "Verified directly by tests asserting predict()/predict_batch() never call .fit()/.fit_transform().",
+      "allowed_context": ["nowhere"]
+    },
+    {
+      "claim": "(existing README ML claim, pre-ML-D)",
+      "verdict": "SUPPORTED_WITH_QUALIFICATION",
+      "safest_wording": "The pre-ML-D README described the running categorizer/forecaster as V1's K-Means/Random Forest \"used as-is\" pending a separate scientific-evaluation milestone. That milestone (ML-B/C/D/E) is now complete and the README has been updated accordingly (see README.md's V2 architecture and Model artifact sections) to describe the selected TF-IDF + Logistic Regression / Naive implementations.",
+      "evidence_artifacts": ["README.md"],
+      "limitation": "The old text is now historically inaccurate if left unchanged — it has been updated as part of ML-E, not left as a dangling claim.",
+      "allowed_context": ["internal_only"]
+    },
+    {
+      "claim": "(existing project-description ML claim, pre-ML-D)",
+      "verdict": "SUPPORTED_WITH_QUALIFICATION",
+      "safest_wording": "No separate \"project description\" document exists outside README.md and docs/ in this repo; the same update applied to README.md resolves this claim category too.",
+      "evidence_artifacts": ["README.md"],
+      "limitation": "If a project-description document is later added (e.g. a portfolio site entry), it must be checked against this claim matrix before publishing.",
+      "allowed_context": ["internal_only"]
+    }
+  ]
+}
