@@ -25,3 +25,18 @@ if (typeof ResizeObserver === "undefined") {
     disconnect() {}
   };
 }
+
+// The Phase 10 product walkthrough checks prefers-reduced-motion via
+// matchMedia, which jsdom does not implement — default to "no preference".
+if (typeof window !== "undefined" && !window.matchMedia) {
+  window.matchMedia = (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  }) as MediaQueryList;
+}

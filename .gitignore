@@ -28,3 +28,10 @@ plaincents_v2.db
 # V2 frontend
 frontend/node_modules/
 frontend/dist/
+
+# Phase 10 E2E tooling (root-level, Playwright only — no app code)
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

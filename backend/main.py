@@ -1,7 +1,12 @@
 """
-PlainCents V2 FastAPI app (Build Plan Phase 2, extended in Phase 3).
+PlainCents V2 FastAPI app (Build Plan Phase 2, extended in Phase 3, packaged
+reviewer mode added in Phase 10).
 
-Run with: uvicorn backend.main:app --reload
+Dev mode (two servers, HMR):  uvicorn backend.main:app --reload
+Reviewer/demo mode (one process, one port): build the frontend first
+(`npm run build` in frontend/, or `python -m backend.scripts.run_reviewer`
+which does this for you), then run this same command — this file detects the built
+`frontend/dist` and serves it alongside the API. See README.md.
 
 The lifespan hook opens the single shared DB connection (migrations applied
 once at startup) and loads the CategorizationService's model artifact, both
@@ -11,12 +16,14 @@ Phase 2 specifically so Phase 3 only adds to it, per Phase 2's design note.
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend.api.error_handlers import register_error_handlers
 from backend.api.routes import dashboard, demo, forecasts, health, holdings, imports, transactions
-from backend.config import FRONTEND_ORIGIN, KMEANS_MODEL_PATH, V2_DB_PATH
+from backend.config import FRONTEND_ORIGIN, KMEANS_MODEL_PATH, ROOT_DIR, V2_DB_PATH
 from backend.db.connection import get_connection
 from backend.services.categorization_service import CategorizationService
 
@@ -57,3 +64,36 @@ app.include_router(imports.router)
 app.include_router(dashboard.router)
 app.include_router(forecasts.router)
 app.include_router(holdings.router)
+
+# --- Packaged reviewer/demo mode (TRD §1.7, Build Plan §2.3) ---------------
+#
+# In dev mode, two servers run: Vite (HMR, :5173) proxies /api to this app
+# (:8000), and the browser never hits this app for anything but /api/*, so
+# this section is inert. In reviewer/demo mode, the built frontend
+# (frontend/dist, produced by `npm run build`) is served from this same
+# process/port: static assets directly, and a catch-all SPA fallback so
+# client-side deep links like /dashboard or /forecast return index.html
+# instead of a 404 (React Router then renders the right page client-side).
+# All /api/* routes above are registered first and always take priority.
+FRONTEND_DIST = ROOT_DIR / "frontend" / "dist"
+
+if FRONTEND_DIST.is_dir():
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def spa_fallback(full_path: str, request: Request) -> FileResponse:
+        """Serve index.html for any non-API GET so client-side routes work.
+
+        A real static file under dist/ (e.g. favicon.ico) is served directly
+        if present; unknown deep links fall back to index.html, exactly like
+        a standard SPA history-mode server. Registered last, so it never
+        shadows /api/* — a genuinely unknown /api/... path still 404s
+        (this handler explicitly refuses the /api prefix as a second layer
+        of protection, in case route registration order ever changes).
+        """
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not Found")
+        candidate = FRONTEND_DIST / full_path
+        if full_path and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(FRONTEND_DIST / "index.html")

@@ -1,0 +1,13 @@
+{
+  "name": "plaincents",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Root-level tooling for PlainCents V2 E2E tests (Build Plan Phase 10). The application itself lives in frontend/ and backend/ — see README.md.",
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:install": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1"
+  }
+}
