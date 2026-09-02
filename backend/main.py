@@ -15,7 +15,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api.error_handlers import register_error_handlers
-from backend.api.routes import dashboard, demo, health, imports, transactions
+from backend.api.routes import dashboard, demo, forecasts, health, imports, transactions
 from backend.config import FRONTEND_ORIGIN, KMEANS_MODEL_PATH, V2_DB_PATH
 from backend.db.connection import get_connection
 from backend.services.categorization_service import CategorizationService
@@ -55,3 +55,4 @@ app.include_router(demo.router)
 app.include_router(transactions.router)
 app.include_router(imports.router)
 app.include_router(dashboard.router)
+app.include_router(forecasts.router)

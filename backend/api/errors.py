@@ -48,6 +48,19 @@ class DemoConflictError(ConflictError):
     error_code = "demo_conflict"
 
 
+class ForecastColdStartError(ValidationError):
+    """TRD Section 5.6/Section 15: POST /api/forecasts/run attempted while
+    months_available < 12 (the frozen cold-start threshold, TRD Section
+    12.5). Distinct error_code from the generic "validation_error" so the
+    frontend can recognize this specific case and render the cold-start
+    explanation rather than a generic form-validation message. Checking
+    status (GET /api/forecasts/status) during cold-start is NOT an error —
+    it returns 200 with a structured payload; only an explicit attempt to
+    *generate* while ineligible is rejected."""
+
+    error_code = "cold_start"
+
+
 class ServiceUnavailableError(AppError):
     status_code = 503
     error_code = "service_unavailable"

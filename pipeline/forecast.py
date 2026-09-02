@@ -364,6 +364,130 @@ def fit_and_forecast(df: pd.DataFrame) -> tuple[pd.DataFrame, float, dict]:
     return forecast_df, overall_mape, per_category_mape
 
 
+def train_and_predict(monthly_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Phase 7 interactive path (TRD Section 12.1-12.3; Build Plan Section 2.2):
+    fit the Random Forest exactly ONCE with fixed default hyperparameters and
+    generate the 3-month forecast — no walk-forward validation, no
+    GridSearchCV. This is the only pipeline.forecast function
+    ForecastService.run_forecast() may call on the user-triggered path;
+    fit_and_forecast()/walk_forward_validate() remain V1's own entry points,
+    untouched, and are never invoked from here.
+
+    Multi-step (+1/+2/+3) strategy: V1's last-known-history approach (ML Spec
+    Section 11.1, Strategy A) — the same rolling/lag values (computed from
+    the most recent observed history) are reused across all three horizons;
+    only the calendar-derived features (month_num/is_december/is_summer)
+    vary by horizon. This ships as the ML-A bootstrap strategy per the Build
+    Plan, not yet the scientifically-selected final strategy (ML-B/C/D work).
+
+    Per-category availability (TRD Section 12.5): build_forecast_features's
+    existing rolling/lag dropna already excludes a too-sparse category from
+    the trainable feature set (a category needs at least 7 monthly data
+    points — i.e. index >= 6 in its own per-category series — to survive the
+    6-month rolling window). A category absent from the surviving trained
+    categories is reported as unavailable ("insufficient_history"), never
+    fabricated as a $0 forecast.
+
+    Unlike fit_and_forecast(), this function does not persist a model
+    artifact to disk (models/rf_model.pkl) — ML Spec Section 18: the
+    interactive path refits fresh from the user's current data on every
+    call, so there is no long-lived trained-weights artifact to version.
+
+    Parameters
+    ----------
+    monthly_df : DataFrame
+        Output of aggregate_monthly() — columns: month, category, total_spend.
+
+    Returns
+    -------
+    DataFrame with columns: category, month_offset, forecast_month,
+    predicted_amount (float or None), is_available (bool), unavailable_reason
+    (str or None).
+    """
+    X_all, y_all, le = build_forecast_features(monthly_df)
+
+    feature_cols = [
+        "month_num", "category_encoded", "rolling_3m_avg",
+        "rolling_6m_avg", "rolling_std", "is_december", "is_summer",
+        "lag_1_spend",
+    ]
+
+    if X_all.empty:
+        # No category survived the rolling/lag history requirement at all —
+        # every category is unavailable; nothing to fit.
+        rf = None
+        available_categories: set[str] = set()
+    else:
+        rf_params = {
+            "n_estimators": 100, "max_depth": 10,
+            "min_samples_leaf": 5, "random_state": 42,
+        }
+        rf = RandomForestRegressor(**rf_params)
+        rf.fit(X_all, y_all)
+        available_categories = set(
+            le.inverse_transform(sorted(X_all["category_encoded"].unique()))
+        )
+
+    last_month = pd.to_datetime(monthly_df["month"]).max()
+
+    forecasts = []
+    for offset in [1, 2, 3]:
+        future_month = last_month + pd.DateOffset(months=offset)
+        future_month_num = future_month.month
+        is_dec = 1 if future_month_num == 12 else 0
+        is_sum = 1 if future_month_num in [6, 7, 8] else 0
+        forecast_month_str = future_month.strftime("%Y-%m")
+
+        for cat in CATEGORIES:
+            if cat not in available_categories:
+                forecasts.append({
+                    "category": cat,
+                    "month_offset": offset,
+                    "forecast_month": forecast_month_str,
+                    "predicted_amount": None,
+                    "is_available": False,
+                    "unavailable_reason": "insufficient_history",
+                })
+                continue
+
+            cat_data = monthly_df[monthly_df["category"] == cat].sort_values("month")
+            spend_history = cat_data["total_spend"].values
+
+            # available_categories guarantees len(spend_history) >= 7 here
+            # (the same floor build_forecast_features's dropna requires), so
+            # no <3/<6 fallback branches are needed unlike fit_and_forecast's
+            # loop (which must also predict for categories that didn't
+            # survive dropna).
+            r3 = np.mean(spend_history[-3:])
+            rstd = np.std(spend_history[-3:], ddof=1)
+            r6 = np.mean(spend_history[-6:])
+            lag1 = spend_history[-1]
+
+            cat_encoded = le.transform([cat])[0]
+            row = pd.DataFrame([{
+                "month_num": future_month_num,
+                "category_encoded": cat_encoded,
+                "rolling_3m_avg": r3,
+                "rolling_6m_avg": r6,
+                "rolling_std": rstd,
+                "is_december": is_dec,
+                "is_summer": is_sum,
+                "lag_1_spend": lag1,
+            }])
+            pred = rf.predict(row[feature_cols])[0]
+            forecasts.append({
+                "category": cat,
+                "month_offset": offset,
+                "forecast_month": forecast_month_str,
+                "predicted_amount": round(float(pred), 2),
+                "is_available": True,
+                "unavailable_reason": None,
+            })
+
+    return pd.DataFrame(forecasts)
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     from pipeline.ingest import load_and_clean
