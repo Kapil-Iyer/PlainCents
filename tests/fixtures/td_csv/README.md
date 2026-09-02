@@ -20,6 +20,25 @@ repository.
 | `unparseable_dates.csv` | A mostly-valid file with a few rows containing malformed/unparseable dates, to test per-row date-parse-failure handling and row-count reporting (`ingest.py`'s existing `dropna`/warning behavior). |
 | `unrecognized_format.csv` | Column headers (`Record Date` / `Memo` / `Value CAD`) that match none of `BANK_COLUMNS`'s TD/RBC/Scotiabank candidates for date, merchant, *or* amount — exercises the whole-file "could not detect/map columns" failure path (expected: HTTP 400, not a partial/degraded 200). |
 | `duplicate_rows.csv` | Contains exact-duplicate rows. **Note:** V1's `load_and_clean()` already collapses exact full-row duplicates via `drop_duplicates()` before this data would ever reach the dedup service layer — so this fixture's primary use is testing **cross-batch** dedup (importing the same file, or `clean_valid.csv`, twice) via `TransactionRepository.exists_by_dedup_key`, not intra-file duplicate survival. |
+| `headerless_positional.csv` | **Added in Build Plan Phase 4.** Exercises the additive, TD-only headerless fallback in `load_and_clean_from_bytes()` — no header row, 5 positional columns (`date, description, withdrawals, deposits, balance`), dates rendered like `"Aug 27, 2024"`. This shape comes from **third-party, unverified evidence** about some real TD EasyWeb chequing/savings exports (see the "Real TD export verification" note below) — it is exactly as synthetic/unverified as every other fixture in this directory, just modeling a different candidate shape. Includes one deposit-only row (`PAYROLL DEPOSIT`, no withdrawal) to exercise the "deposit rows are out of spend-tracking scope, folded into `rows_unparseable`" behavior. |
+
+## Real TD export verification
+
+The Phase 0 fixtures above (and this file's original four) assume TD's export
+is header-based (`Date`/`Description`/`Amount`, `%m/%d/%Y`) — inherited from
+V1's pre-existing `BANK_COLUMNS`/`BANK_DATE_FORMATS` assumptions, not from any
+verified real export. During Phase 4, third-party/example evidence surfaced
+suggesting some real TD chequing/savings CSV exports may instead be
+**headerless** with 5 positional columns and separate withdrawal/deposit
+columns. This evidence is **not** PlainCents-verified and is **not** a
+official TD schema — `load_and_clean_from_bytes()` was extended to
+additively support both candidate shapes (auto-detected, TD-only) rather
+than picking one and guessing wrong, but which shape (or whether it's a
+third, different shape entirely) an actual TD statement uses remains
+**unverified** — the manual real-TD-export check (PRD §11.3, Build Plan
+Phase 4 §9) is still outstanding and must be performed against a real TD
+statement outside this repository before TD import can be called "verified
+end-to-end."
 
 ## Usage
 

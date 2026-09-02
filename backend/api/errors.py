@@ -40,6 +40,14 @@ class ValidationError(AppError):
     error_code = "validation_error"
 
 
+class DemoConflictError(ConflictError):
+    """TRD §5.2/§5.3: a real import attempted while app_state.mode == 'DEMO'.
+    Distinct error_code (not the generic "conflict") so the frontend can
+    recognize this specific case and offer the confirm-clear-demo flow."""
+
+    error_code = "demo_conflict"
+
+
 class ServiceUnavailableError(AppError):
     status_code = 503
     error_code = "service_unavailable"

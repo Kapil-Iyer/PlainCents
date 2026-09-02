@@ -21,6 +21,7 @@ yfinance==1.2.0
 # -- V2 backend (FastAPI) -----------------------------------
 fastapi==0.141.1
 uvicorn[standard]==0.52.4
+python-multipart==0.0.32  # required by FastAPI's UploadFile/Form (Phase 4 import endpoint)
 pydantic==2.13.5
 
 # -- Testing --------------------------------------------------
