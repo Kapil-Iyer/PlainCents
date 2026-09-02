@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { clearDemo } from "@/api/demo";
 import { confirmImport, createImport } from "@/api/imports";
 import { APP_STATE_QUERY_KEY } from "@/context/AppStateContext";
+import { DASHBOARD_QUERY_KEY } from "@/hooks/useDashboard";
 
 export function useCreateImport() {
   return useMutation({
@@ -17,6 +18,7 @@ export function useConfirmImport() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: APP_STATE_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
     },
   });
 }

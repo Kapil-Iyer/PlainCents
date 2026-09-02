@@ -14,3 +14,14 @@ if (!Element.prototype.releasePointerCapture) {
 if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
+
+// Recharts' ResponsiveContainer (Dashboard charts, Phase 6) observes its
+// container size via ResizeObserver, which jsdom does not implement.
+if (typeof ResizeObserver === "undefined") {
+  // @ts-expect-error -- minimal jsdom polyfill, not a real observer.
+  global.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}

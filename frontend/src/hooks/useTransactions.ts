@@ -7,6 +7,7 @@ import {
   updateTransaction,
 } from "@/api/transactions";
 import { APP_STATE_QUERY_KEY } from "@/context/AppStateContext";
+import { DASHBOARD_QUERY_KEY } from "@/hooks/useDashboard";
 import type {
   TransactionCreate,
   TransactionListParams,
@@ -30,6 +31,7 @@ export function useCreateTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TRANSACTIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: APP_STATE_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
     },
   });
 }
@@ -41,6 +43,7 @@ export function useUpdateTransaction() {
       updateTransaction(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TRANSACTIONS_KEY] });
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
     },
   });
 }
@@ -51,6 +54,7 @@ export function useDeleteTransaction() {
     mutationFn: (id: number) => deleteTransaction(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TRANSACTIONS_KEY] });
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
     },
   });
 }

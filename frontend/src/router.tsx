@@ -1,8 +1,9 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
-import { LayoutDashboard, LineChart, Wallet } from "lucide-react";
+import { LineChart, Wallet } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { PlaceholderPage } from "@/pages/Placeholder";
+import { DashboardPage } from "@/pages/Dashboard";
 import { ImportPage } from "@/pages/Import";
 import { TransactionsPage } from "@/pages/Transactions";
 
@@ -13,10 +14,7 @@ export const router = createBrowserRouter([
     element: <AppShell />,
     children: [
       { index: true, element: <Navigate to="/dashboard" replace /> },
-      {
-        path: "dashboard",
-        element: <PlaceholderPage title="Dashboard" icon={LayoutDashboard} phase={6} />,
-      },
+      { path: "dashboard", element: <DashboardPage /> },
       { path: "transactions", element: <TransactionsPage /> },
       { path: "import", element: <ImportPage /> },
       {

@@ -22,3 +22,12 @@ export function formatDate(date: string): string {
     day: "numeric",
   });
 }
+
+/** Format a "YYYY-MM" month string, e.g. "2026-09" -> "September 2026". */
+export function formatMonthLabel(month: string, style: "long" | "short" = "long"): string {
+  const [year, m] = month.split("-").map(Number);
+  return new Date(year, m - 1, 1).toLocaleDateString("en-CA", {
+    year: style === "long" ? "numeric" : "2-digit",
+    month: style,
+  });
+}
