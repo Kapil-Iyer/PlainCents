@@ -1,0 +1,160 @@
+{
+  "phase": "ML-C — Model and Strategy Selection",
+  "timestamp_utc": "2026-09-02T00:00:00Z",
+  "git_commit_evaluated": "2c06181a12fb270e6e534564c98ccebd2998088c",
+  "authority": "docs/V2_ML_SPEC.md (frozen). Where this record and the ML Spec appear to disagree, the ML Spec wins.",
+  "declaration": "Selection was finalized using TRAIN + VALIDATION evidence only. Neither component's FINAL data had been evaluated.",
+  "note_on_writing_order": "This record was written only after Part C (categorization selection), Part D (forecast model selection), and Part E (multi-step strategy selection) were all complete, and before Part F (FINAL evaluation) was opened for either component, per the frozen ML-C brief.",
+
+  "categorization_selection": {
+    "selected_candidate": "tfidf_logreg",
+    "selected_candidate_label": "TF-IDF + Logistic Regression",
+    "exact_configuration": {
+      "tfidf_config": {
+        "max_features": 50,
+        "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b",
+        "ngram_range": [1, 2],
+        "sublinear_tf": true
+      },
+      "model": "sklearn.linear_model.LogisticRegression",
+      "C": 1.0,
+      "max_iter": 1000,
+      "random_state": 42,
+      "input_features": "merchant text only (TF-IDF over the cleaned `merchant` column) — does NOT use amount/day_of_week/is_weekend, unlike K-Means's build_feature_matrix; this is a genuine implementation difference from the current production feature set, flagged for ML-D",
+      "fit_isolation": "vectorizer + LogisticRegression fit on TRAIN only (n=133 rows, 47 merchant groups), per ML Spec Section 6.1's isolation discipline extended to every candidate",
+      "source_code": "ml/categorization/candidates.py::TfidfLogRegCandidate"
+    },
+    "primary_validation_evidence": {
+      "metric": "macro F1 (ML Spec Section 7 primary metric)",
+      "values": {
+        "kmeans": 0.056589147286821705,
+        "tfidf_logreg": 0.2551948051948052,
+        "tfidf_linear_svm": 0.24047049441786283
+      },
+      "source": "reports/ml/results/categorization_results.json (independently re-verified against reports/ml/ML_B_EXPERIMENT_REPORT.md Section 14 — values match exactly)"
+    },
+    "secondary_validation_evidence": {
+      "accuracy": {"kmeans": 0.12, "tfidf_logreg": 0.32, "tfidf_linear_svm": 0.26},
+      "random_chance_reference": "~0.125 (8 roughly-balanced categories) — K-Means's 12.0% VALIDATION accuracy is statistically indistinguishable from random guessing",
+      "per_category_f1_at_zero_validation": {
+        "kmeans": ["Entertainment", "Healthcare", "Other", "Rent & Utilities", "Shopping", "Subscriptions"],
+        "tfidf_logreg": ["Healthcare", "Other", "Shopping"],
+        "tfidf_linear_svm": ["Food & Dining", "Healthcare", "Other"]
+      },
+      "categories_with_strong_generalization": {
+        "tfidf_logreg": {"Rent & Utilities": "100% precision (4/4), 57% recall", "Subscriptions": "100% precision"},
+        "note": "Both driven by recurring generic vocabulary (bill/monthly/membership) that transfers to unseen merchants — the clearest positive finding in ML-B Part A"
+      }
+    },
+    "section_7_8_gate_applied": {
+      "requirement": "ML Spec Section 7: any category with F1 substantially below the others triggers mandatory Section 8 error analysis before that candidate can be considered for selection.",
+      "finding": "All three candidates have multiple categories at F1=0.0 on VALIDATION (K-Means: 6/8; tfidf_logreg: 3/8; tfidf_linear_svm: 3/8) — the structured Section 8 error analysis was completed for ALL THREE candidates, not only the ones with the worst per-category spread.",
+      "evidence_cited": [
+        "reports/ml/results/categorization_error_analysis.json — per-candidate {merchant, amount, true_category, predicted_category, notes} for every VALIDATION misclassification, all 50 rows reviewed (small-dataset case per Section 8)",
+        "reports/ml/ML_B_EXPERIMENT_REPORT.md Section 15 — dominant failure mode identified and quantified: 0 of 50 VALIDATION merchant strings share even one TRAIN top-50 TF-IDF vocabulary token (verified programmatically in ML-B); category performance tracks whether that category's TRAIN vocabulary happens to be generic (Rent & Utilities, Subscriptions) vs. merchant-proper-noun-dependent (Food & Dining, Shopping, Transport, Healthcare, Entertainment, Other)"
+      ],
+      "gate_outcome": "Satisfied for all three candidates — none is disqualified by an unperformed error analysis. The gate does not itself disqualify K-Means; K-Means is rejected on the primary/secondary metric evidence below, with the gate's evidence cited to explain WHY its failure is structural (near-chance across nearly every category) rather than isolated to one or two categories."
+    },
+    "close_call_analysis_logreg_vs_svm": {
+      "margin": "macro F1 0.2552 vs 0.2405 (~6% relative), accuracy 32% vs 26% (~6pp absolute) — not a large margin in isolation",
+      "sample_size_caveat": "n=50 VALIDATION rows, Tier B single-author benchmark (228 rows total) — this margin is not treated as decisive on its own",
+      "additional_considerations_examined": [
+        "Per-category failure pattern: both have exactly 3/8 categories at F1=0.0 on VALIDATION, but DIFFERENT categories (LogReg: Healthcare/Other/Shopping; SVM: Food & Dining/Healthcare/Other) — neither shows a qualitatively more concentrated or more distributed failure pattern than the other; this does not favor either candidate",
+        "Complexity/implementation: LinearSVC does not produce calibrated probabilities without an extra CalibratedClassifierCV step (never required by the product today, but a real asymmetry if confidence scoring is ever added, TRD Section 11.2); LogisticRegression produces genuine class probabilities natively at no extra cost",
+        "Runtime: both fit in well under a second on this data scale (ML-B Section 30) — no differentiator",
+        "Interpretability: both expose per-term/per-category coefficients; no material difference",
+        "Artifact burden: both require persisting {vectorizer, model} — same shape, same complexity as the other, and comparable to K-Means's existing {scaler, vectorizer, kmeans, mapping} artifact"
+      ],
+      "conclusion": "No countervailing evidence favors SVM over the primary-metric leader. The primary metric (macro F1) and secondary metric (accuracy) both favor Logistic Regression, and no complexity/runtime/maintainability factor favors SVM enough to override that. Decision: select TF-IDF + Logistic Regression."
+    },
+    "alternatives_rejected": {
+      "kmeans": "Near-chance VALIDATION performance (12.0% accuracy vs ~12.5% random-chance baseline; macro F1 0.057) once merchant-leakage was corrected — a ~30-point TRAIN(42.1%)/VALIDATION(12.0%) accuracy gap is a textbook generalization-failure signature. Section 7/8 gate was satisfied (error analysis performed, root cause identified: 0/50 VALIDATION rows share any TRAIN top-50 vocabulary token). Rejected on primary metric evidence, not on the gate.",
+      "tfidf_linear_svm": "Beaten on both primary (macro F1) and secondary (accuracy) VALIDATION metrics by Logistic Regression, with no offsetting complexity/runtime/maintainability advantage identified. See close_call_analysis above."
+    },
+    "evidence_tier_limitation": "Tier B — independently curated/constructed benchmark (ML Spec Section 3.2), 228 rows / 81 merchant groups, single author. NOT real-world (Tier A) evidence. Every categorization number in this record and the accompanying report describes performance on this hand-authored benchmark only."
+  },
+
+  "forecasting_selection": {
+    "selected_candidate": "naive",
+    "selected_candidate_label": "Naive (next month = latest observed month, i.e. lag_1_spend)",
+    "exact_configuration": {
+      "definition": "predicted spend for every horizon (+1/+2/+3) = the single most recent actual observed month for that category",
+      "hyperparameters": "none (no fitting)",
+      "source_code": "ml/forecasting/baselines.py::naive_predict"
+    },
+    "section_14_eligibility_filter_applied": {
+      "rule": "ML Spec Section 14(a): a candidate becomes eligible to replace Naive only if it outperforms Naive on WAPE separately at +1, +2, and +3 — not only in combination — by a margin not plausibly explained by fold-to-fold noise.",
+      "pooled_validation_wape_by_horizon": {
+        "naive": {"h1": 0.2020, "h2": 0.1904, "h3": 0.1765},
+        "seasonal_naive": {"h1": 0.2631, "h2": 0.2631, "h3": 0.2631},
+        "ridge_last_known_history": {"h1": 0.2020, "h2": 0.2235, "h3": 0.2493},
+        "ridge_recursive": {"h1": 0.2020, "h2": 0.2347, "h3": 0.2887},
+        "random_forest_last_known_history": {"h1": 0.2426, "h2": 0.2354, "h3": 0.2495},
+        "random_forest_recursive": {"h1": 0.2426, "h2": 0.2524, "h3": 0.2771},
+        "source": "reports/ml/results/forecasting_metrics.json (independently re-verified against ML_B_EXPERIMENT_REPORT.md Section 22 — exact match)"
+      },
+      "eligibility_result": {
+        "ridge_last_known_history": "FAILS Section 14(a) — ties Naive at +1 (identical WAPE/MAE, a specific quantified coincidence flagged in ML-B), then loses at +2 (0.2235 vs 0.1904) and +3 (0.2493 vs 0.1765). Does not clear naive at ALL THREE horizons; the +1 tie plus +2/+3 losses is exactly the 'good +1 masking poor +2/+3' pattern Section 13.1/14 requires checking for.",
+        "random_forest_last_known_history": "FAILS Section 14(a) — loses to Naive at every single horizon (+1: 0.2426 vs 0.2020, +2: 0.2354 vs 0.1904, +3: 0.2495 vs 0.1765).",
+        "ridge_recursive": "FAILS more severely than last-known-history — recursive error compounding makes +2/+3 worse still (0.2347, 0.2887).",
+        "random_forest_recursive": "FAILS more severely than last-known-history for the same reason (0.2524, 0.2771).",
+        "seasonal_naive": "FAILS at every horizon (constant 0.2631, worse than Naive's declining 0.2020/0.1904/0.1765 at all three) — also loses to Naive on 11/11 origins where eligible (fold-stability evidence below)."
+      },
+      "conclusion": "No candidate in the frozen four-candidate set clears the Section 14(a) eligibility bar. Per Section 14's explicitly anticipated outcome ('if RF or Ridge does not reliably clear naive... the scientifically correct decision is to ship the simpler model... even the naive baseline itself, if nothing beats it'), Naive is selected."
+    },
+    "fold_level_stability_evidence": {
+      "source": "reports/ml/ML_C_FOLD_STABILITY.json (ML-C Part B — computed directly from the frozen reports/ml/results/forecasting_predictions_long.csv, 14 expanding-window VALIDATION origins, no new split created)",
+      "finding": "The pooled-aggregate result is NOT an artifact of a few origins. Per-origin, per-horizon head-to-head win rate against Naive:",
+      "per_horizon_beat_naive_rate": {
+        "random_forest_last_known_history": {"h1": "3/14 (21%)", "h2": "6/13 (46%)", "h3": "3/12 (25%)"},
+        "random_forest_recursive": {"h1": "3/14 (21%)", "h2": "6/13 (46%)", "h3": "1/12 (8%)"},
+        "ridge_last_known_history": {"h1": "5/14 (36%)", "h2": "5/13 (38%)", "h3": "2/12 (17%)"},
+        "ridge_recursive": {"h1": "5/14 (36%)", "h2": "4/13 (31%)", "h3": "1/12 (8%)"}
+      },
+      "interpretation": "Every candidate loses to Naive in the MAJORITY of individual origins at every horizon (best case is RF-last-known-history at +2, still under 50%). This directly supports Section 14(a)'s 'margin not plausibly explained by fold-to-fold noise' language being satisfied in Naive's favor — the losses are not concentrated in a couple of unlucky folds, they are the norm across the 14-origin VALIDATION window, and they worsen at +3 for every candidate (recursive strategies collapse hardest: 8% win rate at +3).",
+      "naive_vs_seasonal_naive": "Naive beats Seasonal Naive on 11/11 origins where Seasonal Naive is eligible (100%)."
+    },
+    "additional_considerations": {
+      "history_length_sensitivity": "RF only overtakes Naive's WAPE at 18 months of TRAIN history in a 3-origin sample (ML Spec Section 15 experiment); does not reliably beat Naive below that in this small sample. Does not change the eligibility conclusion (RF still loses combined and per-horizon at the actual data volumes evaluated) but is noted as a directional finding for any future re-evaluation once more history accumulates.",
+      "sparsity": "'Other' is entirely zero-spend in the evaluated window (WAPE undefined/NaN for every candidate) — does not affect this ranking since it affects all candidates identically (near-trivial MAE for all).",
+      "runtime_complexity": "Naive is O(1) — a single lookup, no fitting at all. This is strictly simpler and faster than the currently-shipped Random Forest single-fit-per-call path (TRD Section 12.3), so selecting Naive is not merely 'not worse' on runtime but a genuine simplification.",
+      "maintainability": "No hyperparameters, no artifact, no training code path — the simplest possible forecaster, consistent with ML Spec Section 0's complexity-is-not-a-success-criterion principle and Section 14's explicit naming of this exact outcome as legitimate."
+    },
+    "alternatives_rejected": {
+      "seasonal_naive": "Loses to Naive at every horizon and in 11/11 eligible origins; its own eligibility floor (>=13 months history) also limits its evaluated sample to 216/312 rows, a further practical disadvantage.",
+      "random_forest_last_known_history": "Fails Section 14(a) at all three horizons on pooled WAPE; wins <50% of individual origins at every horizon in the fold-stability review. Currently the production forecaster — beaten by both Naive and Ridge under the corrected calendar-boundary protocol.",
+      "random_forest_recursive": "Fails more severely than last-known-history; recursive error compounding is a real, measured cost (monotonic degradation +1->+2->+3).",
+      "ridge_last_known_history": "Ties Naive at +1 only (numerically identical, a documented coincidence), then fails at +2/+3 — exactly the 'good +1 masking poor +2/+3' failure Section 13.1/14 require checking for.",
+      "ridge_recursive": "Fails more severely than last-known-history for the same recursive-compounding reason as RF-recursive."
+    },
+    "evidence_tier_limitation": "Synthetic (ML Spec Section 3.1) throughout — data/raw/synthetic_24mo.csv run through the production K-Means artifact (read-only). This describes forecasting pipeline/mechanism behavior, NEVER real-user spending forecast accuracy (ML Spec Section 21)."
+  },
+
+  "multi_step_strategy_selection": {
+    "selected_strategy": "N/A",
+    "rationale": "The selected forecaster (Naive) has no meaningful multi-step strategy distinction. Naive always predicts the single most recent observed value for every horizon; a 'recursive' re-application of 'repeat the last observation' produces the identical value at every horizon as the non-recursive version (ML-B Section 20, ml/forecasting/baselines.py module docstring). Strategy A (last-known-history) vs. B (recursive) was only a meaningful, evaluated experimental axis for Random Forest and Ridge (ML Spec Section 11.1), both of which were rejected in the forecasting selection above. Per the ML-C brief's explicit instruction, this is recorded as N/A rather than forcing an inapplicable A/B choice onto Naive.",
+    "a_vs_b_evidence_preserved_for_the_rejected_candidates": {
+      "finding": "For both RF and Ridge, Strategy B (recursive) is monotonically worse than Strategy A (last-known-history) at every horizon it diverges at (+2, +3) — direct, quantified evidence that feeding predictions back into features accumulates error rather than correcting it, at this data scale (ML-B Section 22/27/29).",
+      "example": "Ridge: last-known-history +3 WAPE 0.2493 vs recursive +3 WAPE 0.2887; RF: last-known-history +3 WAPE 0.2495 vs recursive +3 WAPE 0.2771.",
+      "note": "This evidence is preserved even though neither RF nor Ridge was selected — it remains available for ML-C's/ML-E's record and for any future re-evaluation if RF or Ridge becomes competitive at a larger data scale."
+    }
+  },
+
+  "per_horizon_selection_decision": {
+    "decision": "Single strategy (Naive) applies uniformly to all three horizons (+1/+2/+3) — no per-horizon complexity introduced.",
+    "rationale": "ML Spec Section 14 permits a per-horizon decision only when evidence supports it, and prefers simplicity/single-service-call compatibility (TRD Section 12.2) when a single strategy passes at all three horizons. Naive is at least as good as every other candidate at every individual horizon (it is the pooled-WAPE minimum at +1 combined with Ridge, and the outright minimum at +2 and +3), so there is no horizon at which a different candidate is evidenced to be superior. Introducing per-horizon complexity here would violate Section 14's simplicity preference with no supporting evidence.",
+    "product_contract_preserved": "A single run_forecast() call, single shared implementation (Naive) applied identically to compute all three horizons' predicted_amount values — the TRD's single service-call contract (Section 12.2) requires no change and no internal per-horizon branching."
+  },
+
+  "trd_compatibility": {
+    "categorizer": "TF-IDF + Logistic Regression fits CategorizationService's predict(transaction) -> {predicted_category} contract identically to K-Means (ML Spec Section 5 — verified drop-in compatible, no schema/API change). Genuinely produces class probabilities if a confidence field is ever added (not required now, TRD Section 11.2) — a capability K-Means's cluster-lookup does not have.",
+    "forecaster": "Naive fits ForecastService.run_forecast()'s single-fit-per-call contract (TRD Section 12.3) trivially — it requires no fitting at all, only a lookup of the latest per-category monthly total, which is strictly cheaper than the currently-shipped Random Forest fit."
+  },
+
+  "complexity_runtime_maintainability_summary": {
+    "categorizer": "Logistic Regression: cheap TRAIN-only fit (well under 1s at this data scale), cheap inference (single sparse matrix-vector product), 2-object artifact (vectorizer + model) comparable in burden to K-Means's existing 4-object artifact (scaler + vectorizer + kmeans + mapping).",
+    "forecaster": "Naive: no fit, no artifact, no hyperparameters — strictly simpler than the currently-shipped Random Forest (n_estimators=100, max_depth=10, min_samples_leaf=5, refit per call)."
+  },
+
+  "declaration_final": "Selection was finalized using TRAIN + VALIDATION evidence only. Neither component's FINAL data had been evaluated at the time this record was written."
+}

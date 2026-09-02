@@ -1,0 +1,166 @@
+{
+  "result_label": "Untouched temporal-test performance on reserved synthetic months",
+  "not_to_be_described_as": [
+    "Tier B",
+    "real-world",
+    "temporal validation"
+  ],
+  "selected_candidate": "naive",
+  "selected_strategy": "N/A",
+  "selection_record_ref": "reports/ml/ML_C_SELECTION_RECORD.json",
+  "dataset_id": "synthetic_24mo_kmeans_categorized_v1",
+  "evidence_tier": "Synthetic (ML Spec Section 3.1) -- pipeline-behavior/mechanism evaluation only, NEVER a real-world accuracy claim (Section 21)",
+  "reserved_period": {
+    "months": [
+      "2024-10",
+      "2024-11",
+      "2024-12"
+    ],
+    "n_months": 3
+  },
+  "train_months_used": {
+    "start": "2023-01",
+    "end": "2024-09",
+    "n_months": 21
+  },
+  "chronology_preserved": true,
+  "n_predictions": 24,
+  "n_categories": 8,
+  "preprocessing_recipe": "none (Naive: predicted = last-observed-month actual, identical value reused for +1/+2/+3)",
+  "model_impl_version": "naive_v1",
+  "git_commit": "2c06181a12fb270e6e534564c98ccebd2998088c",
+  "evaluation_timestamp_utc": "2026-09-02T21:10:16.275982+00:00",
+  "final_metrics": {
+    "combined": {
+      "wape": 0.18865752437529387,
+      "mae": 35.78,
+      "rmse": 54.71221816620732,
+      "mape_all": 485833333346.4919,
+      "mape_nonzero_only": 15.790419721758045,
+      "n_rows": 24,
+      "n_near_zero_actual": 4,
+      "n": 24
+    },
+    "by_horizon": {
+      "1": {
+        "wape": 0.1938370565988991,
+        "mae": 33.763749999999995,
+        "rmse": 52.223735145046824,
+        "mape_all": 1457500000005.6694,
+        "mape_nonzero_only": 7.559338151023074,
+        "n_rows": 8,
+        "n_near_zero_actual": 2,
+        "n": 8
+      },
+      "2": {
+        "wape": 0.14686835200085907,
+        "mae": 27.356250000000017,
+        "rmse": 51.231680506303924,
+        "mape_all": 11.77217985315173,
+        "mape_nonzero_only": 13.453919832173403,
+        "n_rows": 8,
+        "n_near_zero_actual": 1,
+        "n": 8
+      },
+      "3": {
+        "wape": 0.22166005251357798,
+        "mae": 46.21999999999999,
+        "rmse": 60.23517950500354,
+        "mape_all": 22.034365837976083,
+        "mape_nonzero_only": 25.182132386258385,
+        "n_rows": 8,
+        "n_near_zero_actual": 1,
+        "n": 8
+      }
+    },
+    "by_category": {
+      "Entertainment": {
+        "wape": 0.333595470273671,
+        "mae": 21.21,
+        "rmse": 32.0358387851273,
+        "mape_all": 24.929248614397988,
+        "mape_nonzero_only": 24.929248614397988,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      },
+      "Food & Dining": {
+        "wape": 0.07479011536592807,
+        "mae": 22.063333333333333,
+        "rmse": 26.2688541813304,
+        "mape_all": 7.256205861144128,
+        "mape_nonzero_only": 7.256205861144128,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      },
+      "Healthcare": {
+        "wape": 0.11476817401259298,
+        "mae": 57.47666666666665,
+        "rmse": 59.82650053836229,
+        "mape_all": 11.255799343009746,
+        "mape_nonzero_only": 11.255799343009746,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      },
+      "Other": {
+        "wape": NaN,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mape_all": 0.0,
+        "mape_nonzero_only": NaN,
+        "n_rows": 3,
+        "n_near_zero_actual": 3,
+        "n": 3
+      },
+      "Rent & Utilities": {
+        "wape": 0.7654112345082892,
+        "mae": 126.81333333333335,
+        "rmse": 127.04790513818007,
+        "mape_all": 3886666666702.049,
+        "mape_nonzero_only": 53.07382168721315,
+        "n_rows": 3,
+        "n_near_zero_actual": 1,
+        "n": 3
+      },
+      "Shopping": {
+        "wape": 0.14308350335028328,
+        "mae": 46.05333333333334,
+        "rmse": 47.124634039251,
+        "mape_all": 14.227303605689352,
+        "mape_nonzero_only": 14.227303605689352,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      },
+      "Subscriptions": {
+        "wape": 0.009893839820899815,
+        "mae": 0.45666666666666583,
+        "rmse": 0.4654388610046786,
+        "mape_all": 0.9890044460398429,
+        "mape_nonzero_only": 0.9890044460398429,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      },
+      "Transport": {
+        "wape": 0.09799446935323657,
+        "mae": 12.166666666666677,
+        "rmse": 17.021713583929603,
+        "mape_all": 11.229355149963832,
+        "mape_nonzero_only": 11.229355149963832,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      }
+    }
+  },
+  "rejected_candidates_not_evaluated_on_reserved_period": [
+    "seasonal_naive",
+    "random_forest__last_known_history",
+    "random_forest__recursive",
+    "ridge__last_known_history",
+    "ridge__recursive"
+  ]
+}

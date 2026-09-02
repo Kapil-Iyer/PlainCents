@@ -1,0 +1,176 @@
+{
+  "result_label": "Tier B curated benchmark \u2014 held-out FINAL_TEST",
+  "not_to_be_described_as": [
+    "real-world performance",
+    "Tier A performance",
+    "temporal validation performance"
+  ],
+  "selected_candidate": "tfidf_logreg",
+  "selected_candidate_label": "TF-IDF + Logistic Regression",
+  "selection_record_ref": "reports/ml/ML_C_SELECTION_RECORD.json",
+  "dataset_id": "tier_b_benchmark_v1",
+  "evidence_tier": "Tier B (independently curated/constructed benchmark; NOT real-world data, ML Spec Section 3.2)",
+  "split_definition_ref": "data/evaluation/tier_b_split_v1.json",
+  "partition": "FINAL_TEST",
+  "partition_n_rows": 45,
+  "partition_n_merchant_groups": 17,
+  "preprocessing_recipe": {
+    "name": "tfidf_logreg",
+    "tfidf_config": {
+      "max_features": 50,
+      "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b",
+      "ngram_range": [
+        1,
+        2
+      ],
+      "sublinear_tf": true
+    },
+    "C": 1.0,
+    "max_iter": 1000,
+    "random_state": 42,
+    "isolation": "vectorizer/model fit on TRAIN only (n=133)"
+  },
+  "model_impl_version": "tfidf_logreg_v1",
+  "git_commit": "2c06181a12fb270e6e534564c98ccebd2998088c",
+  "evaluation_timestamp_utc": "2026-09-02T21:10:13.689217+00:00",
+  "final_metrics": {
+    "accuracy": 0.4222222222222222,
+    "macro_f1": 0.4405421207145345,
+    "per_category": {
+      "Food & Dining": {
+        "precision": 0.23809523809523808,
+        "recall": 0.625,
+        "f1": 0.3448275862068966,
+        "support": 8
+      },
+      "Transport": {
+        "precision": 1.0,
+        "recall": 0.2222222222222222,
+        "f1": 0.36363636363636365,
+        "support": 9
+      },
+      "Rent & Utilities": {
+        "precision": 0.25,
+        "recall": 0.2,
+        "f1": 0.2222222222222222,
+        "support": 5
+      },
+      "Entertainment": {
+        "precision": 0.2,
+        "recall": 0.25,
+        "f1": 0.2222222222222222,
+        "support": 4
+      },
+      "Healthcare": {
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714285714285714,
+        "support": 5
+      },
+      "Shopping": {
+        "precision": 0.4,
+        "recall": 0.4,
+        "f1": 0.4,
+        "support": 5
+      },
+      "Subscriptions": {
+        "precision": 1.0,
+        "recall": 0.25,
+        "f1": 0.4,
+        "support": 4
+      },
+      "Other": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5
+      }
+    },
+    "confusion_matrix": {
+      "Food & Dining": {
+        "Food & Dining": 5,
+        "Transport": 0,
+        "Rent & Utilities": 0,
+        "Entertainment": 0,
+        "Healthcare": 0,
+        "Shopping": 3,
+        "Subscriptions": 0,
+        "Other": 0
+      },
+      "Transport": {
+        "Food & Dining": 5,
+        "Transport": 2,
+        "Rent & Utilities": 2,
+        "Entertainment": 0,
+        "Healthcare": 0,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Other": 0
+      },
+      "Rent & Utilities": {
+        "Food & Dining": 2,
+        "Transport": 0,
+        "Rent & Utilities": 1,
+        "Entertainment": 2,
+        "Healthcare": 0,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Other": 0
+      },
+      "Entertainment": {
+        "Food & Dining": 2,
+        "Transport": 0,
+        "Rent & Utilities": 1,
+        "Entertainment": 1,
+        "Healthcare": 0,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Other": 0
+      },
+      "Healthcare": {
+        "Food & Dining": 3,
+        "Transport": 0,
+        "Rent & Utilities": 0,
+        "Entertainment": 0,
+        "Healthcare": 2,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Other": 0
+      },
+      "Shopping": {
+        "Food & Dining": 3,
+        "Transport": 0,
+        "Rent & Utilities": 0,
+        "Entertainment": 0,
+        "Healthcare": 0,
+        "Shopping": 2,
+        "Subscriptions": 0,
+        "Other": 0
+      },
+      "Subscriptions": {
+        "Food & Dining": 1,
+        "Transport": 0,
+        "Rent & Utilities": 0,
+        "Entertainment": 2,
+        "Healthcare": 0,
+        "Shopping": 0,
+        "Subscriptions": 1,
+        "Other": 0
+      },
+      "Other": {
+        "Food & Dining": 0,
+        "Transport": 0,
+        "Rent & Utilities": 0,
+        "Entertainment": 0,
+        "Healthcare": 0,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Other": 5
+      }
+    },
+    "n": 45
+  },
+  "no_refitting_using_final_labels": true,
+  "no_mapping_using_final_labels": true,
+  "no_error_driven_model_modification_after_seeing_final": true
+}
