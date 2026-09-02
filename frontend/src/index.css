@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * PlainCents design tokens (Build Plan §3 / TRD §9).
+ * HSL triplets (no hsl() wrapper) so Tailwind's hsl(var(--x)) works and
+ * opacity modifiers (bg-primary/10) keep functioning.
+ */
+:root {
+  --background: 210 20% 98%;
+  --foreground: 222 20% 12%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 20% 12%;
+
+  --border: 214 18% 88%;
+  --input: 214 18% 88%;
+  --ring: 217 91% 55%;
+
+  --primary: 217 91% 45%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 214 25% 94%;
+  --secondary-foreground: 222 20% 20%;
+
+  --muted: 214 20% 95%;
+  --muted-foreground: 218 10% 45%;
+
+  --accent: 214 25% 94%;
+  --accent-foreground: 222 20% 20%;
+
+  --destructive: 0 72% 48%;
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 152 55% 32%;
+  --success-foreground: 0 0% 100%;
+
+  --warning: 38 92% 42%;
+  --warning-foreground: 0 0% 100%;
+
+  --radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 222 24% 8%;
+    --foreground: 210 20% 94%;
+
+    --card: 222 22% 11%;
+    --card-foreground: 210 20% 94%;
+
+    --border: 217 18% 20%;
+    --input: 217 18% 20%;
+    --ring: 217 91% 60%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 24% 8%;
+
+    --secondary: 217 18% 16%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 217 18% 16%;
+    --muted-foreground: 216 12% 62%;
+
+    --accent: 217 18% 16%;
+    --accent-foreground: 210 20% 90%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 45% 45%;
+    --success-foreground: 222 24% 8%;
+
+    --warning: 38 85% 55%;
+    --warning-foreground: 222 24% 8%;
+  }
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
