@@ -7,6 +7,11 @@ data/exports/*.pdf
 data/exports/*.csv
 
 # Models
+# Excludes both production artifacts (models/*.pkl) and generated-on-demand
+# test artifacts (tests/fixtures/kmeans_model_test.pkl, produced by
+# tests/fixtures/build_test_kmeans_model.py) — neither is committed; the test
+# artifact is reproduced by running that script, not by checking in a binary.
+# See tests/fixtures/README.md.
 *.pkl
 
 # Python
@@ -16,3 +21,10 @@ __pycache__/
 
 # Virtual environment
 venv/
+
+# V2 backend
+plaincents_v2.db
+
+# V2 frontend
+frontend/node_modules/
+frontend/dist/

@@ -1,0 +1,56 @@
+"""HoldingRepository — persistence only (TRD §8)."""
+import sqlite3
+
+from backend.repositories.money import round_money
+
+
+class HoldingRepository:
+    def __init__(self, conn: sqlite3.Connection):
+        self._conn = conn
+
+    def create(self, data: dict) -> int:
+        cur = self._conn.execute(
+            "INSERT INTO holdings (ticker, shares, avg_cost, data_mode) VALUES (?, ?, ?, ?)",
+            (data["ticker"], data["shares"], round_money(data["avg_cost"]), data["data_mode"]),
+        )
+        return cur.lastrowid
+
+    def get(self, holding_id: int) -> dict | None:
+        row = self._conn.execute(
+            "SELECT * FROM holdings WHERE id = ?", (holding_id,)
+        ).fetchone()
+        return dict(row) if row else None
+
+    def list(self, data_mode: str | None = None) -> list[dict]:
+        sql = "SELECT * FROM holdings"
+        params: list = []
+        if data_mode is not None:
+            sql += " WHERE data_mode = ?"
+            params.append(data_mode)
+        sql += " ORDER BY ticker"
+        rows = self._conn.execute(sql, params).fetchall()
+        return [dict(r) for r in rows]
+
+    def update(self, holding_id: int, fields: dict) -> bool:
+        allowed = {"shares", "avg_cost"}
+        set_parts = []
+        params = []
+        for key, value in fields.items():
+            if key not in allowed:
+                continue
+            if key == "avg_cost":
+                value = round_money(value)
+            set_parts.append(f"{key} = ?")
+            params.append(value)
+        if not set_parts:
+            return False
+        set_parts.append("updated_at = CURRENT_TIMESTAMP")
+        params.append(holding_id)
+        cur = self._conn.execute(
+            f"UPDATE holdings SET {', '.join(set_parts)} WHERE id = ?", params
+        )
+        return cur.rowcount > 0
+
+    def delete(self, holding_id: int) -> bool:
+        cur = self._conn.execute("DELETE FROM holdings WHERE id = ?", (holding_id,))
+        return cur.rowcount > 0
