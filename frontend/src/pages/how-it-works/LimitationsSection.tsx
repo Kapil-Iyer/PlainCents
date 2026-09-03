@@ -11,9 +11,31 @@ import {
 
 import { EvidenceBadge } from "@/pages/how-it-works/EvidenceBadge";
 
+function QualifiedRow({
+  tier,
+  headline,
+  note,
+}: {
+  tier: "Tier B" | "Synthetic" | null;
+  headline: string;
+  note: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 rounded-lg border border-warning/30 bg-warning/5 p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-semibold">{headline}</span>
+        {tier && <EvidenceBadge tier={tier} />}
+      </div>
+      <p className="text-xs text-muted-foreground">{note}</p>
+    </div>
+  );
+}
+
 /** This section is meant to read as trust-building transparency, not legal
- * fine print — plain statements of what the evidence is and isn't, up
- * front, not buried in a footnote. */
+ * fine print — an evidence ladder using the claim matrix's own verdict
+ * terms (SUPPORTED_WITH_QUALIFICATION / NOT_SUPPORTED), all rendered
+ * unconditionally: no hover, tooltip, animation, or disclosure gates any
+ * qualification here. Deliberately restrained — no spectacle needed. */
 export function LimitationsSection() {
   return (
     <div className="flex flex-col gap-5">
@@ -27,57 +49,40 @@ export function LimitationsSection() {
       </Card>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between gap-3">
-          <CardTitle>Categorization evidence</CardTitle>
-          <EvidenceBadge tier="Tier B" />
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-          <p>{CATEGORIZATION_EVIDENCE_QUALIFIER}</p>
-          <p>
-            Independently curated benchmark — {CATEGORIZATION_FINAL_RESULT.nRows} rows,{" "}
-            {CATEGORIZATION_FINAL_RESULT.nMerchantGroups} merchant groups in the held-out slice. Not real
-            bank export data. A single held-out measurement, not a distribution.
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex-row items-center justify-between gap-3">
-          <CardTitle>Forecasting evidence</CardTitle>
-          <EvidenceBadge tier="Synthetic" />
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-          <p>{FORECASTING_EVIDENCE_QUALIFIER}</p>
-          <p>
-            {FORECASTING_FINAL_RESULT.nPredictions} predictions across a fully synthetic 24-month dataset,
-            categorized read-only by the production categorization model. Never real spending data.
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
         <CardHeader>
-          <CardTitle>Other qualifiers worth knowing</CardTitle>
+          <CardTitle>SUPPORTED_WITH_QUALIFICATION</CardTitle>
+          <CardDescription>
+            True numbers, each tied to a named evidence tier — never described beyond it.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3 text-sm text-muted-foreground">
-          <p>{TD_IMPORT_QUALIFIER}</p>
-          <p>{RETRAINING_QUALIFIER}</p>
+        <CardContent className="flex flex-col gap-3">
+          <QualifiedRow
+            tier="Tier B"
+            headline={`${CATEGORIZATION_FINAL_RESULT.accuracyPct.toFixed(1)}% accuracy / ${CATEGORIZATION_FINAL_RESULT.macroF1.toFixed(4)} macro F1`}
+            note={CATEGORIZATION_EVIDENCE_QUALIFIER}
+          />
+          <QualifiedRow
+            tier="Synthetic"
+            headline={`${FORECASTING_FINAL_RESULT.combinedWapePct.toFixed(2)}% WAPE`}
+            note={FORECASTING_EVIDENCE_QUALIFIER}
+          />
+          <QualifiedRow tier={null} headline="TD CSV import" note={TD_IMPORT_QUALIFIER} />
+          <QualifiedRow tier={null} headline="No automatic retraining" note={RETRAINING_QUALIFIER} />
         </CardContent>
       </Card>
 
       <Card variant="elevated">
         <CardHeader>
-          <CardTitle>Claims we deliberately don't make</CardTitle>
-          <CardDescription>
-            Anything on this list is unsupported by current evidence and is never asserted elsewhere in the
-            product.
-          </CardDescription>
+          <CardTitle>NOT_SUPPORTED</CardTitle>
+          <CardDescription>Never asserted anywhere else in the product.</CardDescription>
         </CardHeader>
         <CardContent>
           <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
             {NOT_SUPPORTED_CLAIMS.map((claim, i) => (
               <li key={i} className="flex gap-2">
-                <span className="text-destructive" aria-hidden>✕</span>
+                <span className="text-destructive" aria-hidden>
+                  ✕
+                </span>
                 <span className="line-through decoration-destructive/50">{claim}</span>
               </li>
             ))}

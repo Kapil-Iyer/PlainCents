@@ -119,3 +119,19 @@ export const FORECASTING_STRATEGY_NA_NOTE =
 
 export const FORECASTING_PIPELINE_EXPLANATION =
   "monthly category history → temporal evaluation/model → +1/+2/+3 forecasts";
+
+/**
+ * FINAL-period training window immediately preceding the 3 reserved months.
+ * Added in Phase 11C-B to support the temporal-validation timeline visual
+ * (frontend previously had no structured export for the training window —
+ * only the already-frozen `reservedMonths` above).
+ * Source: reports/ml/ML_E_FINAL_ML_REPORT.md §24 ("Reserved period
+ * 2024-10/11/12, trained on 2023-01 through 2024-09 (21 months)"). No new
+ * claim — a direct restatement of the same sentence already backing
+ * FORECASTING_FINAL_RESULT above.
+ */
+export const FORECASTING_FINAL_TRAIN_WINDOW = {
+  start: "2023-01",
+  end: "2024-09",
+  months: 21,
+} as const;

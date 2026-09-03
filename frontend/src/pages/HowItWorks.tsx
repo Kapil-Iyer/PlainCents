@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
@@ -36,7 +35,6 @@ function isSectionId(value: string): value is SectionId {
 export function HowItWorksPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const prefersReducedMotion = useReducedMotion();
 
   const hashId = location.hash.replace("#", "");
   const initial = isSectionId(hashId) ? hashId : "overview";
@@ -86,24 +84,22 @@ export function HowItWorksPage() {
         ))}
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={active}
-          id={active}
-          role="tabpanel"
-          initial={prefersReducedMotion ? undefined : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={prefersReducedMotion ? undefined : { opacity: 0, y: -8 }}
-          transition={{ duration: 0.2 }}
-        >
-          {active === "overview" && <PipelineDiagram />}
-          {active === "categorization" && <CategorizationSection />}
-          {active === "forecasting" && <ForecastingSection />}
-          {active === "human-in-the-loop" && <HumanInLoopSection />}
-          {active === "evaluation" && <EvaluationSection />}
-          {active === "limitations" && <LimitationsSection />}
-        </motion.div>
-      </AnimatePresence>
+      {/* No panel-level enter/exit fade: each section already carries its
+       * own meaningful motion (bars filling, sparklines drawing, tokens
+       * morphing) — an outer fade on top of that is exactly the generic
+       * "section entered" motion the design direction asks to minimize,
+       * and it's also the only thing that could make a whole tab look
+       * blank for a beat during the transition. The panel renders
+       * immediately; only the section-first `key` below is needed so
+       * unrelated tabs never share component state. */}
+      <div key={active} id={active} role="tabpanel">
+        {active === "overview" && <PipelineDiagram />}
+        {active === "categorization" && <CategorizationSection />}
+        {active === "forecasting" && <ForecastingSection />}
+        {active === "human-in-the-loop" && <HumanInLoopSection />}
+        {active === "evaluation" && <EvaluationSection />}
+        {active === "limitations" && <LimitationsSection />}
+      </div>
     </div>
   );
 }

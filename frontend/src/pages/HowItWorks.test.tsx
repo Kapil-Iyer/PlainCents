@@ -85,4 +85,80 @@ describe("HowItWorksPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/do NOT trigger automatic retraining/)).toBeInTheDocument();
   });
+
+  describe("Human-in-the-loop interactive demo (Phase 11C-B)", () => {
+    async function openHitl() {
+      const user = userEvent.setup();
+      renderAt();
+      await user.click(screen.getByRole("tab", { name: "Human-in-the-Loop" }));
+      await screen.findByText("predicted_category");
+      return user;
+    }
+
+    it("starts with a predicted category and no confirmation", async () => {
+      await openHitl();
+
+      // Predicted badge shows the initial prediction.
+      expect(screen.getAllByText("Transport").length).toBeGreaterThan(0);
+      // confirmed_category is not yet set.
+      expect(screen.getByText("not corrected")).toBeInTheDocument();
+      // No API/network layer is involved — this is local state only, so the
+      // picker is a plain <select>, not something wired to a query/mutation.
+      expect(screen.getByLabelText("Correct the predicted category")).toBeInTheDocument();
+    });
+
+    it("updates confirmed_category on correction while preserving predicted_category", async () => {
+      const user = await openHitl();
+
+      await user.selectOptions(screen.getByLabelText("Correct the predicted category"), "Entertainment");
+
+      // A confirmed badge for the new category appears...
+      expect(screen.getAllByText("Entertainment").length).toBeGreaterThan(0);
+      // ...while the original prediction is still shown, never overwritten.
+      expect(screen.getAllByText("Transport").length).toBeGreaterThan(0);
+      expect(screen.queryByText("not corrected")).not.toBeInTheDocument();
+    });
+
+    it("moves the downstream total from the predicted bucket to the confirmed bucket", async () => {
+      const user = await openHitl();
+
+      expect(screen.getByTestId("downstream-count-Transport")).toHaveTextContent("3");
+      expect(screen.getByTestId("downstream-count-Entertainment")).toHaveTextContent("1");
+
+      await user.selectOptions(screen.getByLabelText("Correct the predicted category"), "Entertainment");
+
+      expect(screen.getByTestId("downstream-count-Transport")).toHaveTextContent("2");
+      expect(screen.getByTestId("downstream-count-Entertainment")).toHaveTextContent("2");
+    });
+  });
+
+  describe("Evaluation Methodology (Phase 11C-B)", () => {
+    it("shows merchant-group partition sizes for TRAIN/VALIDATION/FINAL_TEST", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      await user.click(screen.getByRole("tab", { name: "Evaluation Methodology" }));
+
+      expect(await screen.findByText("TRAIN")).toBeInTheDocument();
+      expect(screen.getByText("VALIDATION")).toBeInTheDocument();
+      expect(screen.getByText("FINAL_TEST")).toBeInTheDocument();
+      expect(screen.getByText("133 rows · 47 merchant groups")).toBeInTheDocument();
+      expect(screen.getByText("50 rows · 17 merchant groups")).toBeInTheDocument();
+      expect(screen.getByText("45 rows · 17 merchant groups")).toBeInTheDocument();
+    });
+
+    it("switches to the forecasting temporal view and back", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      await user.click(screen.getByRole("tab", { name: "Evaluation Methodology" }));
+      await screen.findByText("TRAIN");
+
+      await user.click(screen.getByRole("button", { name: "Forecasting timeline" }));
+      expect(await screen.findByText(/Reserved \(FINAL\)/)).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "Categorization split" }));
+      expect(await screen.findByText("TRAIN")).toBeInTheDocument();
+    });
+  });
 });
