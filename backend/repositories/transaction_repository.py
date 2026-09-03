@@ -3,6 +3,8 @@ TransactionRepository — persistence only (TRD §8). No business decisions,
 no ML calls, no forecast-staleness triggering, no EMPTY→REAL transitioning:
 those are service-layer concerns (Phase 3+).
 """
+from __future__ import annotations
+
 import sqlite3
 
 from backend.repositories.money import round_money

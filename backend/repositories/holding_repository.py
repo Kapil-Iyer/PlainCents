@@ -1,4 +1,6 @@
 """HoldingRepository — persistence only (TRD §8)."""
+from __future__ import annotations
+
 import sqlite3
 
 from backend.repositories.money import round_money

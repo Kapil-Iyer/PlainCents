@@ -1,4 +1,6 @@
 """ImportBatchRepository — persistence only (TRD §8)."""
+from __future__ import annotations
+
 import sqlite3
 
 

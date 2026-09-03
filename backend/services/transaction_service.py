@@ -5,6 +5,8 @@ Owns the business rules TransactionRepository deliberately does not:
 categorization-before-persistence, dedup_key computation, the EMPTY->REAL
 mode transition, and the forecast-staleness mutation table.
 """
+from __future__ import annotations
+
 import sqlite3
 
 from backend.api.errors import BadRequestError, NotFoundError
