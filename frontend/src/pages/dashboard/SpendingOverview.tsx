@@ -19,29 +19,35 @@ export function SpendingOverview({ summary }: SpendingOverviewProps) {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <Card>
+      <Card variant="elevated">
         <CardHeader>
-          <CardTitle className="text-muted-foreground">{formatMonthLabel(period.current)}</CardTitle>
+          <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {formatMonthLabel(period.current)}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold tabular-nums">{formatCurrency(total_spend_current)}</p>
+          <p className="text-3xl font-bold tabular-nums">{formatCurrency(total_spend_current)}</p>
           <p className="mt-1 text-xs text-muted-foreground">Total spend this month</p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card variant="elevated">
         <CardHeader>
-          <CardTitle className="text-muted-foreground">{formatMonthLabel(period.previous)}</CardTitle>
+          <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {formatMonthLabel(period.previous)}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold tabular-nums">{formatCurrency(total_spend_previous)}</p>
+          <p className="text-3xl font-bold tabular-nums">{formatCurrency(total_spend_previous)}</p>
           <p className="mt-1 text-xs text-muted-foreground">Total spend last month</p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card variant="elevated">
         <CardHeader>
-          <CardTitle className="text-muted-foreground">Change</CardTitle>
+          <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Change
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <ChangeIndicator changePct={change_pct} />
@@ -54,7 +60,7 @@ export function SpendingOverview({ summary }: SpendingOverviewProps) {
 
 function ChangeIndicator({ changePct }: { changePct: number | null }) {
   if (changePct === null) {
-    return <p className="text-2xl font-semibold text-muted-foreground">—</p>;
+    return <p className="text-3xl font-bold text-muted-foreground">—</p>;
   }
 
   const isIncrease = changePct > 0;
@@ -64,7 +70,7 @@ function ChangeIndicator({ changePct }: { changePct: number | null }) {
   return (
     <p
       className={cn(
-        "flex items-center gap-1 text-2xl font-semibold tabular-nums",
+        "flex items-center gap-1 text-3xl font-bold tabular-nums",
         isFlat ? "text-muted-foreground" : isIncrease ? "text-warning" : "text-success",
       )}
     >

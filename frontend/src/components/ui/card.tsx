@@ -2,12 +2,22 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** `elevated` reads as "raised" above the page — KPI tiles, a highlighted
+   * How It Works model card. Default stays flush with the page background,
+   * distinguished only by its border (Phase 11B dark-theme hierarchy). */
+  variant?: "default" | "elevated";
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, variant = "default", ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
+        "rounded-lg border text-card-foreground transition-colors",
+        variant === "elevated"
+          ? "border-border-strong/60 bg-elevated shadow-md shadow-black/20"
+          : "border-border bg-card shadow-sm",
         className,
       )}
       {...props}

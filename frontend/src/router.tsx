@@ -16,6 +16,11 @@ const PortfolioPage = lazy(() => import("@/pages/Portfolio").then((m) => ({ defa
 const TransactionsPage = lazy(() =>
   import("@/pages/Transactions").then((m) => ({ default: m.TransactionsPage })),
 );
+// How It Works is the only route that imports Framer Motion — lazy so its
+// bundle cost never lands on Dashboard's initial load (Phase 11B).
+const HowItWorksPage = lazy(() =>
+  import("@/pages/HowItWorks").then((m) => ({ default: m.HowItWorksPage })),
+);
 
 function RouteFallback() {
   return (
@@ -34,7 +39,9 @@ function lazyRoute(Component: React.LazyExoticComponent<() => React.JSX.Element>
   );
 }
 
-/** TRD §9.6: five routes matching PRD §11.1's five sections exactly. */
+/** TRD §9.6: five core routes matching PRD §11.1's five sections exactly,
+ * plus How It Works (Phase 11B Deliverable B) as a sixth, presentation-only
+ * route with no backend contract of its own. */
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -46,6 +53,7 @@ export const router = createBrowserRouter([
       { path: "import", element: lazyRoute(ImportPage) },
       { path: "forecast", element: lazyRoute(ForecastPage) },
       { path: "portfolio", element: lazyRoute(PortfolioPage) },
+      { path: "how-it-works", element: lazyRoute(HowItWorksPage) },
     ],
   },
 ]);

@@ -18,7 +18,7 @@ export function DashboardPage() {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="text-xl font-semibold">Dashboard</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-sm text-muted-foreground">
           {data
             ? `${formatMonthLabel(data.period.current)} vs. ${formatMonthLabel(data.period.previous)}`

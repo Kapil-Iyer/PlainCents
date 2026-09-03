@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Check } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { useToast } from "@/components/shared/Toast";
 import { useConfirmImport, useCreateImport } from "@/hooks/useImport";
 import { ApiError } from "@/types/common";
@@ -69,12 +71,14 @@ export function ImportPage() {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="text-xl font-semibold">Import</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Import</h1>
         <p className="text-sm text-muted-foreground">
           Bring in transactions from a TD CSV export. Nothing is saved until you confirm the
           preview.
         </p>
       </div>
+
+      <ImportSteps current={stage.step} />
 
       {stage.step === "upload" && (
         <FileUploadCard onUpload={runUpload} pending={createImportMutation.isPending} />
@@ -98,5 +102,49 @@ export function ImportPage() {
         onRetry={() => pendingFile && runUpload(pendingFile)}
       />
     </div>
+  );
+}
+
+const STEPS: { id: Stage["step"]; label: string }[] = [
+  { id: "upload", label: "Upload" },
+  { id: "preview", label: "Preview" },
+  { id: "result", label: "Result" },
+];
+
+/** Purely presentational — reflects `stage.step`, never drives it. Import
+ * logic, hooks, conflict behavior, validation, and API calls are unchanged. */
+function ImportSteps({ current }: { current: Stage["step"] }) {
+  const currentIndex = STEPS.findIndex((s) => s.id === current);
+
+  return (
+    <ol className="flex items-center gap-2" aria-label="Import progress">
+      {STEPS.map((step, i) => {
+        const isDone = i < currentIndex;
+        const isCurrent = i === currentIndex;
+        return (
+          <li key={step.id} className="flex items-center gap-2">
+            <span
+              className={cn(
+                "flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold transition-colors",
+                isDone && "border-primary bg-primary text-primary-foreground",
+                isCurrent && !isDone && "border-primary text-primary",
+                !isDone && !isCurrent && "border-border text-muted-foreground",
+              )}
+            >
+              {isDone ? <Check className="h-3.5 w-3.5" /> : i + 1}
+            </span>
+            {/* "{label} step" (not a bare "{label}") deliberately avoids an
+             * exact-text collision with ImportPreviewCard's "Preview"
+             * CardTitle and ImportResultCard's heading — both are queried
+             * by exact text in tests/E2E, and a duplicate exact match would
+             * break `getByText`. */}
+            <span className={cn("text-xs font-medium", isCurrent ? "text-foreground" : "text-muted-foreground")}>
+              {step.label} step
+            </span>
+            {i < STEPS.length - 1 && <span className="mx-1 h-px w-6 bg-border" aria-hidden />}
+          </li>
+        );
+      })}
+    </ol>
   );
 }

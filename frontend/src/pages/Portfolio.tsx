@@ -51,7 +51,7 @@ export function PortfolioPage() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">Portfolio</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Portfolio</h1>
           <p className="text-sm text-muted-foreground">
             Track your holdings and their latest known market value.
           </p>

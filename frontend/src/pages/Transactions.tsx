@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -27,10 +28,17 @@ export function TransactionsPage() {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold">Transactions</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
           <p className="text-sm text-muted-foreground">
             View, correct, and manage every transaction currently in your account.
           </p>
+          <Link
+            to="/how-it-works#categorization"
+            className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+          >
+            <Sparkles className="h-3 w-3" />
+            How was this predicted?
+          </Link>
         </div>
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4" />

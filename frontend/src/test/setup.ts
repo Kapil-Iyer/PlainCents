@@ -26,6 +26,20 @@ if (typeof ResizeObserver === "undefined") {
   };
 }
 
+// Phase 11B: Framer Motion's `whileInView` (How It Works reveals) observes
+// via IntersectionObserver, which jsdom does not implement.
+if (typeof IntersectionObserver === "undefined") {
+  // @ts-expect-error -- minimal jsdom polyfill, not a real observer.
+  global.IntersectionObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  };
+}
+
 // The Phase 10 product walkthrough checks prefers-reduced-motion via
 // matchMedia, which jsdom does not implement — default to "no preference".
 if (typeof window !== "undefined" && !window.matchMedia) {

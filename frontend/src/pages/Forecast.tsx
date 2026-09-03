@@ -1,4 +1,5 @@
-import { LineChart } from "lucide-react";
+import { LineChart, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -49,10 +50,17 @@ export function ForecastPage() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">Forecast</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Forecast</h1>
           <p className="text-sm text-muted-foreground">
             A 3-month spending forecast by category, generated on demand.
           </p>
+          <Link
+            to="/how-it-works#forecasting"
+            className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+          >
+            <Sparkles className="h-3 w-3" />
+            Why this model?
+          </Link>
         </div>
         {isEligible && (
           <RunForecastButton

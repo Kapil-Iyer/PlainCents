@@ -3,18 +3,86 @@
 @tailwind utilities;
 
 /*
- * PlainCents design tokens (Build Plan §3 / TRD §9).
- * HSL triplets (no hsl() wrapper) so Tailwind's hsl(var(--x)) works and
- * opacity modifiers (bg-primary/10) keep functioning.
+ * PlainCents design tokens (Build Plan §3 / TRD §9, Phase 11B dark-first
+ * refresh). HSL triplets (no hsl() wrapper) so Tailwind's hsl(var(--x))
+ * works and opacity modifiers (bg-primary/10) keep functioning.
+ *
+ * Dark is the base `:root` palette — this is a dark-first product, not a
+ * light product with a dark mode bolted on. There is deliberately no theme
+ * toggle and no `prefers-color-scheme` media switch: Phase 11B's brief asks
+ * for dark by default, not user-selectable themes. A `.light` block is kept
+ * below (identical to the pre-11B light palette) purely so light support
+ * isn't destroyed if a future phase ever wires up a toggle — nothing in the
+ * app applies the `.light` class today.
+ *
+ * Contrast (WCAG AA, verified against this exact palette):
+ *   foreground/background   17.4:1   muted-foreground/background 7.5:1
+ *   foreground/card         16.4:1   muted-foreground/card       7.1:1
+ *   primary/background       5.2:1   success/background          8.0:1
+ *   warning/background      10.0:1   destructive/background      4.7:1
+ *   border-strong/card       3.1:1  (meets the 3:1 non-text UI-component floor)
+ * All text pairs clear the 4.5:1 AA floor for normal text with margin.
  */
 :root {
+  --background: 222 28% 7%;
+  --foreground: 210 20% 96%;
+
+  --card: 222 24% 10%;
+  --card-foreground: 210 20% 96%;
+
+  /* Additive: a surface a step above `card` — KPI tiles, the active
+   * How It Works model card, anything that should read as "raised" rather
+   * than flush with the page. */
+  --elevated: 222 22% 13%;
+  --elevated-foreground: 210 20% 96%;
+
+  --border: 217 16% 20%;
+  /* Additive: emphasized edges (selected card outline, focus-adjacent
+   * dividers) where the default hairline border is too quiet to read as a
+   * boundary. */
+  --border-strong: 217 18% 42%;
+  --input: 217 16% 24%;
+  --ring: 217 91% 60%;
+
+  --primary: 217 91% 60%;
+  --primary-foreground: 222 28% 7%;
+
+  --secondary: 217 16% 16%;
+  --secondary-foreground: 210 20% 92%;
+
+  --muted: 217 16% 15%;
+  --muted-foreground: 216 12% 65%;
+
+  --accent: 217 18% 18%;
+  --accent-foreground: 210 20% 92%;
+
+  --destructive: 0 72% 58%;
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 152 55% 48%;
+  --success-foreground: 222 28% 7%;
+
+  --warning: 38 92% 58%;
+  --warning-foreground: 222 28% 7%;
+
+  --radius: 0.625rem;
+}
+
+/* Preserved light palette (pre-11B values). Not applied anywhere — no
+ * theme toggle exists in the product — kept only so light support isn't
+ * lost wholesale. Safe to delete if this project never adds a toggle. */
+.light {
   --background: 210 20% 98%;
   --foreground: 222 20% 12%;
 
   --card: 0 0% 100%;
   --card-foreground: 222 20% 12%;
 
+  --elevated: 0 0% 100%;
+  --elevated-foreground: 222 20% 12%;
+
   --border: 214 18% 88%;
+  --border-strong: 214 18% 72%;
   --input: 214 18% 88%;
   --ring: 217 91% 55%;
 
@@ -40,41 +108,6 @@
   --warning-foreground: 0 0% 100%;
 
   --radius: 0.5rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: 222 24% 8%;
-    --foreground: 210 20% 94%;
-
-    --card: 222 22% 11%;
-    --card-foreground: 210 20% 94%;
-
-    --border: 217 18% 20%;
-    --input: 217 18% 20%;
-    --ring: 217 91% 60%;
-
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 24% 8%;
-
-    --secondary: 217 18% 16%;
-    --secondary-foreground: 210 20% 90%;
-
-    --muted: 217 18% 16%;
-    --muted-foreground: 216 12% 62%;
-
-    --accent: 217 18% 16%;
-    --accent-foreground: 210 20% 90%;
-
-    --destructive: 0 65% 55%;
-    --destructive-foreground: 0 0% 100%;
-
-    --success: 152 45% 45%;
-    --success-foreground: 222 24% 8%;
-
-    --warning: 38 85% 55%;
-    --warning-foreground: 222 24% 8%;
-  }
 }
 
 * {

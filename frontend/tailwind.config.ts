@@ -8,6 +8,7 @@ const config: Config = {
     extend: {
       colors: {
         border: "hsl(var(--border))",
+        "border-strong": "hsl(var(--border-strong))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -35,6 +36,10 @@ const config: Config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        elevated: {
+          DEFAULT: "hsl(var(--elevated))",
+          foreground: "hsl(var(--elevated-foreground))",
         },
         success: {
           DEFAULT: "hsl(var(--success))",
