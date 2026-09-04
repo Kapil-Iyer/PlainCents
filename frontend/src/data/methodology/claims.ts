@@ -8,8 +8,8 @@
  */
 
 export const NOT_SUPPORTED_CLAIMS = [
-  "PlainCents categorizes real-world bank transactions at 42.2% accuracy.",
-  "PlainCents forecasts real-world personal spending at approximately 18.9% WAPE.",
+  "PlainCents categorizes real-world bank transactions at 30.8% accuracy.",
+  "PlainCents forecasts real-world personal spending at approximately 17.8% WAPE.",
   "TD CSV support is verified against a real TD export.",
   "PlainCents uses real bank transaction data for ML evaluation.",
   "PlainCents automatically retrains from user corrections.",
@@ -17,10 +17,10 @@ export const NOT_SUPPORTED_CLAIMS = [
 ] as const;
 
 export const CATEGORIZATION_EVIDENCE_QUALIFIER =
-  "42.2% accuracy on a curated Tier B benchmark (not real-world bank data).";
+  "30.8% accuracy on a sanitized, hand-curated deployment-oriented benchmark (fabricated merchants, not real-world bank data). A real, private RBC/Scotiabank export audit informed this benchmark's structure but was never trained or evaluated on directly, and is not the source of this number.";
 
 export const FORECASTING_EVIDENCE_QUALIFIER =
-  "18.9% WAPE on a synthetic 3-month reserved evaluation period — a mechanism/behavior check, not a real-world accuracy figure.";
+  "17.84% WAPE on a synthetic 3-month reserved evaluation period — a mechanism/behavior check, not a real-world accuracy figure.";
 
 export const TD_IMPORT_QUALIFIER =
   "TD import is tested against synthetic fixtures shaped like TD's publicly documented export columns — not field-verified against a real export.";

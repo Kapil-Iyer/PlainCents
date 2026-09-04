@@ -22,6 +22,7 @@ from backend.repositories.import_batch_repository import ImportBatchRepository
 from backend.repositories.money import round_money
 from backend.repositories.staged_transaction_repository import StagedTransactionRepository
 from backend.repositories.transaction_repository import TransactionRepository
+from backend.services.ambiguity import is_structurally_ambiguous
 from backend.services.app_state_service import AppStateService
 from backend.services.categorization_service import CategorizationService
 from backend.services.dedup import compute_dedup_key
@@ -238,6 +239,28 @@ class IngestionService:
                         {"merchant": row["merchant"], "amount": row["amount"], "date": row["date"]}
                     )["predicted_category"]
 
+                # ML-F correction memory + ambiguous-row routing (ML-F-A audit
+                # §14-16; ML-F brief §14-16). predicted_category above is
+                # ALWAYS the raw ML output, preserved untouched for
+                # auditability — neither mechanism below ever overwrites it.
+                # Priority order (ML-F brief §16): (1) an exact prior manual
+                # correction for this exact (merchant, bank_source) identity
+                # wins if one exists; (2) otherwise, a structurally-ambiguous
+                # row (generic e-transfer / ABM / ATM — no recoverable
+                # spending-purpose signal) is deterministically routed to the
+                # existing "Other" category; (3) otherwise confirmed_category
+                # is left unset, so effective_category falls back to the raw
+                # ML prediction exactly as before this phase.
+                remembered_category = self._txn_repo.find_latest_confirmed_category(
+                    row["merchant"], batch["bank_source"]
+                )
+                if remembered_category is not None:
+                    confirmed_category = remembered_category
+                elif is_structurally_ambiguous(row["merchant"]):
+                    confirmed_category = "Other"
+                else:
+                    confirmed_category = None
+
                 self._txn_repo.create(
                     {
                         "date": row["date"],
@@ -246,7 +269,7 @@ class IngestionService:
                         "amount": row["amount"],
                         "bank_source": batch["bank_source"],
                         "predicted_category": predicted_category,
-                        "confirmed_category": None,
+                        "confirmed_category": confirmed_category,
                         "import_batch_id": batch_id,
                         "data_mode": "real",
                         "dedup_key": row["dedup_key"],

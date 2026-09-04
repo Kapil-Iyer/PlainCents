@@ -5,12 +5,13 @@ Replaces the Phase 3 stub. check_status()/get_latest() are DB-only reads —
 neither ever touches pipeline.forecast, verified by the "no fit on read"
 tests in tests/backend/api/test_forecasts.py. run_forecast() is the only
 method that touches a model: it calls pipeline.forecast.aggregate_monthly
-(reused as-is) and pipeline.forecast.train_and_predict (ML-D: now the ML-C
-selected Naive baseline, no fitting step, previously Random Forest) and
-persists the result via ForecastRepository inside one unit-of-work
-transaction (TRD Section 4.6). mark_stale(reason) replaces the Phase 3
-no-op stub with real persistence — TransactionService/IngestionService's
-existing call sites (self._forecast.mark_stale(reason)) need no changes.
+(reused as-is) and pipeline.forecast.train_and_predict (ML-F: now the
+ML-F-selected 3-month rolling mean, no fitting step, superseding ML-C's
+Naive lag-1, which itself superseded V1's Random Forest) and persists the
+result via ForecastRepository inside one unit-of-work transaction (TRD
+Section 4.6). mark_stale(reason) replaces the Phase 3 no-op stub with real
+persistence — TransactionService/IngestionService's existing call sites
+(self._forecast.mark_stale(reason)) need no changes.
 
 data_mode resolution: check_status()/get_latest()/run_forecast() take an
 already-resolved `data_mode` (the route resolves app_state.mode via
@@ -35,19 +36,32 @@ from backend.repositories.transaction_repository import TransactionRepository
 from backend.services.app_state_service import AppStateService
 from pipeline.forecast import aggregate_monthly, train_and_predict
 
-# TRD Section 12.5 / PRD Section 21: 12 unique calendar months, matching V1's
-# aggregate_monthly() raise threshold exactly.
-MONTHS_REQUIRED = 12
+# TRD Section 12.5 / PRD Section 21 (ML-F amendment, reports/ml/
+# ML_F_SELECTION_RECORD.json's forecasting_selection): lowered from 12 to 6
+# unique calendar months. This is a product-history USABILITY threshold, not
+# an accuracy claim — the ML-F-selected 3-month rolling mean mathematically
+# needs only 3 months per category and was found pooled-WAPE-stable across
+# 6/9/12/18 months of truncated history (identical to how Naive behaved
+# under ML-C's own history-length sensitivity experiment), so 6 months no
+# longer buys any measurable forecast-quality improvement over a lower
+# threshold — it is kept only because a single month's rolling average is
+# too thin a product experience to present as "your forecast." MUST stay in
+# sync with pipeline/forecast.py's aggregate_monthly() — that function
+# enforces the identical threshold independently and this constant does not
+# override it; both were changed together (ML-F brief Section 25).
+MONTHS_REQUIRED = 6
 
 # ML Spec Section 18: identifies the forecasting implementation actually
 # used to generate a run — not a persisted artifact (Section 18's explicit
-# asymmetry with categorization). ML-D Production Integration: the ML-C
-# selected candidate is Naive (ml/forecasting/baselines.py::naive_predict),
-# selected strategy "N/A" — Naive has no per-horizon/recursive variant, so
-# "naive_v1" alone unambiguously identifies both the family and the (only
-# possible) strategy; there is no separate strategy field to persist
-# (no DB schema change — ML Spec Section 22).
-MODEL_IMPL_VERSION = "naive_v1"
+# asymmetry with categorization). ML-F Production Integration
+# (reports/ml/ML_F_SELECTION_RECORD.json): the selected candidate is a
+# 3-month rolling mean (ml/forecasting/baselines.py::rolling_mean_predict,
+# window=3), which — like the ML-C-selected Naive it replaces — has no
+# per-horizon/recursive variant, so "rolling_mean_3_v1" alone unambiguously
+# identifies both the family and the (only possible) strategy; there is no
+# separate strategy field to persist (no DB schema change — ML Spec
+# Section 22).
+MODEL_IMPL_VERSION = "rolling_mean_3_v1"
 
 
 class ForecastService:

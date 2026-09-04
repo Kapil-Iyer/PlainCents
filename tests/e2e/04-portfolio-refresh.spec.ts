@@ -60,7 +60,10 @@ test("GET holdings never fetches a price; explicit Refresh Prices populates pric
 
   // Explicit refresh.
   await page.getByRole("button", { name: /Refresh prices/i }).click();
-  await expect(page.getByText("Prices refreshed")).toBeVisible({ timeout: 10_000 });
+  // exact: true — the toast's own text and its aria-live announcement
+  // duplicate region ("Notification Prices refreshed") both otherwise match
+  // a loose substring query, which is a strict-mode violation in Playwright.
+  await expect(page.getByText("Prices refreshed", { exact: true }).first()).toBeVisible({ timeout: 10_000 });
 
   const rowAfterRefresh = page.locator("table tbody tr", { hasText: "E2ETEST" });
   await expect(rowAfterRefresh.getByText("Not yet refreshed")).not.toBeVisible();

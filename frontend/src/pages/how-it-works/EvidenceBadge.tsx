@@ -3,7 +3,7 @@ import { FlaskConical, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface EvidenceBadgeProps {
-  tier: "Tier B" | "Synthetic";
+  tier: "Tier B" | "Synthetic" | "Sanitized deployment-oriented";
   className?: string;
 }
 
@@ -14,7 +14,7 @@ interface EvidenceBadgeProps {
  * metric that depends on it is shown.
  */
 export function EvidenceBadge({ tier, className }: EvidenceBadgeProps) {
-  const Icon = tier === "Tier B" ? FlaskConical : Sparkles;
+  const Icon = tier === "Synthetic" ? Sparkles : FlaskConical;
   return (
     <span
       className={cn(

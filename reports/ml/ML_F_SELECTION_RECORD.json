@@ -1,0 +1,1615 @@
+{
+  "phase": "ML-F -- Deployment-Aware Categorization Selection",
+  "timestamp_utc": "2026-09-04T18:29:02.484648+00:00",
+  "git_commit_evaluated": "694b947ee7dfa38c91a4533e5cb1e6e41f236d9f",
+  "authority": "This record supersedes reports/ml/ML_C_SELECTION_RECORD.json for the PRODUCTION categorization recipe/training-data source only. ML-C's own record is preserved untouched as historical evidence; the Tier B benchmark itself and its split remain valid and are still evaluated here as a continuity check.",
+  "declaration": "Selection was finalized using the deployment-oriented benchmark's TRAIN+VALIDATION evidence only. The deployment benchmark's FINAL_TEST and the Tier B continuity benchmark were both evaluated only AFTER the winner was frozen on VALIDATION.",
+  "dataset": {
+    "dataset_id": "deployment_benchmark_v1",
+    "evidence_tier": "Sanitized deployment-oriented bank-description benchmark (hand-curated, fabricated merchants; structurally modeled on the ML-F-A private real-export audit findings -- NOT real-world data)",
+    "source": "ml/data/build_deployment_benchmark.py (hand-curated, fabricated merchants; sanitized -- contains no private real-export data)",
+    "split_definition_ref": "data\\evaluation\\deployment_split_v1.json",
+    "partition_counts_categorical_only": {
+      "FINAL_TEST": 39,
+      "TRAIN": 96,
+      "VALIDATION": 41
+    },
+    "partition_merchant_group_counts": {
+      "FINAL_TEST": 16,
+      "TRAIN": 41,
+      "VALIDATION": 16
+    },
+    "ambiguous_rows_excluded_from_macro_f1": {
+      "FINAL_TEST": {
+        "coverage": 1.0,
+        "n_ambiguous": 2,
+        "n_correctly_routed": 2
+      },
+      "TRAIN": {
+        "coverage": 0.6666666666666666,
+        "n_ambiguous": 9,
+        "n_correctly_routed": 6
+      },
+      "VALIDATION": {
+        "coverage": 0.0,
+        "n_ambiguous": 3,
+        "n_correctly_routed": 0
+      }
+    }
+  },
+  "candidates_evaluated": {
+    "A_baseline_word_tfidf_50": {
+      "validation_macro_f1": 0.28256302521008403,
+      "validation_accuracy": 0.2682926829268293,
+      "config": {
+        "C": 1.0,
+        "isolation": "vectorizer/model fit on TRAIN only (n=96)",
+        "max_iter": 1000,
+        "name": "A_baseline_word_tfidf_50",
+        "normalize_fn": null,
+        "random_state": 42,
+        "tfidf_config": {
+          "max_features": 50,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true,
+          "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+        }
+      }
+    },
+    "B_word_tfidf_100": {
+      "validation_macro_f1": 0.31196581196581197,
+      "validation_accuracy": 0.3170731707317073,
+      "config": {
+        "C": 1.0,
+        "isolation": "vectorizer/model fit on TRAIN only (n=96)",
+        "max_iter": 1000,
+        "name": "B_word_tfidf_100",
+        "normalize_fn": null,
+        "random_state": 42,
+        "tfidf_config": {
+          "max_features": 100,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true,
+          "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+        }
+      }
+    },
+    "B_word_tfidf_200": {
+      "validation_macro_f1": 0.3854166666666667,
+      "validation_accuracy": 0.4146341463414634,
+      "config": {
+        "C": 1.0,
+        "isolation": "vectorizer/model fit on TRAIN only (n=96)",
+        "max_iter": 1000,
+        "name": "B_word_tfidf_200",
+        "normalize_fn": null,
+        "random_state": 42,
+        "tfidf_config": {
+          "max_features": 200,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true,
+          "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+        }
+      }
+    },
+    "B_word_tfidf_400": {
+      "validation_macro_f1": 0.3854166666666667,
+      "validation_accuracy": 0.4146341463414634,
+      "config": {
+        "C": 1.0,
+        "isolation": "vectorizer/model fit on TRAIN only (n=96)",
+        "max_iter": 1000,
+        "name": "B_word_tfidf_400",
+        "normalize_fn": null,
+        "random_state": 42,
+        "tfidf_config": {
+          "max_features": 400,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true,
+          "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+        }
+      }
+    },
+    "B_word_tfidf_unbounded": {
+      "validation_macro_f1": 0.3854166666666667,
+      "validation_accuracy": 0.4146341463414634,
+      "config": {
+        "C": 1.0,
+        "isolation": "vectorizer/model fit on TRAIN only (n=96)",
+        "max_iter": 1000,
+        "name": "B_word_tfidf_unbounded",
+        "normalize_fn": null,
+        "random_state": 42,
+        "tfidf_config": {
+          "max_features": null,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true,
+          "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+        }
+      }
+    },
+    "C_normalized_word_tfidf_200": {
+      "validation_macro_f1": 0.29404761904761906,
+      "validation_accuracy": 0.24390243902439024,
+      "config": {
+        "C": 1.0,
+        "isolation": "vectorizer/model fit on TRAIN only (n=96)",
+        "max_iter": 1000,
+        "name": "C_normalized_word_tfidf_200",
+        "normalize_fn": "normalize_deployment_text",
+        "random_state": 42,
+        "tfidf_config": {
+          "max_features": 200,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true,
+          "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+        }
+      }
+    },
+    "D_char_tfidf_3_5_300": {
+      "validation_macro_f1": 0.3384615384615385,
+      "validation_accuracy": 0.34146341463414637,
+      "config": {
+        "C": 1.0,
+        "isolation": "vectorizer/model fit on TRAIN only (n=96)",
+        "max_iter": 1000,
+        "name": "D_char_tfidf_3_5_300",
+        "normalize_fn": null,
+        "random_state": 42,
+        "tfidf_config": {
+          "analyzer": "char_wb",
+          "max_features": 300,
+          "ngram_range": [
+            3,
+            5
+          ],
+          "sublinear_tf": true
+        }
+      }
+    },
+    "E_word_plus_char_tfidf": {
+      "validation_macro_f1": 0.27976190476190477,
+      "validation_accuracy": 0.1951219512195122,
+      "config": {
+        "C": 1.0,
+        "char_tfidf_config": {
+          "analyzer": "char_wb",
+          "max_features": 300,
+          "ngram_range": [
+            3,
+            5
+          ],
+          "sublinear_tf": true
+        },
+        "isolation": "vectorizer/model fit on TRAIN only (n=96)",
+        "max_iter": 1000,
+        "name": "tfidf_word_char_logreg",
+        "normalize_fn": "normalize_deployment_text",
+        "random_state": 42,
+        "word_tfidf_config": {
+          "max_features": 200,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true,
+          "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+        }
+      }
+    },
+    "F_linear_svm_on_winner_repr": {
+      "validation_macro_f1": 0.3445054945054945,
+      "validation_accuracy": 0.34146341463414637,
+      "config": {
+        "C": 1.0,
+        "isolation": "vectorizer/model fit on TRAIN only (n=96)",
+        "max_iter": 5000,
+        "name": "tfidf_linear_svm",
+        "normalize_fn": null,
+        "note": "LinearSVC does not produce calibrated probabilities; none fabricated (ML Spec Section 5/7).",
+        "random_state": 42,
+        "tfidf_config": {
+          "max_features": 200,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true,
+          "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+        }
+      }
+    }
+  },
+  "ranked_by_validation_macro_f1": [
+    [
+      "B_word_tfidf_200",
+      0.3854166666666667
+    ],
+    [
+      "B_word_tfidf_400",
+      0.3854166666666667
+    ],
+    [
+      "B_word_tfidf_unbounded",
+      0.3854166666666667
+    ],
+    [
+      "D_char_tfidf_3_5_300",
+      0.3384615384615385
+    ],
+    [
+      "B_word_tfidf_100",
+      0.31196581196581197
+    ],
+    [
+      "C_normalized_word_tfidf_200",
+      0.29404761904761906
+    ],
+    [
+      "A_baseline_word_tfidf_50",
+      0.28256302521008403
+    ],
+    [
+      "E_word_plus_char_tfidf",
+      0.27976190476190477
+    ]
+  ],
+  "winner": {
+    "candidate_name": "B_word_tfidf_200",
+    "label": "TF-IDF (word, larger vocabulary) + Logistic Regression, fit on the new deployment-oriented TRAIN partition",
+    "exact_configuration": {
+      "tfidf_config": {
+        "max_features": 200,
+        "ngram_range": [
+          1,
+          2
+        ],
+        "sublinear_tf": true,
+        "token_pattern": "(?u)\\b[a-zA-Z]{2,}\\b"
+      },
+      "normalize_fn": null,
+      "model": "sklearn.linear_model.LogisticRegression",
+      "C": 1.0,
+      "max_iter": 1000,
+      "random_state": 42,
+      "fit_partition": "deployment_benchmark_v1 TRAIN (96 rows, 41 merchant groups)",
+      "source_code": "ml/categorization/candidates.py::TfidfLogRegCandidate"
+    }
+  },
+  "winner_selection_reasoning": "Highest deployment-oriented VALIDATION macro-F1 among A-F, tie-broken (within 0.01) toward simpler representations and LogReg over SVM, per the pre-registered rule (ML-F brief Section 11). Selected BEFORE viewing FINAL_TEST.",
+  "sealed_final_test": {
+    "accuracy": 0.3076923076923077,
+    "confusion_matrix": {
+      "Entertainment": {
+        "Entertainment": 0,
+        "Food & Dining": 0,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 0,
+        "Shopping": 3,
+        "Subscriptions": 1,
+        "Transport": 0
+      },
+      "Food & Dining": {
+        "Entertainment": 0,
+        "Food & Dining": 5,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 3,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Transport": 0
+      },
+      "Healthcare": {
+        "Entertainment": 0,
+        "Food & Dining": 1,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 1,
+        "Shopping": 0,
+        "Subscriptions": 2,
+        "Transport": 0
+      },
+      "Other": {
+        "Entertainment": 0,
+        "Food & Dining": 0,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 3,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Transport": 0
+      },
+      "Rent & Utilities": {
+        "Entertainment": 0,
+        "Food & Dining": 2,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 4,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Transport": 0
+      },
+      "Shopping": {
+        "Entertainment": 0,
+        "Food & Dining": 2,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 3,
+        "Shopping": 0,
+        "Subscriptions": 1,
+        "Transport": 0
+      },
+      "Subscriptions": {
+        "Entertainment": 0,
+        "Food & Dining": 0,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 1,
+        "Shopping": 0,
+        "Subscriptions": 3,
+        "Transport": 0
+      },
+      "Transport": {
+        "Entertainment": 0,
+        "Food & Dining": 2,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 2,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Transport": 0
+      }
+    },
+    "macro_f1": 0.1741600790513834,
+    "n": 39,
+    "n_merchant_groups": 15,
+    "per_category": {
+      "Entertainment": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 4
+      },
+      "Food & Dining": {
+        "f1": 0.5,
+        "precision": 0.4166666666666667,
+        "recall": 0.625,
+        "support": 8
+      },
+      "Healthcare": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 4
+      },
+      "Other": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 3
+      },
+      "Rent & Utilities": {
+        "f1": 0.34782608695652173,
+        "precision": 0.23529411764705882,
+        "recall": 0.6666666666666666,
+        "support": 6
+      },
+      "Shopping": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 6
+      },
+      "Subscriptions": {
+        "f1": 0.5454545454545454,
+        "precision": 0.42857142857142855,
+        "recall": 0.75,
+        "support": 4
+      },
+      "Transport": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 4
+      }
+    }
+  },
+  "sealed_final_test_ambiguous_routing": {
+    "coverage": 1.0,
+    "n_ambiguous": 2,
+    "n_correctly_routed": 2
+  },
+  "tier_b_continuity_evaluation": {
+    "dataset_id": "tier_b_benchmark_v1",
+    "final_test": {
+      "accuracy": 0.5555555555555556,
+      "confusion_matrix": {
+        "Entertainment": {
+          "Entertainment": 2,
+          "Food & Dining": 2,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 0,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 0
+        },
+        "Food & Dining": {
+          "Entertainment": 0,
+          "Food & Dining": 8,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 0,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 0
+        },
+        "Healthcare": {
+          "Entertainment": 0,
+          "Food & Dining": 0,
+          "Healthcare": 5,
+          "Other": 0,
+          "Rent & Utilities": 0,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 0
+        },
+        "Other": {
+          "Entertainment": 0,
+          "Food & Dining": 0,
+          "Healthcare": 0,
+          "Other": 4,
+          "Rent & Utilities": 1,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 0
+        },
+        "Rent & Utilities": {
+          "Entertainment": 2,
+          "Food & Dining": 1,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 1,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 1
+        },
+        "Shopping": {
+          "Entertainment": 0,
+          "Food & Dining": 5,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 0,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 0
+        },
+        "Subscriptions": {
+          "Entertainment": 2,
+          "Food & Dining": 1,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 0,
+          "Shopping": 0,
+          "Subscriptions": 1,
+          "Transport": 0
+        },
+        "Transport": {
+          "Entertainment": 0,
+          "Food & Dining": 3,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 2,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 4
+        }
+      },
+      "macro_f1": 0.5067460317460317,
+      "n": 45,
+      "per_category": {
+        "Entertainment": {
+          "f1": 0.4,
+          "precision": 0.3333333333333333,
+          "recall": 0.5,
+          "support": 4
+        },
+        "Food & Dining": {
+          "f1": 0.5714285714285714,
+          "precision": 0.4,
+          "recall": 1.0,
+          "support": 8
+        },
+        "Healthcare": {
+          "f1": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "support": 5
+        },
+        "Other": {
+          "f1": 0.8888888888888888,
+          "precision": 1.0,
+          "recall": 0.8,
+          "support": 5
+        },
+        "Rent & Utilities": {
+          "f1": 0.2222222222222222,
+          "precision": 0.25,
+          "recall": 0.2,
+          "support": 5
+        },
+        "Shopping": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 5
+        },
+        "Subscriptions": {
+          "f1": 0.4,
+          "precision": 1.0,
+          "recall": 0.25,
+          "support": 4
+        },
+        "Transport": {
+          "f1": 0.5714285714285714,
+          "precision": 0.8,
+          "recall": 0.4444444444444444,
+          "support": 9
+        }
+      }
+    },
+    "note": "Continuity evaluation only -- Tier B was NOT used to select the ML-F winner.",
+    "validation": {
+      "accuracy": 0.44,
+      "confusion_matrix": {
+        "Entertainment": {
+          "Entertainment": 1,
+          "Food & Dining": 4,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 0,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 2
+        },
+        "Food & Dining": {
+          "Entertainment": 0,
+          "Food & Dining": 11,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 0,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 2
+        },
+        "Healthcare": {
+          "Entertainment": 0,
+          "Food & Dining": 2,
+          "Healthcare": 0,
+          "Other": 1,
+          "Rent & Utilities": 0,
+          "Shopping": 1,
+          "Subscriptions": 0,
+          "Transport": 0
+        },
+        "Other": {
+          "Entertainment": 0,
+          "Food & Dining": 2,
+          "Healthcare": 0,
+          "Other": 1,
+          "Rent & Utilities": 1,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 0
+        },
+        "Rent & Utilities": {
+          "Entertainment": 0,
+          "Food & Dining": 1,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 4,
+          "Shopping": 2,
+          "Subscriptions": 0,
+          "Transport": 0
+        },
+        "Shopping": {
+          "Entertainment": 0,
+          "Food & Dining": 5,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 0,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 0
+        },
+        "Subscriptions": {
+          "Entertainment": 2,
+          "Food & Dining": 1,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 0,
+          "Shopping": 0,
+          "Subscriptions": 1,
+          "Transport": 0
+        },
+        "Transport": {
+          "Entertainment": 0,
+          "Food & Dining": 2,
+          "Healthcare": 0,
+          "Other": 0,
+          "Rent & Utilities": 0,
+          "Shopping": 0,
+          "Subscriptions": 0,
+          "Transport": 4
+        }
+      },
+      "macro_f1": 0.33850174216027873,
+      "n": 50,
+      "per_category": {
+        "Entertainment": {
+          "f1": 0.2,
+          "precision": 0.3333333333333333,
+          "recall": 0.14285714285714285,
+          "support": 7
+        },
+        "Food & Dining": {
+          "f1": 0.5365853658536586,
+          "precision": 0.39285714285714285,
+          "recall": 0.8461538461538461,
+          "support": 13
+        },
+        "Healthcare": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 4
+        },
+        "Other": {
+          "f1": 0.3333333333333333,
+          "precision": 0.5,
+          "recall": 0.25,
+          "support": 4
+        },
+        "Rent & Utilities": {
+          "f1": 0.6666666666666666,
+          "precision": 0.8,
+          "recall": 0.5714285714285714,
+          "support": 7
+        },
+        "Shopping": {
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "support": 5
+        },
+        "Subscriptions": {
+          "f1": 0.4,
+          "precision": 1.0,
+          "recall": 0.25,
+          "support": 4
+        },
+        "Transport": {
+          "f1": 0.5714285714285714,
+          "precision": 0.5,
+          "recall": 0.6666666666666666,
+          "support": 6
+        }
+      }
+    }
+  },
+  "what_improved": [
+    "Production training data now includes deployment-shaped bank boilerplate (VISA DEBIT PURCHASE-, POS/Opos-, CONTACTLESS INTERAC PURCHASE-, truncation+suffix patterns) instead of only Tier B's cleaner synthetic descriptions.",
+    "Vocabulary capacity raised from 50 to 200 word tokens, reducing (not eliminating) the audit's vocabulary-capacity finding.",
+    "Deterministic structurally-ambiguous-row routing (backend/services/ambiguity.py) now catches generic e-transfer/ABM/ATM rows with 100% coverage on this benchmark's ambiguous rows, independent of the ML classifier."
+  ],
+  "what_still_cannot_be_inferred": [
+    "Real-world production accuracy -- both the deployment benchmark and Tier B are sanitized/curated, not live user data (ML-F brief Section 17).",
+    "Performance on merchant identities not represented in either benchmark -- 190 rows / 73 merchant groups is still a small-data regime; FINAL_TEST macro-F1 (0.174) is honest evidence of this, not a bug.",
+    "Whether normalization (Candidate C) or character n-grams (Candidate D) would help MORE with a larger deployment corpus -- both under-performed the larger-vocabulary baseline (B) at this corpus size specifically; that is a size-limited finding, not a rejection of the techniques in general."
+  ],
+  "forecasting_selection": {
+    "phase": "ML-F forecast re-evaluation (brief Section 18-22)",
+    "authority": "Supersedes reports/ml/ML_C_SELECTION_RECORD.json forecasting_selection for the PRODUCTION forecast recipe only. ML-C record preserved untouched as historical evidence.",
+    "declaration": "Winner selected using pooled VALIDATION WAPE across the existing ML-C walk-forward harness (same 24-month synthetic grid, same calendar-boundary expanding-window folds, same 3-month reserved FINAL period) plus the ADDED rolling-mean/EWMA candidates. Selected BEFORE the sealed FINAL_TEST period was touched.",
+    "candidates_evaluated": {
+      "ewma_0.3__n/a": {
+        "by_horizon": {
+          "1": {
+            "mae": 29.576690638217883,
+            "mape_all": 79035150435.13573,
+            "mape_nonzero_only": 18.40720616884914,
+            "n": 112,
+            "n_near_zero_actual": 15,
+            "n_rows": 112,
+            "rmse": 42.042274509306374,
+            "wape": 0.16132405129310962
+          },
+          "2": {
+            "mae": 31.034680802437492,
+            "mape_all": 88468912749.90695,
+            "mape_nonzero_only": 19.73850332741042,
+            "n": 104,
+            "n_near_zero_actual": 14,
+            "n_rows": 104,
+            "rmse": 43.11743175907652,
+            "wape": 0.16996188574586965
+          },
+          "3": {
+            "mae": 31.504147742315183,
+            "mape_all": 87679567342.41011,
+            "mape_nonzero_only": 20.58693960319263,
+            "n": 96,
+            "n_near_zero_actual": 13,
+            "n_rows": 96,
+            "rmse": 44.142518995370374,
+            "wape": 0.17221302082809992
+          }
+        },
+        "combined": {
+          "mae": 30.65575108396205,
+          "mape_all": 84839558460.24646,
+          "mape_nonzero_only": 19.521038092260344,
+          "n": 312,
+          "n_near_zero_actual": 42,
+          "n_rows": 312,
+          "rmse": 43.0554060518757,
+          "wape": 0.16754740379316363
+        },
+        "n_eligible_rows": 312,
+        "n_total_rows": 312
+      },
+      "ewma_0.5__n/a": {
+        "by_horizon": {
+          "1": {
+            "mae": 29.886149210929876,
+            "mape_all": 80211260198.43031,
+            "mape_nonzero_only": 18.374250782560278,
+            "n": 112,
+            "n_near_zero_actual": 15,
+            "n_rows": 112,
+            "rmse": 43.73364390836273,
+            "wape": 0.16301197207058743
+          },
+          "2": {
+            "mae": 30.307787862924435,
+            "mape_all": 95474252717.6657,
+            "mape_nonzero_only": 19.48273056685179,
+            "n": 104,
+            "n_near_zero_actual": 14,
+            "n_rows": 104,
+            "rmse": 42.67350084846369,
+            "wape": 0.16598104587445411
+          },
+          "3": {
+            "mae": 30.426056373914083,
+            "mape_all": 91975464202.48271,
+            "mape_nonzero_only": 20.129666184839344,
+            "n": 96,
+            "n_near_zero_actual": 13,
+            "n_rows": 96,
+            "rmse": 44.47426495920233,
+            "wape": 0.1663197850294473
+          }
+        },
+        "combined": {
+          "mae": 30.192820709179607,
+          "mape_all": 88918679449.67876,
+          "mape_nonzero_only": 19.28337174172842,
+          "n": 312,
+          "n_near_zero_actual": 42,
+          "n_rows": 312,
+          "rmse": 43.61419588573592,
+          "wape": 0.16501728204800203
+        },
+        "n_eligible_rows": 312,
+        "n_total_rows": 312
+      },
+      "ewma_0.7__n/a": {
+        "by_horizon": {
+          "1": {
+            "mae": 31.920853162315833,
+            "mape_all": 78373138680.546,
+            "mape_nonzero_only": 19.820603328512117,
+            "n": 112,
+            "n_near_zero_actual": 15,
+            "n_rows": 112,
+            "rmse": 47.531318947159576,
+            "wape": 0.17411012664896117
+          },
+          "2": {
+            "mae": 30.873297348529515,
+            "mape_all": 100999728552.86948,
+            "mape_nonzero_only": 20.406477192422507,
+            "n": 104,
+            "n_near_zero_actual": 14,
+            "n_rows": 104,
+            "rmse": 44.217075319792414,
+            "wape": 0.16907806688757399
+          },
+          "3": {
+            "mae": 30.44393862896133,
+            "mape_all": 96655269727.81929,
+            "mape_nonzero_only": 20.05424170001722,
+            "n": 96,
+            "n_near_zero_actual": 13,
+            "n_rows": 96,
+            "rmse": 46.25162421430482,
+            "wape": 0.1664175358775608
+          }
+        },
+        "combined": {
+          "mae": 31.11723265002157,
+          "mape_all": 91540606396.12253,
+          "mape_nonzero_only": 20.087716782537516,
+          "n": 312,
+          "n_near_zero_actual": 42,
+          "n_rows": 312,
+          "rmse": 46.05366646207397,
+          "wape": 0.1700696071500446
+        },
+        "n_eligible_rows": 312,
+        "n_total_rows": 312
+      },
+      "naive__n/a": {
+        "by_horizon": {
+          "1": {
+            "mae": 37.034642857142856,
+            "mape_all": 71767857162.8204,
+            "mape_nonzero_only": 23.05039105372926,
+            "n": 112,
+            "n_near_zero_actual": 15,
+            "n_rows": 112,
+            "rmse": 56.2959707547022,
+            "wape": 0.20200294539334246
+          },
+          "2": {
+            "mae": 34.76855769230769,
+            "mape_all": 106048076942.99234,
+            "mape_nonzero_only": 23.01336396666444,
+            "n": 104,
+            "n_near_zero_actual": 14,
+            "n_rows": 104,
+            "rmse": 50.44567717051985,
+            "wape": 0.1904105174358537
+          },
+          "3": {
+            "mae": 32.28541666666667,
+            "mape_all": 109937500017.73036,
+            "mape_nonzero_only": 20.507455925161747,
+            "n": 96,
+            "n_near_zero_actual": 13,
+            "n_rows": 96,
+            "rmse": 51.901881047318504,
+            "wape": 0.17648371821823988
+          }
+        },
+        "combined": {
+          "mae": 34.817980769230765,
+          "mape_all": 94939102583.36284,
+          "mape_nonzero_only": 22.256331596296164,
+          "n": 312,
+          "n_near_zero_actual": 42,
+          "n_rows": 312,
+          "rmse": 53.054624508432525,
+          "wape": 0.1902958523908706
+        },
+        "n_eligible_rows": 312,
+        "n_total_rows": 312
+      },
+      "random_forest__last_known_history": {
+        "by_horizon": {
+          "1": {
+            "mae": 44.48028253033802,
+            "mape_all": 522821893056.4795,
+            "mape_nonzero_only": 31.331874027508853,
+            "n": 112,
+            "n_near_zero_actual": 15,
+            "n_rows": 112,
+            "rmse": 64.35513162114128,
+            "wape": 0.24261468154872068
+          },
+          "2": {
+            "mae": 42.97821232122229,
+            "mape_all": 587224779233.1257,
+            "mape_nonzero_only": 32.48821228966069,
+            "n": 104,
+            "n_near_zero_actual": 14,
+            "n_rows": 104,
+            "rmse": 60.63129934402742,
+            "wape": 0.23537081172517152
+          },
+          "3": {
+            "mae": 45.63945337268674,
+            "mape_all": 606206901614.0922,
+            "mape_nonzero_only": 34.95603795853977,
+            "n": 96,
+            "n_near_zero_actual": 13,
+            "n_rows": 96,
+            "rmse": 65.04928207007399,
+            "wape": 0.24948169360241834
+          }
+        },
+        "combined": {
+          "mae": 44.336260412124695,
+          "mape_all": 569946447492.0629,
+          "mape_nonzero_only": 32.831414952950446,
+          "n": 312,
+          "n_near_zero_actual": 42,
+          "n_rows": 312,
+          "rmse": 63.35675923293673,
+          "wape": 0.24231751183011754
+        },
+        "n_eligible_rows": 312,
+        "n_total_rows": 312
+      },
+      "random_forest__recursive": {
+        "by_horizon": {
+          "1": {
+            "mae": 44.48028253033802,
+            "mape_all": 522821893056.4795,
+            "mape_nonzero_only": 31.331874027508853,
+            "n": 112,
+            "n_near_zero_actual": 15,
+            "n_rows": 112,
+            "rmse": 64.35513162114128,
+            "wape": 0.24261468154872068
+          },
+          "2": {
+            "mae": 46.094614256758355,
+            "mape_all": 713572296780.6517,
+            "mape_nonzero_only": 34.306852499600595,
+            "n": 104,
+            "n_near_zero_actual": 14,
+            "n_rows": 104,
+            "rmse": 62.754559159040966,
+            "wape": 0.25243783274844517
+          },
+          "3": {
+            "mae": 50.69001462133402,
+            "mape_all": 820736207425.5386,
+            "mape_nonzero_only": 37.8139390739894,
+            "n": 96,
+            "n_near_zero_actual": 13,
+            "n_rows": 96,
+            "rmse": 70.06226970488532,
+            "wape": 0.27708988083608355
+          }
+        },
+        "combined": {
+          "mae": 46.92907990304101,
+          "mape_all": 678071303847.3245,
+          "mape_nonzero_only": 34.316168328790866,
+          "n": 312,
+          "n_near_zero_actual": 42,
+          "n_rows": 312,
+          "rmse": 65.64913970108988,
+          "wape": 0.25648843111431713
+        },
+        "n_eligible_rows": 312,
+        "n_total_rows": 312
+      },
+      "ridge__last_known_history": {
+        "by_horizon": {
+          "1": {
+            "mae": 37.03565335504228,
+            "mape_all": 280654689227.40265,
+            "mape_nonzero_only": 26.84020346729146,
+            "n": 112,
+            "n_near_zero_actual": 15,
+            "n_rows": 112,
+            "rmse": 50.14058913372066,
+            "wape": 0.2020084570855379
+          },
+          "2": {
+            "mae": 40.810308943728856,
+            "mape_all": 408869814415.54816,
+            "mape_nonzero_only": 32.38517612255078,
+            "n": 104,
+            "n_near_zero_actual": 14,
+            "n_rows": 104,
+            "rmse": 53.25400571024075,
+            "wape": 0.22349825700166093
+          },
+          "3": {
+            "mae": 45.61437492101271,
+            "mape_all": 519883211051.16455,
+            "mape_nonzero_only": 37.92752531198488,
+            "n": 96,
+            "n_near_zero_actual": 13,
+            "n_rows": 96,
+            "rmse": 61.385590409825234,
+            "wape": 0.249344605751136
+          }
+        },
+        "combined": {
+          "mae": 40.933478520287686,
+          "mape_all": 397001840235.8906,
+          "mape_nonzero_only": 32.09685254907995,
+          "n": 312,
+          "n_near_zero_actual": 42,
+          "n_rows": 312,
+          "rmse": 54.838515529911334,
+          "wape": 0.2237197854168851
+        },
+        "n_eligible_rows": 312,
+        "n_total_rows": 312
+      },
+      "ridge__recursive": {
+        "by_horizon": {
+          "1": {
+            "mae": 37.03565335504228,
+            "mape_all": 280654689227.40265,
+            "mape_nonzero_only": 26.84020346729146,
+            "n": 112,
+            "n_near_zero_actual": 15,
+            "n_rows": 112,
+            "rmse": 50.14058913372066,
+            "wape": 0.2020084570855379
+          },
+          "2": {
+            "mae": 42.84816989322261,
+            "mape_all": 456388309036.28845,
+            "mape_nonzero_only": 34.10728456253705,
+            "n": 104,
+            "n_near_zero_actual": 14,
+            "n_rows": 104,
+            "rmse": 56.36667231816502,
+            "wape": 0.23465863245609844
+          },
+          "3": {
+            "mae": 52.81057123496607,
+            "mape_all": 693925370145.2247,
+            "mape_nonzero_only": 43.85148392648506,
+            "n": 96,
+            "n_near_zero_actual": 13,
+            "n_rows": 96,
+            "rmse": 70.12175867393482,
+            "wape": 0.28868160720994374
+          }
+        },
+        "combined": {
+          "mae": 43.82697975389946,
+          "mape_all": 466392772010.2072,
+          "mape_nonzero_only": 34.491957455014315,
+          "n": 312,
+          "n_near_zero_actual": 42,
+          "n_rows": 312,
+          "rmse": 58.9448800983799,
+          "wape": 0.2395340650356153
+        },
+        "n_eligible_rows": 312,
+        "n_total_rows": 312
+      },
+      "rolling_mean_3__n/a": {
+        "by_horizon": {
+          "1": {
+            "mae": 28.872886904761906,
+            "mape_all": 88157738110.75882,
+            "mape_nonzero_only": 17.920854075538927,
+            "n": 112,
+            "n_near_zero_actual": 15,
+            "n_rows": 112,
+            "rmse": 41.88838212255563,
+            "wape": 0.1574852016062004
+          },
+          "2": {
+            "mae": 31.217243589743585,
+            "mape_all": 83983974376.63843,
+            "mape_nonzero_only": 20.411838175595513,
+            "n": 104,
+            "n_near_zero_actual": 14,
+            "n_rows": 104,
+            "rmse": 44.04295370605661,
+            "wape": 0.17096169353493926
+          },
+          "3": {
+            "mae": 31.92972222222222,
+            "mape_all": 88868055573.76996,
+            "mape_nonzero_only": 21.067248420199647,
+            "n": 96,
+            "n_near_zero_actual": 13,
+            "n_rows": 96,
+            "rmse": 45.19466371677327,
+            "wape": 0.17453936424711897
+          }
+        },
+        "combined": {
+          "mae": 30.594903846153848,
+          "mape_all": 86985042752.10672,
+          "mape_nonzero_only": 19.7184070370646,
+          "n": 312,
+          "n_near_zero_actual": 42,
+          "n_rows": 312,
+          "rmse": 43.64564957981024,
+          "wape": 0.16721484639814738
+        },
+        "n_eligible_rows": 312,
+        "n_total_rows": 312
+      },
+      "rolling_mean_6__n/a": {
+        "by_horizon": {
+          "1": {
+            "mae": 30.03976190476191,
+            "mape_all": 83526785730.7728,
+            "mape_nonzero_only": 19.03663428027093,
+            "n": 112,
+            "n_near_zero_actual": 15,
+            "n_rows": 112,
+            "rmse": 42.971877794674,
+            "wape": 0.1638498420812035
+          },
+          "2": {
+            "mae": 31.716971153846153,
+            "mape_all": 86685897453.45238,
+            "mape_nonzero_only": 20.28571629002466,
+            "n": 104,
+            "n_near_zero_actual": 14,
+            "n_rows": 104,
+            "rmse": 44.75564376834043,
+            "wape": 0.1736984588876988
+          },
+          "3": {
+            "mae": 32.35835069444445,
+            "mape_all": 83614583351.6534,
+            "mape_nonzero_only": 21.189464976261007,
+            "n": 96,
+            "n_near_zero_actual": 13,
+            "n_rows": 96,
+            "rmse": 45.67749202876833,
+            "wape": 0.1768824018883238
+          }
+        },
+        "combined": {
+          "mae": 31.312243589743584,
+          "mape_all": 84606837624.24463,
+          "mape_nonzero_only": 20.114791053030235,
+          "n": 312,
+          "n_near_zero_actual": 42,
+          "n_rows": 312,
+          "rmse": 44.41333557869509,
+          "wape": 0.17113542923909406
+        },
+        "n_eligible_rows": 312,
+        "n_total_rows": 312
+      },
+      "seasonal_naive__n/a": {
+        "by_horizon": {
+          "1": {
+            "mae": 47.141944444444434,
+            "mape_all": 145055555579.30945,
+            "mape_nonzero_only": 27.585161027113603,
+            "n": 72,
+            "n_near_zero_actual": 10,
+            "n_rows": 72,
+            "rmse": 69.83148486018165,
+            "wape": 0.26306113876234416
+          },
+          "2": {
+            "mae": 47.141944444444434,
+            "mape_all": 145055555579.30945,
+            "mape_nonzero_only": 27.585161027113603,
+            "n": 72,
+            "n_near_zero_actual": 10,
+            "n_rows": 72,
+            "rmse": 69.83148486018165,
+            "wape": 0.26306113876234416
+          },
+          "3": {
+            "mae": 47.141944444444434,
+            "mape_all": 145055555579.30945,
+            "mape_nonzero_only": 27.585161027113603,
+            "n": 72,
+            "n_near_zero_actual": 10,
+            "n_rows": 72,
+            "rmse": 69.83148486018165,
+            "wape": 0.26306113876234416
+          }
+        },
+        "combined": {
+          "mae": 47.14194444444444,
+          "mape_all": 145055555579.30942,
+          "mape_nonzero_only": 27.585161027113603,
+          "n": 216,
+          "n_near_zero_actual": 30,
+          "n_rows": 216,
+          "rmse": 69.83148486018165,
+          "wape": 0.26306113876234427
+        },
+        "n_eligible_rows": 216,
+        "n_total_rows": 312
+      }
+    },
+    "ranked_by_validation_pooled_wape": [
+      [
+        "ewma_0.5__n/a",
+        0.16501728204800203
+      ],
+      [
+        "rolling_mean_3__n/a",
+        0.16721484639814738
+      ],
+      [
+        "ewma_0.3__n/a",
+        0.16754740379316363
+      ],
+      [
+        "ewma_0.7__n/a",
+        0.1700696071500446
+      ],
+      [
+        "rolling_mean_6__n/a",
+        0.17113542923909406
+      ],
+      [
+        "naive__n/a",
+        0.1902958523908706
+      ],
+      [
+        "ridge__last_known_history",
+        0.2237197854168851
+      ],
+      [
+        "ridge__recursive",
+        0.2395340650356153
+      ],
+      [
+        "random_forest__last_known_history",
+        0.24231751183011754
+      ],
+      [
+        "random_forest__recursive",
+        0.25648843111431713
+      ],
+      [
+        "seasonal_naive__n/a",
+        0.26306113876234427
+      ]
+    ],
+    "winner": "rolling_mean_3__n/a",
+    "winner_pooled_validation_wape": 0.16721484639814738,
+    "naive_pooled_validation_wape": 0.1902958523908706,
+    "winner_selection_reasoning": "Lowest pooled VALIDATION WAPE, tie-broken (within 0.01) toward simplicity in the order Naive > rolling mean/EWMA > Ridge > RF (ML-F brief Section 22). A challenger must beat Naive by more than this margin to be selected -- otherwise Naive (the simplest, current production model) is kept.",
+    "history_length_sensitivity": {
+      "by_truncation_length": {
+        "12": {
+          "ewma_0.3": {
+            "mae": 25.84451281646338,
+            "mape_all": 185115535384.32614,
+            "mape_nonzero_only": 20.527783618619715,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 35.84665811471168,
+            "wape": 0.14620883204810572
+          },
+          "ewma_0.5": {
+            "mae": 27.404578857421882,
+            "mape_all": 187168762223.99182,
+            "mape_nonzero_only": 19.856261710634456,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 39.18252126000464,
+            "wape": 0.15503451335950402
+          },
+          "ewma_0.7": {
+            "mae": 30.13144060410056,
+            "mape_all": 182870664867.4681,
+            "mape_nonzero_only": 21.987581771812746,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 43.5168909939076,
+            "wape": 0.1704610479577718
+          },
+          "naive": {
+            "mae": 36.306875,
+            "mape_all": 167458333356.19565,
+            "mape_nonzero_only": 26.765698107433575,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 52.353484383404066,
+            "wape": 0.2053970150942462
+          },
+          "random_forest": {
+            "mae": 32.62878039052037,
+            "mape_all": 468686571104.62823,
+            "mape_nonzero_only": 25.13531158502008,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 42.936019190211375,
+            "wape": 0.18458911978457404
+          },
+          "rolling_mean_3": {
+            "mae": 26.238125,
+            "mape_all": 205701388907.4324,
+            "mape_nonzero_only": 21.70949218296124,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 36.609319576592945,
+            "wape": 0.14843559399341638
+          },
+          "rolling_mean_6": {
+            "mae": 26.847395833333334,
+            "mape_all": 194895833353.09412,
+            "mape_nonzero_only": 23.13460612957896,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 35.99386380558626,
+            "wape": 0.15188239051750857
+          }
+        },
+        "18": {
+          "ewma_0.3": {
+            "mae": 25.936582311774956,
+            "mape_all": 184415350995.692,
+            "mape_nonzero_only": 20.573611726695066,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 35.93670295359702,
+            "wape": 0.1467296920647894
+          },
+          "ewma_0.5": {
+            "mae": 27.40596545219422,
+            "mape_all": 187159607109.50027,
+            "mape_nonzero_only": 19.85654981627433,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 39.18562942522975,
+            "wape": 0.15504235767073662
+          },
+          "ewma_0.7": {
+            "mae": 30.131448543506036,
+            "mape_all": 182870656900.00095,
+            "mape_nonzero_only": 21.987582811369716,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 43.51690116686818,
+            "wape": 0.1704610928729617
+          },
+          "naive": {
+            "mae": 36.306875,
+            "mape_all": 167458333356.19565,
+            "mape_nonzero_only": 26.765698107433575,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 52.353484383404066,
+            "wape": 0.2053970150942462
+          },
+          "random_forest": {
+            "mae": 25.797800230310333,
+            "mape_all": 200483730482.14755,
+            "mape_nonzero_only": 21.078340004939115,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 37.927570594018924,
+            "wape": 0.1459445673389241
+          },
+          "rolling_mean_3": {
+            "mae": 26.238125,
+            "mape_all": 205701388907.4324,
+            "mape_nonzero_only": 21.70949218296124,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 36.609319576592945,
+            "wape": 0.14843559399341638
+          },
+          "rolling_mean_6": {
+            "mae": 26.847395833333334,
+            "mape_all": 194895833353.09412,
+            "mape_nonzero_only": 23.13460612957896,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 35.99386380558626,
+            "wape": 0.15188239051750857
+          }
+        },
+        "6": {
+          "ewma_0.3": {
+            "mae": 27.178284081250002,
+            "mape_all": 196509863143.56738,
+            "mape_nonzero_only": 21.737437373252757,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 37.42041938379462,
+            "wape": 0.15375430757045927
+          },
+          "ewma_0.5": {
+            "mae": 27.578131510416668,
+            "mape_all": 188922526058.78687,
+            "mape_nonzero_only": 20.043141856283828,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 39.416700983627464,
+            "wape": 0.15601634384992263
+          },
+          "ewma_0.7": {
+            "mae": 30.139296577083332,
+            "mape_all": 182955438977.12143,
+            "mape_nonzero_only": 21.9958234242826,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 43.52946405807521,
+            "wape": 0.17050549114935254
+          },
+          "naive": {
+            "mae": 36.306875,
+            "mape_all": 167458333356.19565,
+            "mape_nonzero_only": 26.765698107433575,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 52.353484383404066,
+            "wape": 0.2053970150942462
+          },
+          "random_forest": null,
+          "rolling_mean_3": {
+            "mae": 26.238125,
+            "mape_all": 205701388907.4324,
+            "mape_nonzero_only": 21.70949218296124,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 36.609319576592945,
+            "wape": 0.14843559399341638
+          },
+          "rolling_mean_6": {
+            "mae": 26.847395833333334,
+            "mape_all": 194895833353.09412,
+            "mape_nonzero_only": 23.13460612957896,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 35.99386380558626,
+            "wape": 0.15188239051750857
+          }
+        },
+        "9": {
+          "ewma_0.3": {
+            "mae": 25.802608093285425,
+            "mape_all": 183667126730.98453,
+            "mape_nonzero_only": 20.420963615807615,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 35.84785696625643,
+            "wape": 0.14597176661465536
+          },
+          "ewma_0.5": {
+            "mae": 27.401667480468756,
+            "mape_all": 187138427751.33374,
+            "mape_nonzero_only": 19.854190256265568,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 39.18257893390949,
+            "wape": 0.15501804297652597
+          },
+          "ewma_0.7": {
+            "mae": 30.131463321727082,
+            "mape_all": 182870672223.98935,
+            "mape_nonzero_only": 21.9876044706361,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 43.5168990101479,
+            "wape": 0.17046117647703096
+          },
+          "naive": {
+            "mae": 36.306875,
+            "mape_all": 167458333356.19565,
+            "mape_nonzero_only": 26.765698107433575,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 52.353484383404066,
+            "wape": 0.2053970150942462
+          },
+          "random_forest": {
+            "mae": 54.98799378571831,
+            "mape_all": 889813335525.9625,
+            "mape_nonzero_only": 33.387088940233895,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 64.05740906164918,
+            "wape": 0.3110807468174416
+          },
+          "rolling_mean_3": {
+            "mae": 26.238125,
+            "mape_all": 205701388907.4324,
+            "mape_nonzero_only": 21.70949218296124,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 36.609319576592945,
+            "wape": 0.14843559399341638
+          },
+          "rolling_mean_6": {
+            "mae": 26.847395833333334,
+            "mape_all": 194895833353.09412,
+            "mape_nonzero_only": 23.13460612957896,
+            "n": 48,
+            "n_near_zero_actual": 7,
+            "n_predictions": 48,
+            "n_rows": 48,
+            "rmse": 35.99386380558626,
+            "wape": 0.15188239051750857
+          }
+        }
+      },
+      "note": "Small sample (n_origins=3) -- indicative, per ML Spec Section 15's own caveat, carried forward for ML-F.",
+      "origins_used_dev_index": [
+        17,
+        18,
+        19
+      ],
+      "status": "EVALUATED"
+    },
+    "history_length_conclusion": "rolling_mean_3 (winner) and every EWMA variant are pooled-WAPE-stable across 6/9/18-month truncated history, exactly like Naive -- none of them has a meaningful-history floor beyond a handful of months. Random Forest again shows the same de-facto >=7-month floor from its own rolling-window feature engineering already documented in reports/ml/results/history_length_sensitivity.json, independent of the product eligibility gate.",
+    "mathematical_minimum_history": {
+      "rolling_mean_3": "3 observed months per category (mean of however many of the last 3 exist; degrades gracefully with fewer)",
+      "naive": "1 observed month per category",
+      "random_forest_ridge": ">=7 months (their own rolling 6-month feature warm-up, not a product-gate artifact)"
+    }
+  }
+}

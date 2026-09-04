@@ -134,6 +134,30 @@ class TransactionRepository:
         ).fetchone()
         return row is not None
 
+    def find_latest_confirmed_category(self, merchant: str, bank_source: str) -> str | None:
+        """Correction memory (ML-F brief §14/§15): the smallest-architecture
+        lookup a future import can use to reuse a user's own prior manual
+        category correction for the same exact (merchant, bank_source)
+        identity -- no new table, just a query against the existing
+        `transactions` table's own `confirmed_category` column. Exact string
+        match only (no fuzzy/substring/semantic matching). If the user has
+        confirmed different categories for this exact key over time, the most
+        recent one wins (ORDER BY updated_at, then id, DESC) -- never an
+        arbitrary or averaged choice. Returns None if no prior confirmation
+        exists for this key, in which case the caller leaves
+        confirmed_category unset and effective_category falls back to
+        predicted_category as today."""
+        row = self._conn.execute(
+            """
+            SELECT confirmed_category FROM transactions
+            WHERE merchant = ? AND bank_source = ? AND confirmed_category IS NOT NULL
+            ORDER BY updated_at DESC, id DESC
+            LIMIT 1
+            """,
+            (merchant, bank_source),
+        ).fetchone()
+        return row[0] if row else None
+
     def count_distinct_months(self, data_mode: str | None = None) -> int:
         sql = "SELECT COUNT(DISTINCT substr(date, 1, 7)) FROM transactions"
         params: list = []

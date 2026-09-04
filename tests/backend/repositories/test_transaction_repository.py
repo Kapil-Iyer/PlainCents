@@ -97,3 +97,75 @@ def test_13_empty_demo_real_read_mapping(conn):
     real_results = repo.list(data_mode="real")
     assert len(real_results) == 1
     assert real_results[0]["data_mode"] == "real"
+
+
+# -- ML-F correction memory: find_latest_confirmed_category -----------------
+
+
+def _txn(**overrides) -> dict:
+    base = dict(SAMPLE, bank_source="RBC")
+    base.update(overrides)
+    return base
+
+
+def test_find_latest_confirmed_category_exact_recurring_merchant_match(conn):
+    repo = TransactionRepository(conn)
+    tid = repo.create(_txn(dedup_key="k1", merchant="ACME SUB SERVICE"))
+    conn.commit()
+    repo.update(tid, {"confirmed_category": "Subscriptions"})
+    conn.commit()
+
+    found = repo.find_latest_confirmed_category("ACME SUB SERVICE", "RBC")
+    assert found == "Subscriptions"
+
+
+def test_find_latest_confirmed_category_no_match_returns_none(conn):
+    repo = TransactionRepository(conn)
+    assert repo.find_latest_confirmed_category("NEVER SEEN MERCHANT", "RBC") is None
+
+
+def test_find_latest_confirmed_category_different_bank_source_does_not_collide(conn):
+    repo = TransactionRepository(conn)
+    tid = repo.create(_txn(dedup_key="k2", merchant="ACME SUB SERVICE", bank_source="RBC"))
+    conn.commit()
+    repo.update(tid, {"confirmed_category": "Subscriptions"})
+    conn.commit()
+
+    # Same merchant text, different bank -- must not reuse RBC's correction.
+    assert repo.find_latest_confirmed_category("ACME SUB SERVICE", "Scotiabank") is None
+
+
+def test_find_latest_confirmed_category_different_merchant_does_not_collide(conn):
+    repo = TransactionRepository(conn)
+    tid = repo.create(_txn(dedup_key="k3", merchant="ACME SUB SERVICE"))
+    conn.commit()
+    repo.update(tid, {"confirmed_category": "Subscriptions"})
+    conn.commit()
+
+    assert repo.find_latest_confirmed_category("OTHER MERCHANT", "RBC") is None
+
+
+def test_find_latest_confirmed_category_newest_correction_wins(conn):
+    repo = TransactionRepository(conn)
+    t1 = repo.create(_txn(dedup_key="k4", merchant="ACME SUB SERVICE"))
+    conn.commit()
+    repo.update(t1, {"confirmed_category": "Subscriptions"})
+    conn.commit()
+
+    time.sleep(1.1)  # SQLite CURRENT_TIMESTAMP has 1-second resolution
+    t2 = repo.create(_txn(dedup_key="k5", merchant="ACME SUB SERVICE"))
+    conn.commit()
+    repo.update(t2, {"confirmed_category": "Entertainment"})
+    conn.commit()
+
+    assert repo.find_latest_confirmed_category("ACME SUB SERVICE", "RBC") == "Entertainment"
+
+
+def test_find_latest_confirmed_category_ignores_unconfirmed_rows(conn):
+    repo = TransactionRepository(conn)
+    # A row with only a predicted_category (never manually confirmed) must
+    # never be treated as a remembered correction.
+    repo.create(_txn(dedup_key="k6", merchant="ACME SUB SERVICE"))
+    conn.commit()
+
+    assert repo.find_latest_confirmed_category("ACME SUB SERVICE", "RBC") is None

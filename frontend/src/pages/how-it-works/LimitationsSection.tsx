@@ -16,7 +16,7 @@ function QualifiedRow({
   headline,
   note,
 }: {
-  tier: "Tier B" | "Synthetic" | null;
+  tier: "Tier B" | "Synthetic" | "Sanitized deployment-oriented" | null;
   headline: string;
   note: string;
 }) {
@@ -57,7 +57,7 @@ export function LimitationsSection() {
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           <QualifiedRow
-            tier="Tier B"
+            tier="Sanitized deployment-oriented"
             headline={`${CATEGORIZATION_FINAL_RESULT.accuracyPct.toFixed(1)}% accuracy / ${CATEGORIZATION_FINAL_RESULT.macroF1.toFixed(4)} macro F1`}
             note={CATEGORIZATION_EVIDENCE_QUALIFIER}
           />

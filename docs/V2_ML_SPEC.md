@@ -384,6 +384,8 @@ RMSE and MAPE remain secondary/diagnostic and may be reported combined only, not
 
 ## 15. History Requirement / 12-Month Cold Start
 
+**ML-F AMENDMENT (reports/ml/ML_F_SELECTION_RECORD.json's forecasting_selection):** the experiment this section specifies was executed in ML-F, extended to also cover the rolling-mean/EWMA candidates ML-F added. Its finding — the selected recipe's pooled WAPE is stable across 6/9/12/18-month truncated history, exactly as it was for ML-C's Naive — was carried back through the PRD amendment process this section itself requires (PRD §21 now reads 6 months, TRD §12.5 updated to match). The frozen-at-authoring-time text below is preserved as the historical record of what was asked for and why; it is no longer the current product rule.
+
 The frozen product rule — **12 unique months** overall eligibility (PRD §21, TRD §12.5) — is **not changed by this document**. This section defines the experiment that would inform a *future* PRD amendment, not a change made here.
 
 **Experiment design (ML-B, not executed in this document):** using the independent evaluation data if it has sufficient time span, or synthetic data explicitly labeled as such for this specific experiment (§16 — synthetic history-length experiments are legitimate for testing model *behavior*, just not for claiming real-world accuracy), evaluate the chosen forecaster's WAPE/MAE under the corrected walk-forward protocol (§12) using training histories artificially truncated to 6, 9, 12, and 18+ months, holding the same set of test months constant across all four runs where possible. The specific questions this answers: does forecast quality meaningfully degrade below 12 months, and does the model beat naive/seasonal-naive at each truncation length?

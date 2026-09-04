@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
+  CATEGORIZATION_AMBIGUOUS_ROUTING,
   CATEGORIZATION_CANDIDATES,
   CATEGORIZATION_FINAL_RESULT,
   CATEGORIZATION_PIPELINE_EXPLANATION,
   CATEGORIZATION_SELECTION_RATIONALE,
+  CATEGORIZATION_TIER_B_CONTINUITY,
   type CategorizationCandidate,
 } from "@/data/methodology";
 
@@ -17,10 +19,10 @@ import { Disclosure } from "@/pages/how-it-works/Disclosure";
 import { EvidenceBadge, LimitationNote } from "@/pages/how-it-works/EvidenceBadge";
 
 /** Macro F1's true axis is 0-1. The domain below is only a rendering
- * choice (headroom above the highest evaluated candidate, 0.2552) — it does
+ * choice (headroom above the highest evaluated candidate, 0.3854) — it does
  * not imply an unevaluated benchmark or reference line. Every bar also
  * prints its exact value, so the domain choice can't misrepresent a number. */
-const F1_AXIS_MAX = 0.3;
+const F1_AXIS_MAX = 0.45;
 
 function CandidateBar({ candidate, index }: { candidate: CategorizationCandidate; index: number }) {
   const prefersReducedMotion = useReducedMotion();
@@ -170,6 +172,40 @@ export function CategorizationSection() {
             <Stat label="Merchant groups" value={String(CATEGORIZATION_FINAL_RESULT.nMerchantGroups)} />
           </div>
           <LimitationNote>{CATEGORIZATION_FINAL_RESULT.limitation}</LimitationNote>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Tier B continuity check</CardTitle>
+          <CardDescription>
+            The same winning recipe, never re-selected using Tier B — evaluated only after the winner
+            was frozen on the deployment benchmark above.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
+            <Stat label="Tier B VALIDATION macro F1" value={CATEGORIZATION_TIER_B_CONTINUITY.validationMacroF1.toFixed(4)} />
+            <Stat label="Tier B FINAL_TEST macro F1" value={CATEGORIZATION_TIER_B_CONTINUITY.finalTestMacroF1.toFixed(4)} />
+          </div>
+          <p className="text-xs text-muted-foreground">{CATEGORIZATION_TIER_B_CONTINUITY.note}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Structurally-ambiguous rows</CardTitle>
+          <CardDescription>
+            A generic Interac e-transfer or ABM/ATM withdrawal carries no spending-purpose signal at
+            all, no matter how good the classifier gets — routed deterministically instead of guessed.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
+            <Stat label="Ambiguous rows (held-out)" value={String(CATEGORIZATION_AMBIGUOUS_ROUTING.nAmbiguousFinalTest)} />
+            <Stat label="Routed correctly to “Other”" value={`${(CATEGORIZATION_AMBIGUOUS_ROUTING.coverage * 100).toFixed(0)}%`} />
+          </div>
+          <p className="text-xs text-muted-foreground">{CATEGORIZATION_AMBIGUOUS_ROUTING.note}</p>
         </CardContent>
       </Card>
     </div>

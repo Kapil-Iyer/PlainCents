@@ -7,9 +7,12 @@ interface ColdStartStateProps {
   monthsRequired: number;
 }
 
-/** TRD Section 12.5 / PRD Section 21: forecasting needs 12 unique calendar
- * months of history. Explains how many the user has vs. needs — never an
- * error screen, since cold_start is a normal 200 status (TRD Section 5.6). */
+/** TRD Section 12.5 / PRD Section 21 (ML-F amendment: 12 -> 6 unique
+ * calendar months, reports/ml/ML_F_SELECTION_RECORD.json): forecasting
+ * needs `monthsRequired` unique calendar months of history, read from the
+ * API rather than hardcoded here. Explains how many the user has vs.
+ * needs — never an error screen, since cold_start is a normal 200 status
+ * (TRD Section 5.6). */
 export function ColdStartState({ monthsAvailable, monthsRequired }: ColdStartStateProps) {
   const remaining = Math.max(monthsRequired - monthsAvailable, 0);
   return (

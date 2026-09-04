@@ -10,6 +10,11 @@
  *     corrections separately from model predictions" (SUPPORTED) and
  *     "PlainCents automatically retrains from user corrections"
  *     (NOT_SUPPORTED).
+ *   - ML-F: backend/repositories/transaction_repository.py::
+ *     find_latest_confirmed_category (correction memory) and
+ *     backend/services/ambiguity.py::is_structurally_ambiguous (ambiguous-
+ *     row routing) — both apply at import-confirm time only, both write
+ *     confirmed_category (never predicted_category).
  */
 export const HUMAN_IN_LOOP_STEPS = [
   {
@@ -38,4 +43,6 @@ export const HUMAN_IN_LOOP_FACTS = [
   "The original model prediction is preserved forever, even after a correction — it's never overwritten, only superseded for display/analytics purposes.",
   "A confirmed category becomes authoritative for every downstream read (dashboard, forecasting, exports) the moment it exists.",
   "Corrections do NOT trigger automatic retraining. The categorization model is fit offline, ahead of time, and is never refit at request time or in response to a correction.",
+  "Correction memory: if you've previously confirmed a category for the exact same merchant text from the exact same bank, a future import of that merchant pre-fills the same confirmed_category automatically — an exact match only, never fuzzy or semantic. The model's own prediction is still recorded alongside it, untouched.",
+  "A generic Interac e-transfer or ABM/ATM withdrawal carries no spending-purpose signal in the description at all — these are routed to “Other” by a deterministic rule at import time, not guessed by the classifier, and not created as a new category.",
 ];

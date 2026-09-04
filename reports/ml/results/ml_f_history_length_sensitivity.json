@@ -1,0 +1,317 @@
+{
+  "by_truncation_length": {
+    "12": {
+      "ewma_0.3": {
+        "mae": 25.84451281646338,
+        "mape_all": 185115535384.32614,
+        "mape_nonzero_only": 20.527783618619715,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 35.84665811471168,
+        "wape": 0.14620883204810572
+      },
+      "ewma_0.5": {
+        "mae": 27.404578857421882,
+        "mape_all": 187168762223.99182,
+        "mape_nonzero_only": 19.856261710634456,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 39.18252126000464,
+        "wape": 0.15503451335950402
+      },
+      "ewma_0.7": {
+        "mae": 30.13144060410056,
+        "mape_all": 182870664867.4681,
+        "mape_nonzero_only": 21.987581771812746,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 43.5168909939076,
+        "wape": 0.1704610479577718
+      },
+      "naive": {
+        "mae": 36.306875,
+        "mape_all": 167458333356.19565,
+        "mape_nonzero_only": 26.765698107433575,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 52.353484383404066,
+        "wape": 0.2053970150942462
+      },
+      "random_forest": {
+        "mae": 32.62878039052037,
+        "mape_all": 468686571104.62823,
+        "mape_nonzero_only": 25.13531158502008,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 42.936019190211375,
+        "wape": 0.18458911978457404
+      },
+      "rolling_mean_3": {
+        "mae": 26.238125,
+        "mape_all": 205701388907.4324,
+        "mape_nonzero_only": 21.70949218296124,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 36.609319576592945,
+        "wape": 0.14843559399341638
+      },
+      "rolling_mean_6": {
+        "mae": 26.847395833333334,
+        "mape_all": 194895833353.09412,
+        "mape_nonzero_only": 23.13460612957896,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 35.99386380558626,
+        "wape": 0.15188239051750857
+      }
+    },
+    "18": {
+      "ewma_0.3": {
+        "mae": 25.936582311774956,
+        "mape_all": 184415350995.692,
+        "mape_nonzero_only": 20.573611726695066,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 35.93670295359702,
+        "wape": 0.1467296920647894
+      },
+      "ewma_0.5": {
+        "mae": 27.40596545219422,
+        "mape_all": 187159607109.50027,
+        "mape_nonzero_only": 19.85654981627433,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 39.18562942522975,
+        "wape": 0.15504235767073662
+      },
+      "ewma_0.7": {
+        "mae": 30.131448543506036,
+        "mape_all": 182870656900.00095,
+        "mape_nonzero_only": 21.987582811369716,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 43.51690116686818,
+        "wape": 0.1704610928729617
+      },
+      "naive": {
+        "mae": 36.306875,
+        "mape_all": 167458333356.19565,
+        "mape_nonzero_only": 26.765698107433575,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 52.353484383404066,
+        "wape": 0.2053970150942462
+      },
+      "random_forest": {
+        "mae": 25.797800230310333,
+        "mape_all": 200483730482.14755,
+        "mape_nonzero_only": 21.078340004939115,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 37.927570594018924,
+        "wape": 0.1459445673389241
+      },
+      "rolling_mean_3": {
+        "mae": 26.238125,
+        "mape_all": 205701388907.4324,
+        "mape_nonzero_only": 21.70949218296124,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 36.609319576592945,
+        "wape": 0.14843559399341638
+      },
+      "rolling_mean_6": {
+        "mae": 26.847395833333334,
+        "mape_all": 194895833353.09412,
+        "mape_nonzero_only": 23.13460612957896,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 35.99386380558626,
+        "wape": 0.15188239051750857
+      }
+    },
+    "6": {
+      "ewma_0.3": {
+        "mae": 27.178284081250002,
+        "mape_all": 196509863143.56738,
+        "mape_nonzero_only": 21.737437373252757,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 37.42041938379462,
+        "wape": 0.15375430757045927
+      },
+      "ewma_0.5": {
+        "mae": 27.578131510416668,
+        "mape_all": 188922526058.78687,
+        "mape_nonzero_only": 20.043141856283828,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 39.416700983627464,
+        "wape": 0.15601634384992263
+      },
+      "ewma_0.7": {
+        "mae": 30.139296577083332,
+        "mape_all": 182955438977.12143,
+        "mape_nonzero_only": 21.9958234242826,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 43.52946405807521,
+        "wape": 0.17050549114935254
+      },
+      "naive": {
+        "mae": 36.306875,
+        "mape_all": 167458333356.19565,
+        "mape_nonzero_only": 26.765698107433575,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 52.353484383404066,
+        "wape": 0.2053970150942462
+      },
+      "random_forest": null,
+      "rolling_mean_3": {
+        "mae": 26.238125,
+        "mape_all": 205701388907.4324,
+        "mape_nonzero_only": 21.70949218296124,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 36.609319576592945,
+        "wape": 0.14843559399341638
+      },
+      "rolling_mean_6": {
+        "mae": 26.847395833333334,
+        "mape_all": 194895833353.09412,
+        "mape_nonzero_only": 23.13460612957896,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 35.99386380558626,
+        "wape": 0.15188239051750857
+      }
+    },
+    "9": {
+      "ewma_0.3": {
+        "mae": 25.802608093285425,
+        "mape_all": 183667126730.98453,
+        "mape_nonzero_only": 20.420963615807615,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 35.84785696625643,
+        "wape": 0.14597176661465536
+      },
+      "ewma_0.5": {
+        "mae": 27.401667480468756,
+        "mape_all": 187138427751.33374,
+        "mape_nonzero_only": 19.854190256265568,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 39.18257893390949,
+        "wape": 0.15501804297652597
+      },
+      "ewma_0.7": {
+        "mae": 30.131463321727082,
+        "mape_all": 182870672223.98935,
+        "mape_nonzero_only": 21.9876044706361,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 43.5168990101479,
+        "wape": 0.17046117647703096
+      },
+      "naive": {
+        "mae": 36.306875,
+        "mape_all": 167458333356.19565,
+        "mape_nonzero_only": 26.765698107433575,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 52.353484383404066,
+        "wape": 0.2053970150942462
+      },
+      "random_forest": {
+        "mae": 54.98799378571831,
+        "mape_all": 889813335525.9625,
+        "mape_nonzero_only": 33.387088940233895,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 64.05740906164918,
+        "wape": 0.3110807468174416
+      },
+      "rolling_mean_3": {
+        "mae": 26.238125,
+        "mape_all": 205701388907.4324,
+        "mape_nonzero_only": 21.70949218296124,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 36.609319576592945,
+        "wape": 0.14843559399341638
+      },
+      "rolling_mean_6": {
+        "mae": 26.847395833333334,
+        "mape_all": 194895833353.09412,
+        "mape_nonzero_only": 23.13460612957896,
+        "n": 48,
+        "n_near_zero_actual": 7,
+        "n_predictions": 48,
+        "n_rows": 48,
+        "rmse": 35.99386380558626,
+        "wape": 0.15188239051750857
+      }
+    }
+  },
+  "note": "Small sample (n_origins=3) -- indicative, per ML Spec Section 15's own caveat, carried forward for ML-F.",
+  "origins_used_dev_index": [
+    17,
+    18,
+    19
+  ],
+  "status": "EVALUATED"
+}

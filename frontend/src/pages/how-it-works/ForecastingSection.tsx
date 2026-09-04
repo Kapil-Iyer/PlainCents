@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { cn } from "@/lib/utils";
 import {
   FORECASTING_CANDIDATES,
+  FORECASTING_ELIGIBILITY,
   FORECASTING_FINAL_RESULT,
   FORECASTING_PIPELINE_EXPLANATION,
   FORECASTING_SELECTION_RATIONALE,
@@ -164,7 +165,7 @@ export function ForecastingSection() {
         </CardContent>
       </Card>
 
-      <Disclosure summary="Why Naive was selected" defaultOpen>
+      <Disclosure summary="Why the 3-month rolling mean was selected" defaultOpen>
         <ul className="flex flex-col gap-2">
           {FORECASTING_SELECTION_RATIONALE.map((r, i) => (
             <li key={i} className="flex gap-2">
@@ -197,6 +198,23 @@ export function ForecastingSection() {
             {FORECASTING_FINAL_RESULT.nPredictions} predictions
           </p>
           <LimitationNote>{FORECASTING_FINAL_RESULT.limitation}</LimitationNote>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>History requirement</CardTitle>
+          <CardDescription>
+            How much transaction history the app asks for before generating a forecast.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <Stat label="Months required (product)" value={`${FORECASTING_ELIGIBILITY.monthsRequired}`} />
+            <Stat label="Previously" value={`${FORECASTING_ELIGIBILITY.previousMonthsRequired}`} />
+            <Stat label="Model's own minimum" value={`${FORECASTING_ELIGIBILITY.mathematicalMinimum}`} />
+          </div>
+          <p className="text-xs text-muted-foreground">{FORECASTING_ELIGIBILITY.note}</p>
         </CardContent>
       </Card>
     </div>

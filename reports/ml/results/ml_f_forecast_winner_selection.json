@@ -1,0 +1,52 @@
+{
+  "ranked_by_validation_pooled_wape": [
+    [
+      "ewma_0.5__n/a",
+      0.16501728204800203
+    ],
+    [
+      "rolling_mean_3__n/a",
+      0.16721484639814738
+    ],
+    [
+      "ewma_0.3__n/a",
+      0.16754740379316363
+    ],
+    [
+      "ewma_0.7__n/a",
+      0.1700696071500446
+    ],
+    [
+      "rolling_mean_6__n/a",
+      0.17113542923909406
+    ],
+    [
+      "naive__n/a",
+      0.1902958523908706
+    ],
+    [
+      "ridge__last_known_history",
+      0.2237197854168851
+    ],
+    [
+      "ridge__recursive",
+      0.2395340650356153
+    ],
+    [
+      "random_forest__last_known_history",
+      0.24231751183011754
+    ],
+    [
+      "random_forest__recursive",
+      0.25648843111431713
+    ],
+    [
+      "seasonal_naive__n/a",
+      0.26306113876234427
+    ]
+  ],
+  "winner": "rolling_mean_3__n/a",
+  "winner_pooled_wape": 0.16721484639814738,
+  "naive_pooled_wape": 0.1902958523908706,
+  "reasoning": "Lowest pooled VALIDATION WAPE, tie-broken (within 0.01) toward simplicity in the order Naive > rolling mean/EWMA > Ridge > RF (ML-F brief Section 22). A challenger must beat Naive by more than this margin to be selected -- otherwise Naive (the simplest, current production model) is kept."
+}

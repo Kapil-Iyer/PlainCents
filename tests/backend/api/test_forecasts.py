@@ -41,7 +41,7 @@ def test_status_cold_start_on_fresh_database(client: TestClient):
     body = response.json()
     assert body["status"] == "cold_start"
     assert body["months_available"] == 0
-    assert body["months_required"] == 12
+    assert body["months_required"] == 6  # ML-F eligibility amendment (PRD §21 / TRD §12.5)
     assert body["latest_run_id"] is None
 
 

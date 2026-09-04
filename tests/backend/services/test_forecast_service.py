@@ -29,16 +29,30 @@ def service(conn):
 # -- check_status ------------------------------------------------------------
 
 
-def test_check_status_cold_start_when_below_12_months(service, conn):
+def test_check_status_cold_start_when_below_6_months(service, conn):
+    # ML-F eligibility amendment (PRD §21 / TRD §12.5, reports/ml/
+    # ML_F_SELECTION_RECORD.json): MONTHS_REQUIRED lowered from 12 to 6.
     seed_months(conn, 5, ["Food & Dining"])
 
     status = service.check_status("real")
 
     assert status["status"] == "cold_start"
     assert status["months_available"] == 5
-    assert status["months_required"] == 12
+    assert status["months_required"] == 6
     assert status["latest_run_id"] is None
     assert status["is_stale"] is None
+
+
+def test_check_status_eligible_at_exactly_6_months(service, conn):
+    # Boundary case: history EQUAL TO the new threshold must be eligible,
+    # not cold-start (ML-F brief §26).
+    seed_months(conn, 6, ["Food & Dining"])
+
+    status = service.check_status("real")
+
+    assert status["status"] == "no_forecast_yet"
+    assert status["months_available"] == 6
+    assert status["months_required"] == 6
 
 
 def test_check_status_no_forecast_yet_when_eligible_but_no_run(service, conn):
@@ -90,7 +104,7 @@ def test_get_latest_never_fits(service, conn):
 # -- run_forecast: cold start --------------------------------------------------
 
 
-def test_run_forecast_raises_cold_start_error_below_12_months(service, conn):
+def test_run_forecast_raises_cold_start_error_below_6_months(service, conn):
     seed_months(conn, 3, ["Food & Dining"])
 
     with pytest.raises(ForecastColdStartError):
@@ -98,6 +112,22 @@ def test_run_forecast_raises_cold_start_error_below_12_months(service, conn):
 
     # Nothing persisted on a rejected cold-start attempt.
     assert ForecastRepository(conn).get_latest_run(data_mode="real") is None
+
+
+def test_run_forecast_succeeds_at_exactly_6_months_without_crashing(service, conn):
+    # Regression guard for the ML-F-A audit's found gap: ForecastService's
+    # own MONTHS_REQUIRED check is only half the gate — pipeline.forecast.
+    # aggregate_monthly() enforces its own threshold independently, and
+    # run_forecast() calls it directly. Both were lowered to 6 together
+    # (ML-F brief §25); this proves history exactly AT the new threshold
+    # does not fall through the service-layer check only to raise inside
+    # aggregate_monthly() as an unhandled error.
+    seed_months(conn, 6, ["Food & Dining"])
+
+    run = service.run_forecast("real")
+
+    assert run["months_available"] == 6
+    assert run["is_stale"] is False
 
 
 # -- run_forecast: success / persistence / retention --------------------------
@@ -110,10 +140,10 @@ def test_run_forecast_persists_run_with_model_impl_version(service, conn):
 
     stored = ForecastRepository(conn).get_run(run["run_id"])
     assert stored["model_impl_version"] == MODEL_IMPL_VERSION
-    # ML-D: production forecaster is the ML-C selected Naive baseline,
+    # ML-F: production forecaster is the ML-F-selected 3-month rolling mean,
     # strategy "N/A" — pinned literally so this test fails loudly if the
     # constant drifts, not just self-consistently against its own import.
-    assert MODEL_IMPL_VERSION == "naive_v1"
+    assert MODEL_IMPL_VERSION == "rolling_mean_3_v1"
     assert stored["months_available"] == 12
     assert stored["data_mode"] == "real"
     assert stored["is_stale"] == 0
@@ -159,10 +189,11 @@ def test_run_retention_two_consecutive_runs_create_two_distinct_rows(service, co
 
 
 def test_run_forecast_marks_absent_category_unavailable_not_zero(service, conn):
-    # ML-D: the selected Naive recipe only needs ONE historical data point
-    # to produce a prediction (unlike the retired RF path's 7-occurrence
-    # rolling-window floor) — so a category is unavailable only when it has
-    # ZERO recorded transactions at all, never merely "sparse".
+    # ML-F: the selected 3-month rolling mean, like ML-C's Naive before it,
+    # only needs ONE historical data point to produce a prediction (unlike
+    # the retired RF path's 7-occurrence rolling-window floor) — so a
+    # category is unavailable only when it has ZERO recorded transactions
+    # at all, never merely "sparse".
     seed_months(conn, 12, ["Food & Dining"])
 
     run = service.run_forecast("real")
@@ -178,7 +209,7 @@ def test_run_forecast_marks_absent_category_unavailable_not_zero(service, conn):
     assert all(p["predicted_amount"] is not None for p in food)
 
 
-def test_run_forecast_a_single_recorded_month_is_available_under_naive(service, conn):
+def test_run_forecast_a_single_recorded_month_is_available_under_rolling_mean(service, conn):
     seed_months(conn, 12, ["Food & Dining"])
     seed_sparse_category(conn, "Healthcare", ["2025-01"])
 
@@ -187,7 +218,9 @@ def test_run_forecast_a_single_recorded_month_is_available_under_naive(service, 
     healthcare = [p for p in run["predictions"] if p["category"] == "Healthcare"]
     assert all(p["is_available"] for p in healthcare)
     assert all(p["predicted_amount"] is not None for p in healthcare)
-    # Naive/strategy N/A: identical predicted value reused at +1/+2/+3.
+    # rolling_mean_3/strategy N/A: with only one observed month, the mean of
+    # "the last 3" degrades to that single value, reused at +1/+2/+3 —
+    # identical behavior to Naive's own single-month case.
     assert len({p["predicted_amount"] for p in healthcare}) == 1
 
 

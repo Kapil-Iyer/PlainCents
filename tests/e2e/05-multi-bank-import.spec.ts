@@ -68,7 +68,7 @@ test("an unsupported CSV format is rejected with a clear message, not silently i
   await page.locator('input[type="file"]').setInputFiles("tests/fixtures/td_csv/unrecognized_format.csv");
   await page.getByRole("button", { name: "Upload & preview" }).click();
 
-  await expect(page.getByText("Import failed")).toBeVisible();
+  await expect(page.getByText("Import failed", { exact: true }).first()).toBeVisible();
   // Never silently lands on the Preview step for a genuinely unsupported file.
   await expect(page.getByRole("heading", { name: "Preview" })).not.toBeVisible();
 });
@@ -78,7 +78,7 @@ test("a BMO-shaped file is never misclassified as TD (explicit selection require
   await page.locator('input[type="file"]').setInputFiles("tests/fixtures/shared_csv/blocked_balance_format.csv");
   await page.getByRole("button", { name: "Upload & preview" }).click();
 
-  await expect(page.getByText("Import failed")).toBeVisible();
+  await expect(page.getByText("Import failed", { exact: true }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview" })).not.toBeVisible();
 });
 
@@ -99,6 +99,6 @@ test("explicit bank selection never silently reinterprets a mismatched file", as
   await page.locator('input[type="file"]').setInputFiles("tests/fixtures/scotia_csv/clean_valid.csv");
   await page.getByRole("button", { name: "Upload & preview" }).click();
 
-  await expect(page.getByText("Import failed")).toBeVisible();
+  await expect(page.getByText("Import failed", { exact: true }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview" })).not.toBeVisible();
 });

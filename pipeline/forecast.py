@@ -15,7 +15,7 @@ from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 from sklearn.preprocessing import LabelEncoder
 
 from config import CATEGORIES, RF_MODEL_PATH
-from ml.forecasting.baselines import naive_predict
+from ml.forecasting.baselines import rolling_mean_predict
 
 logger = logging.getLogger(__name__)
 
@@ -43,10 +43,26 @@ def aggregate_monthly(df: pd.DataFrame) -> pd.DataFrame:
     monthly = monthly.rename(columns={"amount": "total_spend"})
     monthly = monthly.sort_values(["category", "month"]).reset_index(drop=True)
 
+    # ML-F forecast eligibility gate (brief Section 25; PRD Section 21 / TRD
+    # Section 12.5 amendment): lowered from 12 to 6 alongside
+    # backend/services/forecast_service.py's MONTHS_REQUIRED — the two must
+    # move together (ML-F-A audit finding: this function is the ONLY other
+    # enforcement point, and ForecastService.run_forecast() calls it
+    # directly, so leaving this at 12 would still raise here even if only
+    # the service-layer constant were lowered). The ML-F-selected recipe
+    # (3-month rolling mean, mathematically needs only 3 months and is
+    # pooled-WAPE-stable at 6/9/12/18 months of history per
+    # reports/ml/ML_F_SELECTION_RECORD.json) does not need 12 months; 6 is
+    # the smallest defensible USEFUL-history threshold (an availability/UX
+    # choice, not an accuracy claim — see ForecastService.MONTHS_REQUIRED).
+    # This also affects V1's own fit_and_forecast()/CLI path, which shares
+    # this function; that path's own RF-era walk-forward validation already
+    # tolerates as few as 7 TRAIN months internally, so 6 total months is
+    # not a regression for it either.
     n_months = monthly["month"].nunique()
-    if n_months < 12:
-        logger.warning("Only %d months of data (need 12). Forecasting may be unreliable.", n_months)
-        raise ValueError(f"Need 12 months minimum for forecasting. Found {n_months}.")
+    if n_months < 6:
+        logger.warning("Only %d months of data (need 6). Forecasting may be unreliable.", n_months)
+        raise ValueError(f"Need 6 months minimum for forecasting. Found {n_months}.")
 
     return monthly
 
@@ -367,35 +383,44 @@ def fit_and_forecast(df: pd.DataFrame) -> tuple[pd.DataFrame, float, dict]:
 
 def train_and_predict(monthly_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Interactive path (TRD Section 12.1-12.3; Build Plan Section 2.2; ML-D
-    Production Integration): the ONLY pipeline.forecast function
+    Interactive path (TRD Section 12.1-12.3; Build Plan Section 2.2; ML-D/
+    ML-F Production Integration): the ONLY pipeline.forecast function
     ForecastService.run_forecast() may call. fit_and_forecast()/
     walk_forward_validate() remain V1's own entry points, untouched, and are
     never invoked from here.
 
-    ML-C selected candidate: Naive (ml/forecasting/baselines.py::naive_predict)
-    — predicted spend for every future month = the most recently observed
-    month's actual total_spend for that category (lag-1). Naive has no
-    fitting step (it is a stateless lookup, not a learned model) and no
-    multi-step variant (ML-C selected strategy = "N/A",
-    reports/ml/ML_C_SELECTION_RECORD.json): the same lag-1 value is reused
-    identically across all three horizons (+1/+2/+3) rather than being
-    recomputed per horizon or fed back recursively. This replaces the prior
-    Random Forest / last-known-history implementation entirely on this path;
+    ML-F selected candidate: 3-month rolling mean
+    (ml/forecasting/baselines.py::rolling_mean_predict, window=3) — predicted
+    spend for every future month = the mean of that category's most recent 3
+    observed months (using however many exist if fewer than 3 are
+    available). Supersedes ML-C's Naive lag-1 selection
+    (reports/ml/ML_C_SELECTION_RECORD.json): re-evaluated in ML-F
+    (reports/ml/ML_F_SELECTION_RECORD.json's forecasting_selection) because a
+    small, pre-registered bake-off adding rolling-mean/EWMA baselines to the
+    existing Naive/Seasonal-Naive/Ridge/RF comparison found rolling_mean_3
+    beats Naive by a meaningful, non-noise margin on pooled VALIDATION WAPE,
+    stable across truncated history lengths (6/9/12/18 months) exactly like
+    Naive was. Like Naive, rolling_mean_3 has no fitting step (stateless) and
+    no multi-step variant: the same value is reused identically across all
+    three horizons (+1/+2/+3) rather than recomputed per horizon or fed back
+    recursively — a recursive re-application would produce the same value
+    anyway, since the prediction never depends on a prior *prediction*.
     RandomForestRegressor and the rolling/lag feature engineering above
     remain in fit_and_forecast()/walk_forward_validate() (V1's own CLI path)
     and in ml/ (research/evaluation), untouched.
 
-    Per-category availability (TRD Section 12.5): a category needs at least
-    one (month, category) row in monthly_df (aggregate_monthly's output) to
-    produce a lag-1 prediction — unlike the retired RF path, Naive has no
-    rolling-window feature requirement, so the availability floor is exactly
-    "this category has ever recorded a transaction," not RF's incidental
-    7-month minimum. A category with zero rows is reported unavailable
-    ("insufficient_history"), never a fabricated $0.
+    Per-category availability (TRD Section 12.5, extended by ML-F): a
+    category needs at least one (month, category) row in monthly_df
+    (aggregate_monthly's output) to produce a prediction — unlike the
+    retired RF path, rolling_mean_3 has no rolling-WINDOW-FEATURE
+    requirement of its own (it degrades gracefully to the mean of however
+    many months exist, same floor as Naive's lag-1), so the availability
+    floor is exactly "this category has ever recorded a transaction," not
+    RF's incidental 7-month minimum. A category with zero rows is reported
+    unavailable ("insufficient_history"), never a fabricated $0.
 
-    Naive is parameterless code, not a fitted model (ML Spec Section 18 /
-    ML-D Section F) — there is nothing to serialize, so unlike
+    rolling_mean_3 is parameterless code, not a fitted model (ML Spec
+    Section 18 / ML-D Section F) — there is nothing to serialize, so unlike
     fit_and_forecast() this function does not persist any model artifact.
 
     Parameters
@@ -431,7 +456,7 @@ def train_and_predict(monthly_df: pd.DataFrame) -> pd.DataFrame:
                 })
                 continue
 
-            pred = naive_predict(spend_history)
+            pred = rolling_mean_predict(spend_history, window=3)
             forecasts.append({
                 "category": cat,
                 "month_offset": offset,

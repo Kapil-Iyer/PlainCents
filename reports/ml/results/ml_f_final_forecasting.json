@@ -1,0 +1,157 @@
+{
+  "result_label": "Untouched temporal-test performance on reserved synthetic months",
+  "not_to_be_described_as": [
+    "Tier B",
+    "real-world",
+    "temporal validation"
+  ],
+  "selected_candidate": "rolling_mean_3",
+  "selection_record_ref": "reports/ml/ML_F_SELECTION_RECORD.json",
+  "dataset_id": "synthetic_24mo_kmeans_categorized_v1",
+  "evidence_tier": "Synthetic (ML Spec Section 3.1) -- pipeline-behavior/mechanism evaluation only, NEVER a real-world accuracy claim (Section 21)",
+  "reserved_period": {
+    "months": [
+      "2024-10",
+      "2024-11",
+      "2024-12"
+    ],
+    "n_months": 3
+  },
+  "train_months_used": {
+    "start": "2023-01",
+    "end": "2024-09",
+    "n_months": 21
+  },
+  "chronology_preserved": true,
+  "n_predictions": 24,
+  "n_categories": 8,
+  "model_impl_version": "rolling_mean_3_v1",
+  "git_commit": "694b947ee7dfa38c91a4533e5cb1e6e41f236d9f",
+  "evaluation_timestamp_utc": "2026-09-04T18:46:50.614837+00:00",
+  "final_metrics": {
+    "combined": {
+      "wape": 0.1783713480998475,
+      "mae": 33.82916666666666,
+      "rmse": 57.29586593095332,
+      "mape_all": 796777777791.4459,
+      "mape_nonzero_only": 16.40202700299922,
+      "n_rows": 24,
+      "n_near_zero_actual": 4,
+      "n": 24
+    },
+    "by_horizon": {
+      "1": {
+        "wape": 0.26970890832848926,
+        "mae": 46.97958333333332,
+        "rmse": 80.59638263008802,
+        "mape_all": 2390333333343.727,
+        "mape_nonzero_only": 13.858207123493434,
+        "n_rows": 8,
+        "n_near_zero_actual": 2,
+        "n": 8
+      },
+      "2": {
+        "wape": 0.07317804278431343,
+        "mae": 13.630416666666662,
+        "rmse": 22.823012357170466,
+        "mape_all": 8.974537737786617,
+        "mape_nonzero_only": 10.256614557470423,
+        "n_rows": 8,
+        "n_near_zero_actual": 1,
+        "n": 8
+      },
+      "3": {
+        "wape": 0.19603870178761976,
+        "mae": 40.8775,
+        "rmse": 53.21449024675724,
+        "mape_all": 21.636874427091353,
+        "mape_nonzero_only": 24.727856488104408,
+        "n_rows": 8,
+        "n_near_zero_actual": 1,
+        "n": 8
+      }
+    },
+    "by_category": {
+      "Entertainment": {
+        "wape": 0.5646429694872602,
+        "mae": 35.900000000000006,
+        "rmse": 45.23070712101091,
+        "mape_all": 48.900409045289415,
+        "mape_nonzero_only": 48.900409045289415,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      },
+      "Food & Dining": {
+        "wape": 0.09214585145930555,
+        "mae": 27.183333333333337,
+        "rmse": 30.695205380210986,
+        "mape_all": 8.995959015650403,
+        "mape_nonzero_only": 8.995959015650403,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      },
+      "Healthcare": {
+        "wape": 0.1510296721289652,
+        "mae": 75.63666666666664,
+        "rmse": 90.30612105499823,
+        "mape_all": 14.21153712681105,
+        "mape_nonzero_only": 14.21153712681105,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      },
+      "Other": {
+        "wape": NaN,
+        "mae": 0.0,
+        "rmse": 0.0,
+        "mape_all": 0.0,
+        "mape_nonzero_only": NaN,
+        "n_rows": 3,
+        "n_near_zero_actual": 3,
+        "n": 3
+      },
+      "Rent & Utilities": {
+        "wape": 0.6152690594989002,
+        "mae": 101.9377777777778,
+        "rmse": 119.93730019380034,
+        "mape_all": 6374222222237.581,
+        "mape_nonzero_only": 23.03999435540434,
+        "n_rows": 3,
+        "n_near_zero_actual": 1,
+        "n": 3
+      },
+      "Shopping": {
+        "wape": 0.03039937585655738,
+        "mae": 9.784444444444413,
+        "rmse": 10.088687834511564,
+        "mape_all": 3.0265173148026907,
+        "mape_nonzero_only": 3.0265173148026907,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      },
+      "Subscriptions": {
+        "wape": 0.009195734334753618,
+        "mae": 0.42444444444444446,
+        "rmse": 0.4423673686981082,
+        "mape_all": 0.9210344795375613,
+        "mape_nonzero_only": 0.9210344795375613,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      },
+      "Transport": {
+        "wape": 0.1592074529492306,
+        "mae": 19.76666666666664,
+        "rmse": 25.147340482312092,
+        "mape_all": 17.931393467634123,
+        "mape_nonzero_only": 17.931393467634123,
+        "n_rows": 3,
+        "n_near_zero_actual": 0,
+        "n": 3
+      }
+    }
+  }
+}

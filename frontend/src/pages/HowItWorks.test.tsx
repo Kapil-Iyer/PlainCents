@@ -38,12 +38,12 @@ describe("HowItWorksPage", () => {
     renderAt("/how-it-works#categorization");
 
     expect(screen.getByRole("tab", { name: "Categorization" })).toHaveAttribute("aria-selected", "true");
-    // All three benchmarked candidates must appear, not only the winner.
-    expect(screen.getByText("K-Means")).toBeInTheDocument();
-    expect(screen.getByText("TF-IDF + Linear SVM")).toBeInTheDocument();
-    expect(screen.getByText("TF-IDF + Logistic Regression")).toBeInTheDocument();
+    // All eight ML-F benchmarked candidates must appear, not only the winner.
+    expect(screen.getByText("A — Baseline (word TF-IDF, 50 features)")).toBeInTheDocument();
+    expect(screen.getByText("B — Word TF-IDF, 200 features")).toBeInTheDocument();
+    expect(screen.getByText("D — Character n-grams (3-5), TF-IDF")).toBeInTheDocument();
     // Evidence tier is visible on the card, not tooltip-only.
-    expect(screen.getByText("Tier B evidence")).toBeInTheDocument();
+    expect(screen.getByText("Sanitized deployment-oriented evidence")).toBeInTheDocument();
   });
 
   it("opens the forecasting tab directly from a #forecasting hash and preserves strategy variants", () => {
@@ -56,8 +56,9 @@ describe("HowItWorksPage", () => {
     expect(screen.getAllByText("Random Forest")).toHaveLength(2);
     expect(screen.getAllByText("Last-known")).toHaveLength(2);
     expect(screen.getAllByText("Recursive")).toHaveLength(2);
-    // Naive's strategy is displayed as N/A, not blank or invented.
-    expect(screen.getAllByText("N/A")).toHaveLength(2); // Naive + Seasonal Naive
+    // Naive/rolling-mean/EWMA/Seasonal Naive strategy is displayed as N/A,
+    // not blank or invented (7 candidates with no strategy axis).
+    expect(screen.getAllByText("N/A")).toHaveLength(7);
   });
 
   it("lists claims the product does not make on the Limitations tab", async () => {
@@ -67,7 +68,7 @@ describe("HowItWorksPage", () => {
     await user.click(screen.getByRole("tab", { name: "Limitations & Evidence" }));
 
     expect(
-      await screen.findByText("PlainCents categorizes real-world bank transactions at 42.2% accuracy."),
+      await screen.findByText("PlainCents categorizes real-world bank transactions at 30.8% accuracy."),
     ).toBeInTheDocument();
     expect(screen.getByText("PlainCents automatically retrains from user corrections.")).toBeInTheDocument();
   });
@@ -142,9 +143,9 @@ describe("HowItWorksPage", () => {
       expect(await screen.findByText("TRAIN")).toBeInTheDocument();
       expect(screen.getByText("VALIDATION")).toBeInTheDocument();
       expect(screen.getByText("FINAL_TEST")).toBeInTheDocument();
-      expect(screen.getByText("133 rows · 47 merchant groups")).toBeInTheDocument();
-      expect(screen.getByText("50 rows · 17 merchant groups")).toBeInTheDocument();
-      expect(screen.getByText("45 rows · 17 merchant groups")).toBeInTheDocument();
+      expect(screen.getByText("96 rows · 38 merchant groups")).toBeInTheDocument();
+      expect(screen.getByText("41 rows · 15 merchant groups")).toBeInTheDocument();
+      expect(screen.getByText("39 rows · 15 merchant groups")).toBeInTheDocument();
     });
 
     it("switches to the forecasting temporal view and back", async () => {

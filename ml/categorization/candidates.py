@@ -25,13 +25,15 @@ runner can treat them uniformly:
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Callable
 
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import FeatureUnion
 from sklearn.svm import LinearSVC
 
 from pipeline.features import build_feature_matrix
@@ -114,15 +116,47 @@ class KMeansCandidate:
 # Candidates 2 & 3: TF-IDF + supervised linear classifiers
 # ---------------------------------------------------------------------------
 
+def _apply_normalize(series: pd.Series, normalize_fn: Callable[[str], str] | None) -> pd.Series:
+    text = series.fillna("").astype(str)
+    if normalize_fn is not None:
+        text = text.map(normalize_fn)
+    return text
+
+
 @dataclass
 class TfidfLogRegCandidate:
+    """ML-C's original word-TF-IDF + LogReg recipe, generalized (ML-F,
+    additive/backward-compatible) to also serve as:
+      - Candidate B (larger/unbounded word vocabulary) via `tfidf_overrides`
+      - Candidate C (deterministic boilerplate normalization) via
+        `normalize_fn` (ml/categorization/text_normalize.py)
+      - Candidate D (character n-grams) via `tfidf_overrides={"analyzer":
+        "char_wb", "ngram_range": (3, 5), ...}`
+    Every default below is unchanged from the frozen ML-C recipe, so
+    `TfidfLogRegCandidate()` with no arguments is byte-for-byte the same
+    candidate `build_production_logreg_model.py` and `run_bakeoff.py`
+    already use -- nothing about the ML-C-selected baseline changes."""
     random_state: int = RANDOM_STATE
     C: float = 1.0
     max_iter: int = 1000
+    tfidf_overrides: dict | None = None
+    normalize_fn: Callable[[str], str] | None = None
+    candidate_name: str = "tfidf_logreg"
+
+    def _tfidf_config(self) -> dict:
+        cfg = dict(TFIDF_CONFIG)
+        if self.tfidf_overrides:
+            cfg.update(self.tfidf_overrides)
+            # token_pattern only applies to analyzer="word" (sklearn's
+            # default); dropping it avoids a spurious UserWarning when a
+            # candidate overrides analyzer to "char"/"char_wb".
+            if cfg.get("analyzer", "word") != "word":
+                cfg.pop("token_pattern", None)
+        return cfg
 
     def fit(self, train_df: pd.DataFrame, label_col: str = "true_category", text_col: str = "merchant") -> "TfidfLogRegCandidate":
-        self._vectorizer = TfidfVectorizer(**TFIDF_CONFIG)
-        X = self._vectorizer.fit_transform(train_df[text_col].fillna("").astype(str))
+        self._vectorizer = TfidfVectorizer(**self._tfidf_config())
+        X = self._vectorizer.fit_transform(_apply_normalize(train_df[text_col], self.normalize_fn))
         y = train_df[label_col].values
         self._model = LogisticRegression(
             C=self.C, max_iter=self.max_iter, random_state=self.random_state
@@ -132,17 +166,83 @@ class TfidfLogRegCandidate:
         return self
 
     def predict(self, df: pd.DataFrame, text_col: str = "merchant") -> np.ndarray:
-        X = self._vectorizer.transform(df[text_col].fillna("").astype(str))
+        X = self._vectorizer.transform(_apply_normalize(df[text_col], self.normalize_fn))
         return self._model.predict(X)
 
     def predict_proba(self, df: pd.DataFrame, text_col: str = "merchant") -> np.ndarray:
-        X = self._vectorizer.transform(df[text_col].fillna("").astype(str))
+        X = self._vectorizer.transform(_apply_normalize(df[text_col], self.normalize_fn))
         return self._model.predict_proba(X)
 
     def describe(self) -> dict:
         return {
-            "name": "tfidf_logreg",
-            "tfidf_config": TFIDF_CONFIG,
+            "name": self.candidate_name,
+            "tfidf_config": {k: v for k, v in self._tfidf_config().items()},
+            "normalize_fn": self.normalize_fn.__name__ if self.normalize_fn else None,
+            "C": self.C,
+            "max_iter": self.max_iter,
+            "random_state": self.random_state,
+            "isolation": "vectorizer/model fit on TRAIN only (n=%d)" % self._fitted_on_n_rows,
+        }
+
+
+@dataclass
+class TfidfWordCharLogRegCandidate:
+    """ML-F Candidate E: word TF-IDF + character TF-IDF combined via a plain
+    sklearn FeatureUnion (ML-F brief §8: 'a proper sklearn FeatureUnion or
+    equivalent clean implementation', 'do not create a complicated custom ML
+    framework'). Only meant to be run if Candidate C or D individually beats
+    A/B on VALIDATION (ML-F brief §8/§11)."""
+    random_state: int = RANDOM_STATE
+    C: float = 1.0
+    max_iter: int = 1000
+    word_overrides: dict | None = None
+    char_overrides: dict | None = None
+    normalize_fn: Callable[[str], str] | None = None
+
+    def _word_config(self) -> dict:
+        cfg = dict(TFIDF_CONFIG)
+        if self.word_overrides:
+            cfg.update(self.word_overrides)
+        return cfg
+
+    def _char_config(self) -> dict:
+        cfg = {"analyzer": "char_wb", "ngram_range": (3, 5), "max_features": 300, "sublinear_tf": True}
+        if self.char_overrides:
+            cfg.update(self.char_overrides)
+        return cfg
+
+    def fit(self, train_df: pd.DataFrame, label_col: str = "true_category", text_col: str = "merchant") -> "TfidfWordCharLogRegCandidate":
+        word_cfg, char_cfg = self._word_config(), self._char_config()
+        self._union = FeatureUnion([
+            ("word", TfidfVectorizer(**word_cfg)),
+            ("char", TfidfVectorizer(**char_cfg)),
+        ])
+        text = _apply_normalize(train_df[text_col], self.normalize_fn)
+        X = self._union.fit_transform(text)
+        y = train_df[label_col].values
+        self._model = LogisticRegression(
+            C=self.C, max_iter=self.max_iter, random_state=self.random_state
+        )
+        self._model.fit(X, y)
+        self._fitted_on_n_rows = len(train_df)
+        self._word_cfg, self._char_cfg = word_cfg, char_cfg
+        return self
+
+    def _transform(self, df: pd.DataFrame, text_col: str = "merchant"):
+        return self._union.transform(_apply_normalize(df[text_col], self.normalize_fn))
+
+    def predict(self, df: pd.DataFrame, text_col: str = "merchant") -> np.ndarray:
+        return self._model.predict(self._transform(df, text_col))
+
+    def predict_proba(self, df: pd.DataFrame, text_col: str = "merchant") -> np.ndarray:
+        return self._model.predict_proba(self._transform(df, text_col))
+
+    def describe(self) -> dict:
+        return {
+            "name": "tfidf_word_char_logreg",
+            "word_tfidf_config": self._word_cfg,
+            "char_tfidf_config": self._char_cfg,
+            "normalize_fn": self.normalize_fn.__name__ if self.normalize_fn else None,
             "C": self.C,
             "max_iter": self.max_iter,
             "random_state": self.random_state,
@@ -152,13 +252,27 @@ class TfidfLogRegCandidate:
 
 @dataclass
 class TfidfLinearSVMCandidate:
+    """Generalized (ML-F, additive/backward-compatible) the same way as
+    TfidfLogRegCandidate above, so ML-F Candidate F (SVM confirmation pass on
+    whichever representation wins) can reuse the winning `tfidf_overrides`/
+    `normalize_fn` without a new class. Defaults unchanged from ML-C."""
     random_state: int = RANDOM_STATE
     C: float = 1.0
     max_iter: int = 5000
+    tfidf_overrides: dict | None = None
+    normalize_fn: Callable[[str], str] | None = None
+
+    def _tfidf_config(self) -> dict:
+        cfg = dict(TFIDF_CONFIG)
+        if self.tfidf_overrides:
+            cfg.update(self.tfidf_overrides)
+            if cfg.get("analyzer", "word") != "word":
+                cfg.pop("token_pattern", None)
+        return cfg
 
     def fit(self, train_df: pd.DataFrame, label_col: str = "true_category", text_col: str = "merchant") -> "TfidfLinearSVMCandidate":
-        self._vectorizer = TfidfVectorizer(**TFIDF_CONFIG)
-        X = self._vectorizer.fit_transform(train_df[text_col].fillna("").astype(str))
+        self._vectorizer = TfidfVectorizer(**self._tfidf_config())
+        X = self._vectorizer.fit_transform(_apply_normalize(train_df[text_col], self.normalize_fn))
         y = train_df[label_col].values
         self._model = LinearSVC(C=self.C, max_iter=self.max_iter, random_state=self.random_state)
         self._model.fit(X, y)
@@ -166,13 +280,14 @@ class TfidfLinearSVMCandidate:
         return self
 
     def predict(self, df: pd.DataFrame, text_col: str = "merchant") -> np.ndarray:
-        X = self._vectorizer.transform(df[text_col].fillna("").astype(str))
+        X = self._vectorizer.transform(_apply_normalize(df[text_col], self.normalize_fn))
         return self._model.predict(X)
 
     def describe(self) -> dict:
         return {
             "name": "tfidf_linear_svm",
-            "tfidf_config": TFIDF_CONFIG,
+            "tfidf_config": self._tfidf_config(),
+            "normalize_fn": self.normalize_fn.__name__ if self.normalize_fn else None,
             "C": self.C,
             "max_iter": self.max_iter,
             "random_state": self.random_state,

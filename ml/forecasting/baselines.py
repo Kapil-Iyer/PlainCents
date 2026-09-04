@@ -25,6 +25,37 @@ def naive_predict(spend_history: np.ndarray) -> float:
     return float(spend_history[-1])
 
 
+def rolling_mean_predict(spend_history: np.ndarray, window: int) -> float:
+    """ML-F forecast re-evaluation Candidate C: predicted spend for every
+    future month = the mean of the most recent `window` observed months
+    (same value reused at every horizon, exactly like Naive -- there is
+    nothing for a recursive variant to change here either, since the
+    predicted value never depends on a prior *prediction*). Uses however
+    much history is actually available if shorter than `window` (never
+    raises), matching Naive's own "use what you have" floor rather than
+    imposing a harder eligibility gate than the product's."""
+    if len(spend_history) == 0:
+        raise ValueError("rolling_mean_predict requires at least one observed month")
+    return float(np.mean(spend_history[-window:]))
+
+
+def ewma_predict(spend_history: np.ndarray, alpha: float) -> float:
+    """ML-F forecast re-evaluation Candidate D: exponentially weighted
+    moving average, predicted spend = the EWMA of the full observed history
+    with smoothing factor `alpha` (weight on the most recent observation).
+    Same value reused at every horizon (no recursive variant needed, for the
+    same reason as rolling_mean_predict). Standard recursive EWMA
+    definition: s_1 = x_1; s_t = alpha * x_t + (1 - alpha) * s_(t-1)."""
+    if len(spend_history) == 0:
+        raise ValueError("ewma_predict requires at least one observed month")
+    if not (0.0 < alpha <= 1.0):
+        raise ValueError("alpha must be in (0, 1]")
+    s = float(spend_history[0])
+    for x in spend_history[1:]:
+        s = alpha * float(x) + (1 - alpha) * s
+    return s
+
+
 def seasonal_naive_predict(spend_history: np.ndarray, horizon: int) -> tuple[float | None, bool]:
     """
     Section 11 candidate 2: next month's spend = same calendar month, prior

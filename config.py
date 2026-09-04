@@ -9,12 +9,16 @@ EXPORTS_DIR = DATA_EXPORTS
 DB_PATH = BASE_DIR / "plaincents.db"
 KMEANS_MODEL_PATH = BASE_DIR / "models" / "kmeans_model.pkl"
 RF_MODEL_PATH = BASE_DIR / "models" / "rf_model.pkl"
-# ML-D: production categorization artifact — ML-C selected TF-IDF + Logistic
-# Regression (ml/categorization/candidates.py::TfidfLogRegCandidate), built by
-# scripts/build_production_logreg_model.py. KMEANS_MODEL_PATH/RF_MODEL_PATH
-# above are preserved (V1/ML-B evidence, no longer the selected production
-# path) rather than removed.
-LOGREG_MODEL_PATH = BASE_DIR / "models" / "tfidf_logreg_v1.pkl"
+# ML-F: production categorization artifact — word TF-IDF (max_features=200)
+# + Logistic Regression (ml/categorization/candidates.py::TfidfLogRegCandidate),
+# fit on the deployment-oriented TRAIN partition (ml/data/build_deployment_
+# benchmark.py; frozen in reports/ml/ML_F_SELECTION_RECORD.json) and built by
+# scripts/build_production_logreg_model.py. Supersedes ML-D's tfidf_logreg_v1
+# (Tier-B-trained, max_features=50) — the ML-C selection record and Tier-B
+# benchmark remain as historical/continuity evidence, not deleted.
+# KMEANS_MODEL_PATH/RF_MODEL_PATH above are preserved (V1/ML-B evidence, no
+# longer the selected production path) rather than removed.
+LOGREG_MODEL_PATH = BASE_DIR / "models" / "tfidf_logreg_v2.pkl"
 
 # -- Category Labels (8) ----------------------------------
 CATEGORIES = [

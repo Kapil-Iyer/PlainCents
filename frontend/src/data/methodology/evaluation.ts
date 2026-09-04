@@ -36,20 +36,22 @@ export const TEMPORAL_VALIDATION_EXPLANATION =
   "Forecasting validation uses an expanding-window protocol: 14 chronological origins, each predicting +1/+2/+3 months forward from a training window that only ever grows forward in time — never a random shuffle of months. Per-origin, per-horizon win rates against the Naive baseline were computed directly from these 14 origins to confirm the pooled-aggregate result wasn't an artifact of a few lucky/unlucky folds.";
 
 /**
- * Categorization split sizes — row / merchant-group counts per partition.
- * Added in Phase 11C-B to support the merchant-isolation partition diagram
- * (frontend previously had no structured export for these counts).
- * Source: reports/ml/ML_C_EXPERIMENT_REPORT.md (split methodology section —
- * data/evaluation/tier_b_split_v1.json partition sizes: TRAIN 133 rows/47
- * merchant groups, VALIDATION 50 rows/17 merchant groups, FINAL_TEST 45
- * rows/17 merchant groups). FINAL_TEST cross-checked against
- * CATEGORIZATION_FINAL_RESULT.nRows/nMerchantGroups (45/17) — identical, no
- * new claim, only a structured restatement of an already-frozen number plus
- * the two partition sizes (TRAIN, VALIDATION) that were previously only in
- * the underlying report, never in frontend data.
+ * Categorization split sizes — row / merchant-group counts per partition, on
+ * the current (ML-F) production dataset: the sanitized deployment-oriented
+ * benchmark (data/evaluation/deployment_split_v1.json). Counts below are
+ * categorical rows/groups only (is_ambiguous rows excluded — see
+ * CATEGORIZATION_AMBIGUOUS_ROUTING); FINAL_TEST cross-checked against
+ * CATEGORIZATION_FINAL_RESULT.nRows/nMerchantGroups (39/15) — identical.
+ * The prior Tier B split sizes (TRAIN 133/47, VALIDATION 50/17, FINAL_TEST
+ * 45/17) remain valid historical evidence for the ML-C decision; Tier B
+ * itself is still evaluated for continuity (CATEGORIZATION_TIER_B_CONTINUITY)
+ * using its own original split, unchanged.
+ * Source: reports/ml/results/deployment_categorization_results.json >
+ * partition_counts_categorical_only / (recomputed) per-partition merchant
+ * group counts on categorical rows only.
  */
 export const CATEGORIZATION_SPLIT_SIZES = {
-  train: { rows: 133, merchantGroups: 47 },
-  validation: { rows: 50, merchantGroups: 17 },
-  final_test: { rows: 45, merchantGroups: 17 },
+  train: { rows: 96, merchantGroups: 38 },
+  validation: { rows: 41, merchantGroups: 15 },
+  final_test: { rows: 39, merchantGroups: 15 },
 } as const;

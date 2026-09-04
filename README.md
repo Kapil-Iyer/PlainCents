@@ -16,11 +16,12 @@ see [V1 — historical predecessor](#v1--historical-predecessor) below.
 ```
 React + TypeScript (Vite)  →  FastAPI  →  service / repository layers  →  SQLite
                                              ↑
-                              ML: TF-IDF + Logistic Regression categorizer,
-                              Naive spend forecaster — selected via an
-                              evidence-based evaluation pipeline (see
-                              reports/ml/), integrated behind V2's service
-                              boundaries
+                              ML: TF-IDF + Logistic Regression categorizer
+                              (+ personalized correction memory + deterministic
+                              ambiguous-row routing), 3-month rolling-mean spend
+                              forecaster — selected via an evidence-based
+                              evaluation pipeline (see reports/ml/), integrated
+                              behind V2's service boundaries
 ```
 
 - **Frontend:** `frontend/` — React 19 + TypeScript + Vite, Tailwind, a
@@ -31,15 +32,23 @@ React + TypeScript (Vite)  →  FastAPI  →  service / repository layers  →  
   `plaincents.db`).
 - **ML:** categorization is TF-IDF + Logistic Regression
   (`ml/categorization/candidates.py::TfidfLogRegCandidate`, merchant text
-  only), forecasting is a Naive (lag-1) baseline
-  (`ml/forecasting/baselines.py::naive_predict`) — both selected over
-  several alternatives (K-Means/Linear SVM; Random Forest/Ridge/Seasonal
-  Naive) through a merchant-grouped/temporal, leakage-safe evaluation
-  documented in `reports/ml/`. `backend/services/categorization_service.py`
-  and `pipeline/forecast.py::train_and_predict` are the production
-  integration points; V1's original K-Means/Random Forest implementations
-  remain in the repo untouched as historical/evaluation baselines, no longer
-  what the running app uses.
+  only, 200-word vocabulary), forecasting is a 3-month rolling-mean baseline
+  (`ml/forecasting/baselines.py::rolling_mean_predict`) — both selected over
+  several alternatives (K-Means/Linear SVM/character n-grams; Random
+  Forest/Ridge/Seasonal Naive/Naive/EWMA) through a merchant-grouped/temporal,
+  leakage-safe evaluation documented in `reports/ml/`.
+  `backend/services/categorization_service.py` and
+  `pipeline/forecast.py::train_and_predict` are the production integration
+  points; V1's original K-Means/Random Forest implementations and ML-C's
+  Naive forecaster remain in the repo untouched as historical/evaluation
+  baselines, no longer what the running app uses. A deterministic,
+  personalized correction-memory layer
+  (`backend/repositories/transaction_repository.py::find_latest_confirmed_category`)
+  reuses your own prior manual category corrections for the same recurring
+  merchant + bank on future imports, and a small deterministic rule
+  (`backend/services/ambiguity.py`) routes generic e-transfer/ATM/ABM rows —
+  which carry no spending-purpose signal at all — to "Other" instead of
+  guessing.
 
 Product surfaces: **Dashboard**, **Transactions**, **Import**, **Forecast**,
 **Portfolio** — plus a demo/onboarding flow for a brand-new, empty install.
@@ -55,15 +64,32 @@ Product surfaces: **Dashboard**, **Transactions**, **Import**, **Forecast**,
   leakage-safe evaluation (merchant-grouped splits for categorization,
   temporal expanding-window validation for forecasting) benchmarked
   multiple candidates per problem and selected TF-IDF + Logistic Regression
-  (categorization) and Naive (forecasting), now integrated as the running
-  app's production implementations. Full methodology, evidence, and exact
-  numbers — with their evidence-tier caveats — are in `reports/ml/`,
-  particularly `ML_E_FINAL_ML_REPORT.md` and `ML_E_CLAIM_MATRIX.json`.
-  **In one sentence, with the caveat attached:** the selected categorizer
-  scored 42.2% accuracy / 0.4405 macro F1 on a held-out slice of an
-  independently curated (not real-world) benchmark; the selected forecaster
-  scored 18.9% WAPE on a reserved period of a synthetic (not real-world)
-  dataset — neither number should be read as real-world accuracy.
+  (categorization) and a 3-month rolling mean (forecasting), now integrated
+  as the running app's production implementations. Full methodology,
+  evidence, and exact numbers — with their evidence-tier caveats — are in
+  `reports/ml/`, particularly `ML_F_SELECTION_RECORD.json` (current
+  production recipe) and `ML_E_FINAL_ML_REPORT.md`/`ML_E_CLAIM_MATRIX.json`
+  (historical ML-C decision, superseded but preserved). **In one sentence,
+  with the caveat attached:** the selected categorizer scored 30.8% accuracy
+  / 0.1742 macro F1 on a held-out slice of a sanitized, hand-curated
+  deployment-oriented benchmark (fabricated merchants, structurally modeled
+  on a private real-bank-export audit — not real-world data itself); the
+  selected forecaster scored 17.84% WAPE on a reserved period of a synthetic
+  (not real-world) dataset — neither number should be read as real-world
+  accuracy.
+- **ML-F: deployment-aware categorization + correction memory + forecast
+  re-selection: complete.** A private audit of actual RBC and Scotiabank
+  exports (read locally only, never committed) found the ML-C/D-era
+  categorizer's 50-word vocabulary barely overlapped real merchant text. A
+  new sanitized deployment-oriented training/evaluation benchmark
+  (`ml/data/build_deployment_benchmark.py`) closed most of that gap; a
+  personalized correction-memory layer and a deterministic ambiguous-row
+  router (generic e-transfer/ATM/ABM) address the two remaining root causes.
+  A small, pre-registered forecast re-evaluation found a 3-month rolling
+  mean beats the previous Naive baseline by a meaningful margin, and the
+  forecast history-eligibility gate was lowered from 12 to 6 months
+  (a product-usability floor, not an accuracy claim — see
+  `reports/ml/ML_F_SELECTION_RECORD.json`).
 - **CSV import supports four Canadian bank export formats.** PlainCents
   currently supports transaction CSV imports for RBC, Scotiabank, TD, and
   CIBC. RBC and Scotiabank formats were validated against actual exports;
@@ -91,7 +117,7 @@ cp .env.example .env      # optional — defaults work out of the box
 cd frontend && npm install && cd ..
 ```
 
-If you already have a trained categorizer at `models/tfidf_logreg_v1.pkl`,
+If you already have a trained categorizer at `models/tfidf_logreg_v2.pkl`,
 nothing else is needed. If not, run `python -m scripts.build_production_logreg_model`
 once (see [Model artifact](#model-artifact) below) — or just use **Explore
 demo**, which doesn't need it at all.
@@ -146,7 +172,8 @@ build exists first.)
 
 From an empty install (packaged mode or dev mode), the app's first screen
 offers **Explore demo** / **Load demo data**: a deterministic, clearly
-synthetic dataset (12 months of transactions, a prebuilt forecast, sample
+synthetic dataset (12 months of transactions, comfortably above the 6-month
+forecast eligibility floor, a prebuilt forecast, sample
 portfolio holdings) that populates every screen so you can see the product
 work without importing anything. Everything loaded this way is labeled
 **Demo** throughout the UI, is mutually exclusive with real imported data,
@@ -159,7 +186,7 @@ loading the interactive demo).
 
 ## Model artifact
 
-The categorizer needs a trained artifact at `models/tfidf_logreg_v1.pkl`
+The categorizer needs a trained artifact at `models/tfidf_logreg_v2.pkl`
 (gitignored — never committed) — TF-IDF + Logistic Regression, the model
 selected by the evaluation in `reports/ml/` (see
 [ML scientific evaluation](#mvp--product-status) above). To build it from
@@ -169,18 +196,19 @@ the frozen benchmark evidence committed in this repo:
 python -m scripts.build_production_logreg_model
 ```
 
-This fits on the frozen TRAIN partition only (never on the held-out
-VALIDATION/FINAL_TEST rows scored during evaluation) and refuses to run if
-the ML-C selection record doesn't name this model as selected. See
-`reports/ml/ML_E_REPRODUCIBILITY.md` for the full reproducibility workflow.
+This fits on the frozen deployment-oriented TRAIN partition only (never on
+the held-out VALIDATION/FINAL_TEST rows scored during evaluation) and
+refuses to run if `reports/ml/ML_F_SELECTION_RECORD.json` doesn't name a
+winner. See `reports/ml/ML_E_REPRODUCIBILITY.md` for the original
+reproducibility workflow this one extends.
 
 If this file is missing, the app still runs: `/api/health` reports the
 categorizer as unavailable, real CSV import is blocked with a clear message
 until a model is present, and **Explore demo** is unaffected (its data is
 pre-labeled, not run through the categorizer).
 
-Forecasting has no equivalent artifact — the selected Naive model is
-stateless code, recomputed fresh on every forecast run
+Forecasting has no equivalent artifact — the selected 3-month rolling-mean
+model is stateless code, recomputed fresh on every forecast run
 (`pipeline/forecast.py::train_and_predict`), nothing to build ahead of time.
 
 ---
@@ -203,21 +231,23 @@ stateless code, recomputed fresh on every forecast run
 
 | Suite | Command | Count |
 |---|---|---|
-| Backend (pytest) | `pytest` | 270 tests |
-| Frontend (Vitest) | `cd frontend && npm test` | 39 tests |
-| E2E (Playwright) | `npm run e2e:install` once, then `npm run e2e` | 4 flows |
+| Backend (pytest) | `pytest` | 341 tests |
+| Frontend (Vitest) | `cd frontend && npm test` | 55 tests |
+| E2E (Playwright) | `npm run e2e:install` once, then `npm run e2e` | 5 flows (12 tests) |
 
 E2E setup, from the repo root (separate from `frontend/`'s own `npm install`):
 
 ```bash
 npm install          # repo root — installs @playwright/test
 npm run e2e:install  # once — downloads the Chromium browser
-npm run e2e          # runs the 4 flows
+npm run e2e          # runs the 5 flows
 ```
 
-The 4 E2E flows (`tests/e2e/*.spec.ts`) are deliberately not exhaustive —
+The 5 E2E flows (`tests/e2e/*.spec.ts`) are deliberately not exhaustive —
 they cover the demo lifecycle, a real CSV import, forecast staleness after
-a data correction, and the portfolio refresh boundary. Each spins up its
+a data correction, the portfolio refresh boundary, and multi-bank import
+detection (parameterized into several sub-tests, per the multi-bank flow's
+own file). Each spins up its
 own isolated backend against a temp SQLite database and never touches your
 real `plaincents_v2.db`. The Portfolio flow uses a deterministic offline
 stand-in for `yfinance` (`tests/e2e/fixtures/fake_yfinance/`, wired in only
@@ -232,18 +262,18 @@ data being reachable — see that package's docstring for exactly how and why.
 PlainCents/
 ├── backend/            # V2 FastAPI app: api/, services/, repositories/, db/, scripts/
 ├── frontend/            # V2 React app
-├── pipeline/            # ingest, features, cluster (V1 K-Means, retired), forecast (train_and_predict = selected Naive; V1 RF retained), portfolio
+├── pipeline/            # ingest, features, cluster (V1 K-Means, retired), forecast (train_and_predict = selected 3-month rolling mean; V1 RF retained), portfolio
 ├── ml/                   # ML-B/C evaluation: candidates, splitting, metrics, bake-offs, FINAL runners
 ├── db/                  # V1 schema/seed (untouched) + db/migrations/ (V2 SQLite migrations)
-├── data/evaluation/      # Frozen Tier B categorization benchmark + split (committed evidence)
-├── reports/ml/           # ML-B/C/E reports, selection record, claim matrix, results (committed evidence)
+├── data/evaluation/      # Deployment-oriented categorization benchmark + split (primary, ML-F), Tier B benchmark + split (continuity, ML-C) — both committed, sanitized/synthetic evidence
+├── reports/ml/           # ML-B/C/E/F reports, selection records, claim matrix, results (committed evidence)
 ├── docs/                 # Frozen V2 PRD / TRD / Build Plan / ML Spec
 ├── tests/
 │   ├── backend/          # V2 backend unit + API tests
 │   ├── ml/               # ML evaluation-infrastructure tests
 │   ├── e2e/              # Playwright E2E (4 flows)
 │   └── fixtures/         # td_csv/ fixtures, deterministic test ML artifacts
-├── models/               # tfidf_logreg_v1.pkl (selected, production), kmeans_model.pkl, rf_model.pkl (retired) — all gitignored
+├── models/               # tfidf_logreg_v2.pkl (selected, production), kmeans_model.pkl, rf_model.pkl (retired) — all gitignored
 ├── scripts/              # build_production_logreg_model.py + V1 synthetic-data generators
 ├── main.py, viz/, data/  # V1 — see below
 └── playwright.config.ts, package.json   # E2E tooling only (no app code here)
