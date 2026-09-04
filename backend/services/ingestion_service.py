@@ -239,27 +239,40 @@ class IngestionService:
                         {"merchant": row["merchant"], "amount": row["amount"], "date": row["date"]}
                     )["predicted_category"]
 
-                # ML-F correction memory + ambiguous-row routing (ML-F-A audit
-                # §14-16; ML-F brief §14-16). predicted_category above is
-                # ALWAYS the raw ML output, preserved untouched for
-                # auditability — neither mechanism below ever overwrites it.
-                # Priority order (ML-F brief §16): (1) an exact prior manual
-                # correction for this exact (merchant, bank_source) identity
-                # wins if one exists; (2) otherwise, a structurally-ambiguous
-                # row (generic e-transfer / ABM / ATM — no recoverable
-                # spending-purpose signal) is deterministically routed to the
-                # existing "Other" category; (3) otherwise confirmed_category
-                # is left unset, so effective_category falls back to the raw
-                # ML prediction exactly as before this phase.
-                remembered_category = self._txn_repo.find_latest_confirmed_category(
+                # HITL-semantics fix (post-ML-F review): a structurally-
+                # ambiguous row (generic e-transfer / ABM / ATM — no
+                # recoverable spending-purpose signal) is the SYSTEM's own
+                # decision, so it belongs in predicted_category, exactly like
+                # any other model output — never in confirmed_category, which
+                # is reserved for a genuine user action (a real PATCH via
+                # TransactionService.update(), or this exact-match reuse of
+                # one). Writing "Other" into confirmed_category previously
+                # made an auto-routed row indistinguishable from one a human
+                # actually confirmed (is_manual_override would read true for
+                # a row nobody ever looked at) and would have let it silently
+                # seed correction memory for a merchant identity no user ever
+                # judged. Overriding predicted_category here (rather than
+                # trusting whatever the raw ML call above returned) is itself
+                # deliberate: the ML-F-A audit found these rows carry zero
+                # usable signal, so "Other" is a more honest system decision
+                # than the model's near-random guess on a zero-feature input.
+                if is_structurally_ambiguous(row["merchant"]):
+                    predicted_category = "Other"
+
+                # ML-F correction memory (ML-F-A audit §14-16; ML-F brief
+                # §14-16): reuse a prior GENUINE user correction for this
+                # exact (merchant, bank_source) identity, if one exists.
+                # find_latest_confirmed_category only ever returns a value
+                # that itself came from a real user action (TransactionService
+                # .update(), or a previous propagation of one) — never from
+                # the auto-routing above, since that never writes
+                # confirmed_category. predicted_category (including the
+                # ambiguous-row override just above) is always preserved
+                # untouched regardless of whether a remembered correction is
+                # applied.
+                confirmed_category = self._txn_repo.find_latest_confirmed_category(
                     row["merchant"], batch["bank_source"]
                 )
-                if remembered_category is not None:
-                    confirmed_category = remembered_category
-                elif is_structurally_ambiguous(row["merchant"]):
-                    confirmed_category = "Other"
-                else:
-                    confirmed_category = None
 
                 self._txn_repo.create(
                     {

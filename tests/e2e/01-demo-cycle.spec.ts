@@ -65,3 +65,34 @@ test("clean app -> load demo -> populated DEMO state -> clear demo -> EMPTY agai
   await expect(page.getByText("Welcome to PlainCents")).toBeVisible();
   await expect(page.getByText("Demo Data — everything you see is sample data, not your own.")).not.toBeVisible();
 });
+
+test("clearing demo from a non-Dashboard page still leaves a discoverable way to reload it, repeatedly", async ({
+  page,
+}) => {
+  // Regression test for an observed bug: DemoBanner's own "Clear demo data"
+  // button is global chrome, reachable from every route -- but only
+  // Dashboard.tsx ever rendered a "Load demo data" action, so clearing demo
+  // from anywhere else left the user on a non-Dashboard EMPTY surface with
+  // no visible way back into Demo mode. Fixed by DemoReentryBanner (shown on
+  // every EMPTY-mode route except Dashboard, which already has its own
+  // richer onboarding CTA). This must also work repeatedly, not just once.
+  for (let cycle = 0; cycle < 2; cycle++) {
+    await page.goto("/forecast");
+
+    // Load demo (first pass) — either the fresh-EMPTY onboarding banner
+    // (this exact regression's fix) or, on the second pass, the same banner
+    // reappearing after the previous cycle's clear.
+    await expect(page.getByRole("button", { name: "Load demo data" })).toBeVisible();
+    await page.getByRole("button", { name: "Load demo data" }).click();
+    await expect(page.getByText("Demo Data — everything you see is sample data, not your own.")).toBeVisible();
+
+    // Clear demo directly from this same (non-Dashboard) page via
+    // DemoBanner's own button -- the actual path that exposed the bug.
+    await page.getByRole("button", { name: "Clear demo data" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Clear demo data" }).click();
+
+    // The bug: nothing here previously offered a way back into Demo mode.
+    await expect(page.getByText("Demo Data — everything you see is sample data, not your own.")).not.toBeVisible();
+    await expect(page.getByRole("button", { name: "Load demo data" })).toBeVisible();
+  }
+});

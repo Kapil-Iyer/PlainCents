@@ -176,31 +176,94 @@ def test_normal_merchant_is_not_ambiguous():
     assert is_structurally_ambiguous("VISA DEBIT PURCHASE - 4521 GROCERY STORE") is False
 
 
-def test_ambiguous_row_gets_other_confirmed_category_on_import(service, conn):
+def test_ambiguous_row_is_a_system_prediction_not_a_manual_confirmation(service, conn):
+    """HITL semantics fix: a structurally-ambiguous row's "Other" routing is
+    a SYSTEM decision (predicted_category), never a stand-in for a genuine
+    user confirmation (confirmed_category) — nobody looked at this row."""
     repo = TransactionRepository(conn)
     _import(service, [("1/5/2026", "E-TRANSFER SENT JOHN DOE ABC123", "50.00")])
     row = repo.list(data_mode="real")[0]
 
-    assert row["confirmed_category"] is not None
-    assert row["confirmed_category"] == "Other"
+    assert row["predicted_category"] == "Other"
+    assert row["confirmed_category"] is None
     assert row["effective_category"] == "Other"
-    # predicted_category is preserved as whatever the ML model actually
-    # output -- never silently forced to "Other" itself.
+    assert row["is_manual_override"] == 0
+
+
+def test_normal_ml_row_has_no_confirmed_category(service, conn):
+    """A recoverable (non-ambiguous) merchant is categorized by the model
+    alone on first import — confirmed_category is untouched, exactly as
+    before ML-F's correction memory/ambiguous-routing additions."""
+    repo = TransactionRepository(conn)
+    _import(service, [("1/5/2026", "ACME SUB SERVICE", "9.99")])
+    row = repo.list(data_mode="real")[0]
+
     assert row["predicted_category"] is not None
+    assert row["predicted_category"] != "Other" or not is_structurally_ambiguous(row["merchant"])
+    assert row["confirmed_category"] is None
+    assert row["is_manual_override"] == 0
 
 
 def test_correction_memory_takes_priority_over_ambiguous_routing(service, conn):
     """An ambiguous-shaped merchant string that the user has ALREADY
     manually confirmed to a specific category must keep using that
     correction on a later import, not the generic Other-routing default —
-    exact user intent always wins over the generic fallback."""
+    exact user intent always wins over the generic fallback. The system's
+    own predicted_category is still "Other" (its honest, current decision on
+    this row shape) — only confirmed_category/effective_category/
+    is_manual_override reflect the remembered human correction."""
     repo = TransactionRepository(conn)
 
     _import(service, [("1/5/2026", "E-TRANSFER SENT JOHN DOE ABC123", "50.00")])
     first = repo.list(data_mode="real")[0]
+    assert first["predicted_category"] == "Other"  # the system's own decision, pre-correction
+    assert first["confirmed_category"] is None      # nobody has confirmed anything yet
+    repo.update(first["id"], {"confirmed_category": "Rent & Utilities"})
+    conn.commit()
+
+    _import(service, [("2/5/2026", "E-TRANSFER SENT JOHN DOE ABC123", "50.00")])
+    second = [r for r in repo.list(data_mode="real") if r["date"] == "2026-02-05"][0]
+    assert second["predicted_category"] == "Other"              # system decision, preserved
+    assert second["confirmed_category"] == "Rent & Utilities"   # remembered genuine correction
+    assert second["effective_category"] == "Rent & Utilities"
+    assert second["is_manual_override"] == 1
+
+
+def test_auto_routed_ambiguous_row_does_not_seed_correction_memory(service, conn):
+    """An ambiguous row that nobody has ever manually confirmed must NOT
+    make a later identical import look like it has a remembered human
+    correction — confirmed_category stays None on the second import too,
+    since the first row's confirmed_category was never set by a real user
+    action."""
+    repo = TransactionRepository(conn)
+
+    _import(service, [("1/5/2026", "E-TRANSFER SENT JOHN DOE ABC123", "50.00")])
+    first = repo.list(data_mode="real")[0]
+    assert first["confirmed_category"] is None  # auto-routed, not user-confirmed
+
+    _import(service, [("2/5/2026", "E-TRANSFER SENT JOHN DOE ABC123", "50.00")])
+    second = [r for r in repo.list(data_mode="real") if r["date"] == "2026-02-05"][0]
+    assert second["confirmed_category"] is None  # nothing genuine to remember yet
+    assert second["predicted_category"] == "Other"  # still the system's own honest decision
+    assert second["effective_category"] == "Other"
+    assert second["is_manual_override"] == 0
+
+
+def test_explicit_correction_of_an_ambiguous_row_can_later_seed_memory(service, conn):
+    """Once a human actually confirms an ambiguous row's category, THAT
+    genuine action (not the earlier auto-routing) becomes a valid
+    correction-memory source for a future exact matching import."""
+    repo = TransactionRepository(conn)
+
+    _import(service, [("1/5/2026", "E-TRANSFER SENT JOHN DOE ABC123", "50.00")])
+    first = repo.list(data_mode="real")[0]
+    assert first["confirmed_category"] is None
+
+    # A human now genuinely confirms this specific transfer was rent.
     repo.update(first["id"], {"confirmed_category": "Rent & Utilities"})
     conn.commit()
 
     _import(service, [("2/5/2026", "E-TRANSFER SENT JOHN DOE ABC123", "50.00")])
     second = [r for r in repo.list(data_mode="real") if r["date"] == "2026-02-05"][0]
     assert second["confirmed_category"] == "Rent & Utilities"
+    assert second["is_manual_override"] == 1
