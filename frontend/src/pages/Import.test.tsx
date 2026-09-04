@@ -18,9 +18,12 @@ vi.mock("@/api/demo", () => ({
 
 const preview: ImportPreview = {
   batch_id: 42,
+  detected_bank: "TD",
   rows_valid: 10,
   rows_unparseable: 1,
   rows_duplicate: 2,
+  rows_skipped_credit: 0,
+  rows_skipped_currency: 0,
   date_range: { from: "2026-01-01", to: "2026-01-31" },
   sample_rows: [
     { date: "2026-01-05", merchant: "Loblaws", amount: -50, predicted_category: "Food & Dining", is_duplicate: false },
@@ -34,6 +37,8 @@ const result: ImportResult = {
   rows_imported: 8,
   rows_skipped_unparseable: 1,
   rows_skipped_duplicate: 2,
+  rows_skipped_credit: 0,
+  rows_skipped_currency: 0,
   status: "confirmed",
 };
 
@@ -57,7 +62,7 @@ describe("ImportPage", () => {
     await user.click(screen.getByRole("button", { name: /Upload & preview/i }));
 
     await screen.findByText("Preview");
-    expect(createImport).toHaveBeenCalledWith(file, "TD");
+    expect(createImport).toHaveBeenCalledWith(file, "Auto");
     expect(screen.getByText("Loblaws")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Confirm import" }));

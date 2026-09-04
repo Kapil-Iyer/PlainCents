@@ -84,16 +84,51 @@ def test_preview_unrecognized_format_raises_bad_request(service):
         service.parse_and_stage(_read("unrecognized_format.csv"), bank="TD")
 
 
-def test_preview_duplicate_rows_fixture_intrafile_collapsed(service):
+def test_preview_duplicate_rows_fixture_preserves_intrafile_occurrences(service):
+    # Phase 12B dedup fix: all 8 rows survive parsing (see
+    # test_ingest_bytes.py); IngestionService's occurrence_index then lets
+    # each repeated (date, amount, merchant) group get distinct dedup keys,
+    # so none of them are flagged as duplicates of each other within the
+    # same first-ever import.
     preview = service.parse_and_stage(_read("duplicate_rows.csv"), bank="TD")
-    assert preview["rows_valid"] == 4
+    assert preview["rows_valid"] == 8
     assert preview["rows_duplicate"] == 0
+
+
+def test_duplicate_rows_fixture_survive_reimport_via_distinct_occurrence_index(service, conn):
+    # The core Phase 12B regression: two (or three) legitimate identical
+    # transactions in one file must both/all survive on first import, each
+    # getting a distinct occurrence_index, and then both/all be correctly
+    # recognized as duplicates -- with the SAME occurrence sequence -- on a
+    # second import of the same file.
+    first = service.parse_and_stage(_read("duplicate_rows.csv"), bank="TD")
+    assert first["rows_valid"] == 8
+    assert first["rows_duplicate"] == 0
+
+    result = service.commit_import(first["batch_id"])
+    assert result["rows_imported"] == 8
+
+    rows = TransactionRepository(conn).list(data_mode="real")
+    dedup_keys = {r["dedup_key"] for r in rows}
+    assert len(dedup_keys) == 8  # every occurrence got a distinct key
+    occurrence_suffixes = sorted(int(k.rsplit("|", 1)[1]) for k in dedup_keys if k.startswith("2026-01-05|6.75"))
+    assert occurrence_suffixes == [0, 1]  # the two identical $6.75 TIM HORTONS rows
+
+    second = service.parse_and_stage(_read("duplicate_rows.csv"), bank="TD")
+    assert second["rows_valid"] == 8
+    assert second["rows_duplicate"] == 8  # every occurrence reconstructs the same key, all flagged
+
+    second_result = service.commit_import(second["batch_id"])
+    assert second_result["rows_imported"] == 0
+    assert second_result["rows_skipped_duplicate"] == 8
 
 
 def test_preview_headerless_td_fixture(service):
     preview = service.parse_and_stage(_read("headerless_positional.csv"), bank="TD")
     assert preview["rows_valid"] == 4
-    assert preview["rows_unparseable"] == 1
+    assert preview["rows_unparseable"] == 0
+    assert preview["rows_skipped_credit"] == 1
+    assert preview["detected_bank"] == "TD"
 
 
 def test_preview_does_not_touch_transactions_table(service, conn):

@@ -3,10 +3,12 @@ import { Loader2, UploadCloud } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { COMING_SOON_BANKS, SUPPORTED_BANKS } from "@/types/import";
 
 interface FileUploadCardProps {
-  onUpload: (file: File) => void;
+  onUpload: (file: File, bank: string) => void;
   pending: boolean;
 }
 
@@ -14,6 +16,7 @@ export function FileUploadCard({ onUpload, pending }: FileUploadCardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
   const [selected, setSelected] = useState<File | null>(null);
+  const [bank, setBank] = useState<string>("Auto");
 
   const handleFile = (file: File | undefined) => {
     if (!file) return;
@@ -23,9 +26,9 @@ export function FileUploadCard({ onUpload, pending }: FileUploadCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Import a TD CSV export</CardTitle>
+        <CardTitle>Import a transaction CSV</CardTitle>
         <CardDescription>
-          Upload your TD chequing/credit card CSV export. You'll see a preview before anything is
+          Upload a transaction CSV exported from your bank. You'll see a preview before anything is
           saved.
         </CardDescription>
       </CardHeader>
@@ -65,8 +68,32 @@ export function FileUploadCard({ onUpload, pending }: FileUploadCardProps) {
           />
         </div>
 
-        <div className="mt-4 flex justify-end">
-          <Button disabled={!selected || pending} onClick={() => selected && onUpload(selected)}>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Bank</span>
+            <Select value={bank} onValueChange={setBank}>
+              <SelectTrigger className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Auto">Auto-detect</SelectItem>
+                {SUPPORTED_BANKS.map((name) => (
+                  <SelectItem key={name} value={name}>
+                    {name}
+                  </SelectItem>
+                ))}
+                {/* Visible for roadmap honesty, but disabled -- selecting one
+                 * of these and only failing after upload is exactly what
+                 * this patch removes (Phase 12B closure). */}
+                {COMING_SOON_BANKS.map((name) => (
+                  <SelectItem key={name} value={name} disabled>
+                    {name} — Coming Soon
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button disabled={!selected || pending} onClick={() => selected && onUpload(selected, bank)}>
             {pending && <Loader2 className="h-4 w-4 animate-spin" />}
             Upload &amp; preview
           </Button>

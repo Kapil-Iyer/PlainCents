@@ -17,6 +17,7 @@ type Stage = { step: "upload" } | { step: "preview"; preview: ImportPreview } | 
 export function ImportPage() {
   const [stage, setStage] = useState<Stage>({ step: "upload" });
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingBank, setPendingBank] = useState<string>("Auto");
   const [demoConflictOpen, setDemoConflictOpen] = useState(false);
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -24,10 +25,11 @@ export function ImportPage() {
   const createImportMutation = useCreateImport();
   const confirmImportMutation = useConfirmImport();
 
-  const runUpload = (file: File) => {
+  const runUpload = (file: File, bank: string) => {
     setPendingFile(file);
+    setPendingBank(bank);
     createImportMutation.mutate(
-      { file, bank: "TD" },
+      { file, bank },
       {
         onSuccess: (preview) => setStage({ step: "preview", preview }),
         onError: (err) => {
@@ -73,7 +75,7 @@ export function ImportPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Import</h1>
         <p className="text-sm text-muted-foreground">
-          Bring in transactions from a TD CSV export. Nothing is saved until you confirm the
+          Upload a transaction CSV exported from your bank. Nothing is saved until you confirm the
           preview.
         </p>
       </div>
@@ -99,7 +101,7 @@ export function ImportPage() {
       <DemoConflictDialog
         open={demoConflictOpen}
         onOpenChange={setDemoConflictOpen}
-        onRetry={() => pendingFile && runUpload(pendingFile)}
+        onRetry={() => pendingFile && runUpload(pendingFile, pendingBank)}
       />
     </div>
   );

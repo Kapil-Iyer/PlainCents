@@ -38,7 +38,14 @@ class ImportBatchRepository:
         counts = counts or {}
         set_parts = ["status = ?"]
         params: list = [status]
-        for key in ("rows_valid", "rows_unparseable", "rows_duplicate", "rows_imported"):
+        for key in (
+            "rows_valid",
+            "rows_unparseable",
+            "rows_duplicate",
+            "rows_imported",
+            "rows_skipped_credit",
+            "rows_skipped_currency",
+        ):
             if key in counts:
                 set_parts.append(f"{key} = ?")
                 params.append(counts[key])

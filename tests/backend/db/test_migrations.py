@@ -35,7 +35,9 @@ def _fresh_conn(db_path) -> sqlite3.Connection:
 def test_1_fresh_db_migration_succeeds(db_path):
     conn = _fresh_conn(db_path)
     applied = apply_migrations(conn, migrations_dir=MIGRATIONS_DIR)
-    assert applied == [1]
+    # 002_import_exclusion_counts.sql added Phase 12B (six-bank import
+    # exclusion-count columns on import_batches).
+    assert applied == [1, 2]
     conn.close()
 
 
@@ -43,14 +45,14 @@ def test_2_migrations_run_twice_no_duplicate_application(db_path):
     conn = _fresh_conn(db_path)
     first = apply_migrations(conn, migrations_dir=MIGRATIONS_DIR)
     second = apply_migrations(conn, migrations_dir=MIGRATIONS_DIR)
-    assert first == [1]
+    assert first == [1, 2]
     assert second == []  # nothing new applied the second time
     conn.close()
 
 
 def test_3_schema_migrations_tracks_versions(conn):
     rows = conn.execute("SELECT version FROM schema_migrations").fetchall()
-    assert [r["version"] for r in rows] == [1]
+    assert [r["version"] for r in rows] == [1, 2]
 
 
 def test_4_all_required_tables_views_indexes_exist(conn):

@@ -48,7 +48,7 @@ class IngestionService:
     # -- preview -----------------------------------------------------------
 
     def parse_and_stage(
-        self, file_bytes: bytes, bank: str, original_filename: str | None = None
+        self, file_bytes: bytes, bank: str | None = None, original_filename: str | None = None
     ) -> dict:
         # Build Plan Phase 4, item 5 / TRD §5.3: the demo-conflict check only
         # reads app_state.mode, so it's functional now even though
@@ -62,15 +62,22 @@ class IngestionService:
         try:
             df, meta = load_and_clean_from_bytes(file_bytes, bank=bank)
         except ValueError as exc:
-            # Whole-file failure (unrecognized columns) -> 400, not a
+            # Whole-file failure (unrecognized columns, an explicit-bank
+            # mismatch, or a Phase-12A.5-BLOCKED bank) -> 400, not a
             # degraded 200 (TRD §10).
             raise BadRequestError(str(exc)) from exc
         except Exception as exc:
             # Genuinely non-CSV bytes (pandas parser errors, etc.) -> 400.
             raise BadRequestError("Uploaded file could not be parsed as CSV.") from exc
 
+        # Phase 12A.5/12B: bank_source is always the RESOLVED bank (the
+        # parser's own bank_detected -- whichever fingerprint actually
+        # matched, whether the caller passed an explicit bank or None for
+        # auto-detect), never the raw (possibly None/"Auto") input param.
+        resolved_bank = meta["bank_detected"]
+
         batch_id = self._batch_repo.create_preview(
-            bank_source=bank, original_filename=original_filename, data_mode="real"
+            bank_source=resolved_bank, original_filename=original_filename, data_mode="real"
         )
 
         rows = df.to_dict("records")
@@ -99,12 +106,18 @@ class IngestionService:
         rows_duplicate = 0
 
         for i, row in enumerate(rows):
+            # Phase 12B dedup fix: the parser no longer collapses intra-file
+            # duplicates (pipeline.ingest's drop_duplicates() calls were
+            # removed from the V2 bytes path -- Phase 12A finding), so two
+            # genuinely identical source rows now both reach this loop and
+            # this counter correctly assigns them occurrence_index 0 and 1
+            # instead of one of them having already vanished upstream.
             key_tuple = (row["date"], round_money(row["amount"]), row["merchant"])
             occurrence_index = occurrence_counts.get(key_tuple, 0)
             occurrence_counts[key_tuple] = occurrence_index + 1
 
             dedup_key = compute_dedup_key(
-                row["date"], row["amount"], row["merchant"], bank, occurrence_index
+                row["date"], row["amount"], row["merchant"], resolved_bank, occurrence_index
             )
             is_duplicate = self._txn_repo.exists_by_dedup_key(dedup_key)
             if is_duplicate:
@@ -115,7 +128,11 @@ class IngestionService:
             staged_rows.append(
                 {
                     "date": row["date"],
-                    "raw_description": None,
+                    # Phase 12A.5 §12: raw_description now flows through from
+                    # the parser instead of being hardcoded None -- every
+                    # adapter's contract includes it (DB column already
+                    # existed, unused until now).
+                    "raw_description": row.get("raw_description"),
                     "merchant": row["merchant"],
                     "amount": row["amount"],
                     "predicted_category": predicted_category,
@@ -142,6 +159,8 @@ class IngestionService:
                 "rows_valid": rows_valid,
                 "rows_unparseable": meta["rows_unparseable"],
                 "rows_duplicate": rows_duplicate,
+                "rows_skipped_credit": meta["rows_skipped_credit"],
+                "rows_skipped_currency": meta["rows_skipped_currency"],
             },
         )
         self._conn.commit()
@@ -153,9 +172,12 @@ class IngestionService:
 
         return {
             "batch_id": batch_id,
+            "detected_bank": resolved_bank,
             "rows_valid": rows_valid,
             "rows_unparseable": meta["rows_unparseable"],
             "rows_duplicate": rows_duplicate,
+            "rows_skipped_credit": meta["rows_skipped_credit"],
+            "rows_skipped_currency": meta["rows_skipped_currency"],
             "date_range": date_range,
             "sample_rows": staged_rows[:10],
             "status": "previewing",
@@ -177,6 +199,8 @@ class IngestionService:
                 "rows_imported": batch["rows_imported"],
                 "rows_skipped_unparseable": batch["rows_unparseable"],
                 "rows_skipped_duplicate": batch["rows_duplicate"],
+                "rows_skipped_credit": batch["rows_skipped_credit"],
+                "rows_skipped_currency": batch["rows_skipped_currency"],
                 "status": "confirmed",
             }
 
@@ -254,5 +278,7 @@ class IngestionService:
             "rows_imported": rows_imported,
             "rows_skipped_unparseable": batch["rows_unparseable"],
             "rows_skipped_duplicate": rows_skipped_duplicate,
+            "rows_skipped_credit": batch["rows_skipped_credit"],
+            "rows_skipped_currency": batch["rows_skipped_currency"],
             "status": "confirmed",
         }

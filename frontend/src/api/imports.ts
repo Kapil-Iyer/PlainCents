@@ -1,10 +1,15 @@
 import { apiClient } from "@/api/client";
 import type { ImportBatchResponse, ImportPreview, ImportResult } from "@/types/import";
 
-export const createImport = (file: File, bank = "TD") => {
+// Phase 12A.5/12B: `bank` is optional — omitted (or "Auto") means auto-detect
+// across the four implemented banks (RBC/Scotiabank/TD/CIBC) server-side.
+// An explicit bank name validates only that bank's own format.
+export const createImport = (file: File, bank?: string) => {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("bank", bank);
+  if (bank && bank !== "Auto") {
+    formData.append("bank", bank);
+  }
   return apiClient.post<ImportPreview>("/imports", formData);
 };
 

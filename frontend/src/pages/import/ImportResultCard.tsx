@@ -20,6 +20,16 @@ export function ImportResultCard({ result, onImportAnother }: { result: ImportRe
           <Stat label="Skipped (duplicate)" value={result.rows_skipped_duplicate} />
           <Stat label="Skipped (unparseable)" value={result.rows_skipped_unparseable} />
         </div>
+        {(result.rows_skipped_credit > 0 || result.rows_skipped_currency > 0) && (
+          <div className="grid grid-cols-2 gap-4">
+            {result.rows_skipped_credit > 0 && (
+              <Stat label="Credits excluded" value={result.rows_skipped_credit} />
+            )}
+            {result.rows_skipped_currency > 0 && (
+              <Stat label="Unsupported currency" value={result.rows_skipped_currency} />
+            )}
+          </div>
+        )}
         <div className="flex gap-2">
           <Button asChild>
             <Link to="/transactions">View transactions</Link>

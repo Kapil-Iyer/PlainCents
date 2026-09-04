@@ -15,10 +15,15 @@ interface ImportPreviewCardProps {
 }
 
 export function ImportPreviewCard({ preview, onConfirm, onCancel, pending, error }: ImportPreviewCardProps) {
+  const hasExclusions = preview.rows_skipped_credit > 0 || preview.rows_skipped_currency > 0;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Preview</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Detected format: <span className="font-medium text-foreground">{preview.detected_bank}</span>
+        </p>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -35,6 +40,17 @@ export function ImportPreviewCard({ preview, onConfirm, onCancel, pending, error
           />
         </div>
 
+        {hasExclusions && (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {preview.rows_skipped_credit > 0 && (
+              <Stat label="Credits excluded" value={preview.rows_skipped_credit} />
+            )}
+            {preview.rows_skipped_currency > 0 && (
+              <Stat label="Unsupported currency" value={preview.rows_skipped_currency} />
+            )}
+          </div>
+        )}
+
         {!preview.categorization_available && (
           <div className="flex items-center gap-2 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning">
             <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -48,9 +64,19 @@ export function ImportPreviewCard({ preview, onConfirm, onCancel, pending, error
           <div className="flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
             <AlertTriangle className="h-4 w-4 shrink-0" />
             {preview.rows_unparseable} row{preview.rows_unparseable === 1 ? "" : "s"} couldn't be
-            parsed and will be skipped. This can happen with rows TD's export formats
-            inconsistently (e.g. certain deposit-only rows) — it doesn't necessarily mean the file
-            itself is broken.
+            parsed and will be skipped. This can happen with some export formats inconsistently
+            (e.g. certain deposit-only rows) — it doesn't necessarily mean the file itself is
+            broken.
+          </div>
+        )}
+
+        {hasExclusions && (
+          <div className="flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            {preview.rows_skipped_credit > 0 &&
+              `${preview.rows_skipped_credit} credit/deposit row${preview.rows_skipped_credit === 1 ? "" : "s"} ${preview.rows_skipped_credit === 1 ? "was" : "were"} recognized and intentionally excluded — PlainCents tracks spending, not income. `}
+            {preview.rows_skipped_currency > 0 &&
+              `${preview.rows_skipped_currency} row${preview.rows_skipped_currency === 1 ? "" : "s"} in an unsupported currency ${preview.rows_skipped_currency === 1 ? "was" : "were"} excluded rather than converted.`}
           </div>
         )}
 

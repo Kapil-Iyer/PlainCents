@@ -23,8 +23,12 @@ def test_clean_valid_fixture_parses_all_rows():
     df, meta = load_and_clean_from_bytes(_read("clean_valid.csv"), bank="TD")
     assert len(df) == 12
     assert meta["rows_unparseable"] == 0
+    assert meta["rows_skipped_credit"] == 0
+    assert meta["rows_skipped_currency"] == 0
     assert meta["bank_detected"] == "TD"
-    assert list(df.columns) == ["date", "merchant", "amount"]
+    # Phase 12A.5 §12: raw_description now flows through (previously
+    # discarded downstream) alongside merchant.
+    assert list(df.columns) == ["date", "raw_description", "merchant", "amount"]
     assert df["date"].iloc[0] == "2026-01-05"
     assert df["amount"].iloc[0] == 6.75
 
@@ -41,20 +45,28 @@ def test_unrecognized_format_fixture_raises_value_error():
         load_and_clean_from_bytes(_read("unrecognized_format.csv"), bank="TD")
 
 
-def test_duplicate_rows_fixture_collapses_intrafile_exact_duplicates():
+def test_duplicate_rows_fixture_preserves_intrafile_duplicates():
+    # Phase 12B dedup fix: the V2 bytes path no longer calls
+    # drop_duplicates() (Phase 12A finding -- it ran before
+    # IngestionService could assign occurrence_index, silently collapsing
+    # legitimate repeated transactions). All 8 rows -- including the
+    # repeated pairs/triples -- must now survive at the parser layer; it is
+    # IngestionService's occurrence_index + dedup_key that distinguishes
+    # them, not upstream row-collapsing.
     df, meta = load_and_clean_from_bytes(_read("duplicate_rows.csv"), bank="TD")
-    # V1's drop_duplicates() step already collapses exact full-row
-    # duplicates (see the fixture README) — 8 rows in, 4 unique rows out.
-    assert len(df) == 4
+    assert len(df) == 8
     assert meta["rows_unparseable"] == 0
 
 
-def test_headerless_td_fixture_parses_withdrawals_and_folds_deposit_only_rows():
+def test_headerless_td_fixture_parses_withdrawals_and_excludes_deposit_only_rows():
     df, meta = load_and_clean_from_bytes(_read("headerless_positional.csv"), bank="TD")
-    # 5 rows total; 1 is deposit-only (PAYROLL DEPOSIT, no withdrawal) and is
-    # out of spend-tracking scope -> folded into rows_unparseable.
+    # 5 rows total; 1 is deposit-only (PAYROLL DEPOSIT, no withdrawal). It's
+    # correctly recognized and intentionally excluded (out of spend-tracking
+    # scope), not malformed -- Phase 12A.5 §17/§24 tracks that separately
+    # from rows_unparseable now.
     assert meta["rows_total"] == 5
-    assert meta["rows_unparseable"] == 1
+    assert meta["rows_unparseable"] == 0
+    assert meta["rows_skipped_credit"] == 1
     assert len(df) == 4
     assert "PAYROLL DEPOSIT" not in df["merchant"].tolist()
     assert df["date"].iloc[0] == "2024-08-27"

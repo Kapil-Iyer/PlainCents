@@ -35,6 +35,9 @@ def test_upload_clean_valid_returns_200_preview(client: TestClient):
     assert body["rows_valid"] == 12
     assert body["rows_unparseable"] == 0
     assert body["rows_duplicate"] == 0
+    assert body["rows_skipped_credit"] == 0
+    assert body["rows_skipped_currency"] == 0
+    assert body["detected_bank"] == "TD"
     assert body["categorization_available"] is True
     assert body["status"] == "previewing"
     assert len(body["sample_rows"]) == 10
@@ -51,7 +54,12 @@ def test_upload_headerless_td_fixture(client: TestClient):
     assert response.status_code == 200
     body = response.json()
     assert body["rows_valid"] == 4
-    assert body["rows_unparseable"] == 1
+    # The deposit-only row (PAYROLL DEPOSIT) is correctly recognized and
+    # intentionally excluded, not malformed -- Phase 12A.5 §17/§24 moved this
+    # from rows_unparseable into its own rows_skipped_credit count.
+    assert body["rows_unparseable"] == 0
+    assert body["rows_skipped_credit"] == 1
+    assert body["detected_bank"] == "TD"
 
 
 def test_confirm_persists_transactions_visible_via_list(client: TestClient):

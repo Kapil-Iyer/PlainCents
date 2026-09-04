@@ -64,11 +64,14 @@ Product surfaces: **Dashboard**, **Transactions**, **Import**, **Forecast**,
   independently curated (not real-world) benchmark; the selected forecaster
   scored 18.9% WAPE on a reserved period of a synthetic (not real-world)
   dataset — neither number should be read as real-world accuracy.
-- **TD CSV import is fixture-tested, not field-verified.** Import has been
-  tested against synthetic fixtures shaped like TD's CSV export format
-  (`tests/fixtures/td_csv/`), including a plausible headerless/positional
-  variant. It has **not** been verified against an actual TD account
-  export — do not read any claim in this repo as confirming that.
+- **CSV import supports four Canadian bank export formats.** PlainCents
+  currently supports transaction CSV imports for RBC, Scotiabank, TD, and
+  CIBC. RBC and Scotiabank formats were validated against actual exports;
+  TD support is project-verified, with headerless-format limitations
+  disclosed; CIBC support is research-backed and fail-closed. BMO and
+  National Bank support are coming soon. Do not read this as universal Big
+  Six coverage or as a claim that every product/account variant from a
+  supported bank is handled.
 
 ---
 
