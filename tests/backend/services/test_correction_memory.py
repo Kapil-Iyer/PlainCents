@@ -18,7 +18,7 @@ from backend.services.categorization_service import CategorizationService
 from backend.services.ingestion_service import IngestionService
 
 FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent / "fixtures"
-TEST_MODEL_PATH = FIXTURES_DIR / "logreg_model_test.pkl"
+TEST_MODEL_PATH = FIXTURES_DIR / "categorizer_model_test.pkl"
 
 
 def _csv(rows: list[tuple[str, str, str]]) -> bytes:
@@ -162,8 +162,33 @@ def test_manual_later_correction_overrides_remembered_value(service, conn):
 
 
 def test_generic_etransfer_routes_to_other():
-    assert is_structurally_ambiguous("E-TRANSFER SENT JOHN DOE ABC123") is True
+    """Text that names NOTHING is structurally ambiguous."""
     assert is_structurally_ambiguous("ETRANSFER SENT") is True
+    assert is_structurally_ambiguous("E-TRANSFER SENT") is True
+    assert is_structurally_ambiguous("FREE INTERAC E-TRANSFER") is True
+    assert is_structurally_ambiguous("ONLINE BANKING TRANSFER") is True
+    assert is_structurally_ambiguous("PREAUTH PYMT 774120") is True
+
+
+def test_etransfer_carrying_a_name_is_not_structurally_ambiguous():
+    """ML-G over-routing fix.
+
+    The previous rule matched a bare E-?TRANSFER anywhere in the text, so
+    payment-method boilerplate wrapped around a perfectly usable merchant
+    identity was routed to "Other" and never shown to the classifier. On the
+    ML-G benchmark's FINAL_TEST partition that fired on 27 of 195 (13.8%) of
+    legitimate rows.
+
+    Structural ambiguity now means "this text names nothing". A row that does
+    name something stays ML-eligible — and if the model then cannot place it,
+    the abstention policy is what routes it to Other (see the test below).
+    Both paths reach predicted_category="Other", confirmed_category=NULL, but
+    via the mechanism that is actually true of the row.
+    """
+    assert is_structurally_ambiguous("E-TRANSFER SENT JOHN DOE ABC123") is False
+    assert is_structurally_ambiguous("E-TRANSFER SENT TO SUMMIT PROPERTY MGMT RENT") is False
+    assert is_structurally_ambiguous("WIRE TRANSFER SERVICE FEE") is False
+    assert is_structurally_ambiguous("INTERAC ACCESS FEE") is False
 
 
 def test_generic_abm_atm_routes_to_other():

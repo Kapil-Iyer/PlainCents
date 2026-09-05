@@ -19,6 +19,13 @@ from ml.forecasting.baselines import rolling_mean_predict
 
 logger = logging.getLogger(__name__)
 
+# The minimum number of completed calendar months required before a forecast
+# can be produced. Equal to the selected 3-month rolling mean's window: three
+# months is exactly one full window, i.e. the mathematical minimum, not a
+# demonstrated accuracy floor. backend/services/forecast_service.py mirrors
+# this value and a test asserts they stay equal.
+MONTHS_REQUIRED = 3
+
 
 def aggregate_monthly(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -43,26 +50,28 @@ def aggregate_monthly(df: pd.DataFrame) -> pd.DataFrame:
     monthly = monthly.rename(columns={"amount": "total_spend"})
     monthly = monthly.sort_values(["category", "month"]).reset_index(drop=True)
 
-    # ML-F forecast eligibility gate (brief Section 25; PRD Section 21 / TRD
-    # Section 12.5 amendment): lowered from 12 to 6 alongside
-    # backend/services/forecast_service.py's MONTHS_REQUIRED — the two must
-    # move together (ML-F-A audit finding: this function is the ONLY other
-    # enforcement point, and ForecastService.run_forecast() calls it
-    # directly, so leaving this at 12 would still raise here even if only
-    # the service-layer constant were lowered). The ML-F-selected recipe
-    # (3-month rolling mean, mathematically needs only 3 months and is
-    # pooled-WAPE-stable at 6/9/12/18 months of history per
-    # reports/ml/ML_F_SELECTION_RECORD.json) does not need 12 months; 6 is
-    # the smallest defensible USEFUL-history threshold (an availability/UX
-    # choice, not an accuracy claim — see ForecastService.MONTHS_REQUIRED).
-    # This also affects V1's own fit_and_forecast()/CLI path, which shares
-    # this function; that path's own RF-era walk-forward validation already
-    # tolerates as few as 7 TRAIN months internally, so 6 total months is
-    # not a regression for it either.
+    # Forecast eligibility gate. Kept in lockstep with
+    # backend/services/forecast_service.py's MONTHS_REQUIRED — this function
+    # is the ONLY other enforcement point, and run_forecast() calls it
+    # directly, so a mismatch would let a request past the service check and
+    # then raise here as a 500. A test asserts the two constants are equal.
+    #
+    # THREE is the mathematical minimum for the selected production method (a
+    # 3-month rolling mean): it is exactly one full window. It is not an
+    # accuracy claim. Lowered from 6, which was itself a usability threshold
+    # rather than an evidence-based one.
+    #
+    # V1's own fit_and_forecast()/CLI path shares this function; that path's
+    # RF-era walk-forward validation already tolerates as few as 7 TRAIN
+    # months internally, so a lower floor here is not a regression for it —
+    # it simply stops rejecting inputs before that path can judge them.
     n_months = monthly["month"].nunique()
-    if n_months < 6:
-        logger.warning("Only %d months of data (need 6). Forecasting may be unreliable.", n_months)
-        raise ValueError(f"Need 6 months minimum for forecasting. Found {n_months}.")
+    if n_months < MONTHS_REQUIRED:
+        logger.warning(
+            "Only %d months of data (need %d). Forecasting may be unreliable.",
+            n_months, MONTHS_REQUIRED,
+        )
+        raise ValueError(f"Need {MONTHS_REQUIRED} months minimum for forecasting. Found {n_months}.")
 
     return monthly
 

@@ -28,6 +28,7 @@ from datetime import date
 from backend.config import CATEGORIES
 from backend.repositories.money import round_money
 from backend.services.dedup import compute_dedup_key
+from backend.services.forecast_service import MONTHS_REQUIRED
 
 SEED = 42
 MONTHS_OF_HISTORY = 12
@@ -207,7 +208,10 @@ def generate_demo_forecast(transactions: list[dict], as_of: date | None = None) 
 
     run = {
         "months_available": months_available,
-        "months_required": MONTHS_OF_HISTORY,
+        # Mirror the real eligibility gate rather than the seed's own
+        # history length, so the demo Forecast page reports the same
+        # threshold the app actually enforces.
+        "months_required": MONTHS_REQUIRED,
         "model_impl_version": "demo_seed_v1",
     }
     return {"run": run, "predictions": predictions}

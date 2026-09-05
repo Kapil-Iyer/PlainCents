@@ -13,7 +13,7 @@ from backend.services.categorization_service import CategorizationService
 from config import CATEGORIES
 
 FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent / "fixtures"
-TEST_MODEL_PATH = FIXTURES_DIR / "logreg_model_test.pkl"
+TEST_MODEL_PATH = FIXTURES_DIR / "categorizer_model_test.pkl"
 
 
 def test_loads_successfully_and_reports_loaded_status():
@@ -72,15 +72,34 @@ def test_predict_batch_raises_categorization_unavailable_when_error(tmp_path):
         service.predict_batch([{"merchant": "TIM HORTONS", "amount": 4.50, "date": "2026-01-15"}])
 
 
-# -- ML-D: selected production recipe identification -------------------------
+# -- selected production recipe identification -------------------------------
 
 
 def test_loaded_service_identifies_selected_family_and_version():
     service = CategorizationService(TEST_MODEL_PATH)
-    assert service.model_impl_version == "tfidf_logreg_v1"
+    assert service.model_impl_version == "tfidf_word_char_logreg_v3_test"
     assert service.metadata is not None
-    assert service.metadata["family"] == "TF-IDF + Logistic Regression"
-    assert service.metadata["candidate_name"] == "tfidf_logreg"
+    assert service.metadata["family"] == (
+        "Word TF-IDF + character TF-IDF (FeatureUnion) + Logistic Regression"
+    )
+
+
+def test_loaded_service_adopts_the_artifacts_decision_contract():
+    """ML-G: the artifact carries HOW to prepare text and WHEN not to answer.
+
+    Serving a model with a different normalizer than it was fit with is
+    train/serve skew, and always answering means an evidence-free row gets
+    argmax(intercept_) -- one fixed class for every such input, which is the
+    mechanism behind the "everything becomes Food & Dining" symptom. Both are
+    read from the payload rather than assumed.
+    """
+    from ml.categorization.text_normalize_v2 import normalize_deployment_text_v2
+
+    service = CategorizationService(TEST_MODEL_PATH)
+    assert service.normalizer_name == "normalize_deployment_text_v2"
+    assert service._normalize_fn is normalize_deployment_text_v2
+    assert service.min_margin > 0
+    assert service.abstain_category == "Other"
 
 
 def test_missing_model_has_no_version_or_metadata(tmp_path):

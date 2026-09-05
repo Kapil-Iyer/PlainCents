@@ -19,6 +19,17 @@ RF_MODEL_PATH = BASE_DIR / "models" / "rf_model.pkl"
 # KMEANS_MODEL_PATH/RF_MODEL_PATH above are preserved (V1/ML-B evidence, no
 # longer the selected production path) rather than removed.
 LOGREG_MODEL_PATH = BASE_DIR / "models" / "tfidf_logreg_v2.pkl"
+# ML-G: the production categorization artifact. Word TF-IDF (1-2 grams,
+# unbounded vocabulary) UNION character TF-IDF (char_wb 2-6 grams) over
+# v2-normalized merchant text, feeding Logistic Regression, plus the
+# abstention policy fitted on VALIDATION -- all frozen in
+# reports/ml/ML_G_SELECTION_RECORD.json and built by
+# scripts/build_production_categorizer.py.
+#
+# Supersedes LOGREG_MODEL_PATH above (ML-F's word-only, 200-term recipe),
+# which is kept as a path constant only so the older build script and its
+# tests still resolve; nothing in the running application loads it any more.
+CATEGORIZER_MODEL_PATH = BASE_DIR / "models" / "categorizer_v3.pkl"
 
 # -- Category Labels (8) ----------------------------------
 CATEGORIES = [

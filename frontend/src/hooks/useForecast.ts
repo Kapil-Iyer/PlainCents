@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { getForecastStatus, getLatestForecast, runForecast } from "@/api/forecasts";
+import { ANALYTICS_QUERY_KEY } from "@/hooks/useAnalytics";
 import { DASHBOARD_QUERY_KEY } from "@/hooks/useDashboard";
 
 export const FORECAST_STATUS_QUERY_KEY = ["forecast", "status"] as const;
@@ -33,6 +34,7 @@ export function useRunForecast() {
       queryClient.invalidateQueries({ queryKey: FORECAST_STATUS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: FORECAST_LATEST_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ANALYTICS_QUERY_KEY });
     },
   });
 }

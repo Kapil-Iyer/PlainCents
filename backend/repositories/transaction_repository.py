@@ -8,6 +8,11 @@ from __future__ import annotations
 import sqlite3
 
 from backend.repositories.money import round_money
+from backend.services.merchant_identity import stable_merchant_key
+
+# Sentinel distinguishing "caller did not supply merchant_key" (derive it)
+# from "caller supplied None" (this row genuinely has no merchant identity).
+_MISSING = object()
 
 _SELECT_EFFECTIVE = "SELECT * FROM v_transactions_effective"
 
@@ -16,14 +21,26 @@ class TransactionRepository:
     def __init__(self, conn: sqlite3.Connection):
         self._conn = conn
 
+    @staticmethod
+    def _resolve_merchant_key(data: dict) -> str | None:
+        """Use the caller's merchant_key when it supplied one (the import
+        path computes it as part of the shared decision, so it must not be
+        recomputed and risk drifting); otherwise derive it here, so no
+        insertion path can create a row correction memory is blind to.
+        An explicit None means "this text names nothing" and is honoured."""
+        supplied = data.get("merchant_key", _MISSING)
+        if supplied is not _MISSING:
+            return supplied
+        return stable_merchant_key(data["merchant"], data.get("bank_source"))
+
     def create(self, data: dict) -> int:
         cur = self._conn.execute(
             """
             INSERT INTO transactions
                 (date, raw_description, merchant, amount, bank_source,
                  predicted_category, confirmed_category, import_batch_id,
-                 data_mode, dedup_key)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 data_mode, dedup_key, merchant_key)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["date"],
@@ -36,6 +53,7 @@ class TransactionRepository:
                 data.get("import_batch_id"),
                 data["data_mode"],
                 data["dedup_key"],
+                self._resolve_merchant_key(data),
             ),
         )
         return cur.lastrowid
@@ -109,6 +127,17 @@ class TransactionRepository:
             params.append(value)
         if not set_parts:
             return False
+        if "merchant" in fields:
+            # The identity correction memory keys on is derived from the
+            # merchant text, so editing the text must move the row's memory
+            # identity with it -- otherwise a renamed transaction would keep
+            # answering lookups for the merchant it used to be.
+            existing = self._conn.execute(
+                "SELECT bank_source FROM transactions WHERE id = ?", (transaction_id,)
+            ).fetchone()
+            bank = existing["bank_source"] if existing else None
+            set_parts.append("merchant_key = ?")
+            params.append(stable_merchant_key(fields["merchant"], bank))
         set_parts.append("updated_at = CURRENT_TIMESTAMP")
         params.append(transaction_id)
         cur = self._conn.execute(
@@ -155,6 +184,41 @@ class TransactionRepository:
             LIMIT 1
             """,
             (merchant, bank_source),
+        ).fetchone()
+        return row[0] if row else None
+
+    def find_latest_confirmed_category_by_key(self, merchant_key: str) -> str | None:
+        """Correction memory, keyed by STABLE merchant identity.
+
+        Supersedes find_latest_confirmed_category() above, which matched the
+        exact `merchant` string and therefore almost never fired on real bank
+        data: every transaction carries a different card suffix / store
+        number / reference code, so one merchant produced a different key
+        every month. merchant_key (backend/services/merchant_identity.py) is
+        the same merchant's identity through any payment rail, scoped by
+        bank, and NULL whenever the text names nothing -- which is what stops
+        unrelated generic transfers from sharing one memory entry.
+
+        confirmed_category is only ever written by a genuine user action (a
+        PATCH via TransactionService.update) or by propagation of one, so
+        anything this returns traces back to a real human decision. A
+        system-generated "Other" never appears here, because that path writes
+        predicted_category and leaves confirmed_category NULL.
+
+        Most recent correction wins (updated_at, then id, DESC) -- never an
+        arbitrary or averaged choice. Exact key equality only: no fuzzy
+        matching, no substring matching, no semantic similarity.
+        """
+        if not merchant_key:
+            return None
+        row = self._conn.execute(
+            """
+            SELECT confirmed_category FROM transactions
+            WHERE merchant_key = ? AND confirmed_category IS NOT NULL
+            ORDER BY updated_at DESC, id DESC
+            LIMIT 1
+            """,
+            (merchant_key,),
         ).fetchone()
         return row[0] if row else None
 

@@ -13,10 +13,11 @@ once at startup) and loads the CategorizationService's model artifact, both
 closed/released at shutdown. This hook's structure was kept stable from
 Phase 2 specifically so Phase 3 only adds to it, per Phase 2's design note.
 
-ML-D Production Integration: CategorizationService now loads the ML-C
-selected TF-IDF + Logistic Regression artifact (LOGREG_MODEL_PATH,
-models/tfidf_logreg_v1.pkl, built by scripts/build_production_logreg_model.py)
-rather than the K-Means artifact — see backend/services/categorization_service.py.
+ML-G Production Integration: CategorizationService loads the selected
+word+char TF-IDF union + Logistic Regression artifact together with its
+abstention policy (CATEGORIZER_MODEL_PATH, models/categorizer_v3.pkl, built
+by scripts/build_production_categorizer.py) — see
+backend/services/categorization_service.py.
 """
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
@@ -27,8 +28,18 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.api.error_handlers import register_error_handlers
-from backend.api.routes import dashboard, demo, forecasts, health, holdings, imports, transactions
-from backend.config import FRONTEND_ORIGIN, LOGREG_MODEL_PATH, ROOT_DIR, V2_DB_PATH
+from backend.api.routes import (
+    analytics,
+    dashboard,
+    demo,
+    forecasts,
+    health,
+    holdings,
+    imports,
+    transactions,
+)
+from backend.config import CATEGORIZER_MODEL_PATH, FRONTEND_ORIGIN, ROOT_DIR, V2_DB_PATH
+from backend.db.backfill import backfill_merchant_keys
 from backend.db.connection import get_connection
 from backend.services.categorization_service import CategorizationService
 
@@ -38,11 +49,16 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Startup: open the shared connection, applying any pending migrations.
     app.state.db_connection = get_connection(db_path=V2_DB_PATH)
 
+    # ML-G migration 003 adds transactions.merchant_key, whose value needs
+    # application logic to derive. Idempotent and a no-op on an
+    # already-backfilled database.
+    backfill_merchant_keys(app.state.db_connection)
+
     # CategorizationService loads its model artifact once here (TRD §11.1) —
     # never per-request. A missing/corrupt artifact does not crash startup;
     # the service just reports "missing"/"error" via /api/health, and
     # prediction-dependent writes get a 503 until a valid model is present.
-    app.state.categorization_service = CategorizationService(LOGREG_MODEL_PATH)
+    app.state.categorization_service = CategorizationService(CATEGORIZER_MODEL_PATH)
 
     yield
 
@@ -67,6 +83,7 @@ app.include_router(demo.router)
 app.include_router(transactions.router)
 app.include_router(imports.router)
 app.include_router(dashboard.router)
+app.include_router(analytics.router)
 app.include_router(forecasts.router)
 app.include_router(holdings.router)
 

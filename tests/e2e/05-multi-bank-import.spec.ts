@@ -47,8 +47,11 @@ for (const { bank, fixture, validRows } of AUTO_DETECT_CASES) {
 
     await expect(page.getByRole("heading", { name: "Preview" })).toBeVisible();
     await expect(page.getByText(`Detected format: ${bank}`)).toBeVisible();
-    await expect(page.getByText("Valid rows")).toBeVisible();
-    const validRowsStat = page.getByText("Valid rows").locator("..").getByText(String(validRows));
+    await expect(page.getByText("Spend rows to import")).toBeVisible();
+    const validRowsStat = page
+      .getByText("Spend rows to import")
+      .locator("..")
+      .getByText(String(validRows));
     await expect(validRowsStat).toBeVisible();
   });
 }
@@ -60,7 +63,7 @@ test("Auto-detect reaches TD's headerless fallback (Phase 12A blocker fix)", asy
 
   await expect(page.getByRole("heading", { name: "Preview" })).toBeVisible();
   await expect(page.getByText("Detected format: TD")).toBeVisible();
-  await expect(page.getByText("Credits excluded")).toBeVisible(); // the deposit-only row
+  await expect(page.getByText("Credits / inflows skipped")).toBeVisible(); // the deposit-only row
 });
 
 test("an unsupported CSV format is rejected with a clear message, not silently imported", async ({ page }) => {

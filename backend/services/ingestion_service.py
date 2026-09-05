@@ -22,9 +22,9 @@ from backend.repositories.import_batch_repository import ImportBatchRepository
 from backend.repositories.money import round_money
 from backend.repositories.staged_transaction_repository import StagedTransactionRepository
 from backend.repositories.transaction_repository import TransactionRepository
-from backend.services.ambiguity import is_structurally_ambiguous
 from backend.services.app_state_service import AppStateService
 from backend.services.categorization_service import CategorizationService
+from backend.services.category_decision import CorrectionMemory, decide_batch
 from backend.services.dedup import compute_dedup_key
 from backend.services.forecast_service import ForecastService
 from pipeline.ingest import load_and_clean_from_bytes
@@ -83,16 +83,27 @@ class IngestionService:
 
         rows = df.to_dict("records")
 
-        # TRD §10: categorization is attempted for the whole set (predict_batch,
-        # reused from Phase 3 — no second categorization path) UNLESS the
-        # model is unavailable, in which case preview still succeeds (200)
-        # but reports categorization_available=False and every staged row's
-        # predicted_category is left NULL rather than fabricated.
+        # ML-G: ONE decision path (backend/services/category_decision.py),
+        # run here and persisted whole, so what Preview shows is what Confirm
+        # stores. Previously Preview staged the raw model output and Confirm
+        # separately applied structural-ambiguity routing and correction
+        # memory, so the two disagreed on exactly the rows where it mattered.
+        #
+        # Correction memory is consulted at preview READ-ONLY: decide_batch
+        # only queries the transactions table, it never writes. Nothing about
+        # this preview mutates transactions, correction memory, or app mode.
+        #
+        # TRD §10 unchanged: if the model is unavailable, preview still
+        # succeeds (200), reports categorization_available=False, and leaves
+        # every staged predicted_category NULL rather than fabricating one.
         categorization_available = True
-        predictions: list[dict] = []
+        decisions = []
+        memory = CorrectionMemory(self._txn_repo)
         try:
-            predictions = self._categorization.predict_batch(
-                [{"merchant": r["merchant"], "amount": r["amount"], "date": r["date"]} for r in rows]
+            decisions = decide_batch(
+                [(r["merchant"], resolved_bank) for r in rows],
+                self._categorization,
+                memory,
             )
         except CategorizationUnavailableError:
             categorization_available = False
@@ -124,7 +135,7 @@ class IngestionService:
             if is_duplicate:
                 rows_duplicate += 1
 
-            predicted_category = predictions[i]["predicted_category"] if categorization_available else None
+            decision = decisions[i] if categorization_available else None
 
             staged_rows.append(
                 {
@@ -136,7 +147,12 @@ class IngestionService:
                     "raw_description": row.get("raw_description"),
                     "merchant": row["merchant"],
                     "amount": row["amount"],
-                    "predicted_category": predicted_category,
+                    "predicted_category": decision.predicted_category if decision else None,
+                    "remembered_category": decision.confirmed_category if decision else None,
+                    "merchant_key": decision.merchant_key if decision else None,
+                    "decision_source": decision.source if decision else None,
+                    "model_category": decision.model_category if decision else None,
+                    "effective_category": decision.effective_category if decision else None,
                     "dedup_key": dedup_key,
                     "is_duplicate": is_duplicate,
                     "is_valid": True,
@@ -217,6 +233,7 @@ class IngestionService:
             )
 
         staged_rows = [r for r in self._staged_repo.list_for_batch(batch_id) if r["is_valid"]]
+        memory = CorrectionMemory(self._txn_repo)
 
         rows_imported = 0
         rows_skipped_duplicate = 0
@@ -229,50 +246,46 @@ class IngestionService:
                     rows_skipped_duplicate += 1
                     continue
 
-                predicted_category = row["predicted_category"]
-                if predicted_category is None:
+                # ML-G: confirm RE-VALIDATES the staged decision, it does
+                # not re-decide. The decision (structural-ambiguity routing,
+                # model output, abstention, remembered correction) was made
+                # once at preview by the shared path and staged whole, which
+                # is what makes "what you previewed is what gets stored" true
+                # by construction rather than by two code paths happening to
+                # agree.
+                #
+                # Two things ARE deliberately re-checked live, because they
+                # can genuinely change between preview and confirm:
+                #   * duplicate status (checked above, against the current
+                #     transactions table)
+                #   * correction memory, which the user may have added to by
+                #     correcting a transaction after previewing this file
+                if row["predicted_category"] is None:
                     # Only reachable if this row was staged while the model
                     # was unavailable and it has since come back online
-                    # (status == "loaded" was just verified above) — never
-                    # write predicted_category=NULL (constraint #6).
-                    predicted_category = self._categorization.predict(
-                        {"merchant": row["merchant"], "amount": row["amount"], "date": row["date"]}
-                    )["predicted_category"]
-
-                # HITL-semantics fix (post-ML-F review): a structurally-
-                # ambiguous row (generic e-transfer / ABM / ATM — no
-                # recoverable spending-purpose signal) is the SYSTEM's own
-                # decision, so it belongs in predicted_category, exactly like
-                # any other model output — never in confirmed_category, which
-                # is reserved for a genuine user action (a real PATCH via
-                # TransactionService.update(), or this exact-match reuse of
-                # one). Writing "Other" into confirmed_category previously
-                # made an auto-routed row indistinguishable from one a human
-                # actually confirmed (is_manual_override would read true for
-                # a row nobody ever looked at) and would have let it silently
-                # seed correction memory for a merchant identity no user ever
-                # judged. Overriding predicted_category here (rather than
-                # trusting whatever the raw ML call above returned) is itself
-                # deliberate: the ML-F-A audit found these rows carry zero
-                # usable signal, so "Other" is a more honest system decision
-                # than the model's near-random guess on a zero-feature input.
-                if is_structurally_ambiguous(row["merchant"]):
-                    predicted_category = "Other"
-
-                # ML-F correction memory (ML-F-A audit §14-16; ML-F brief
-                # §14-16): reuse a prior GENUINE user correction for this
-                # exact (merchant, bank_source) identity, if one exists.
-                # find_latest_confirmed_category only ever returns a value
-                # that itself came from a real user action (TransactionService
-                # .update(), or a previous propagation of one) — never from
-                # the auto-routing above, since that never writes
-                # confirmed_category. predicted_category (including the
-                # ambiguous-row override just above) is always preserved
-                # untouched regardless of whether a remembered correction is
-                # applied.
-                confirmed_category = self._txn_repo.find_latest_confirmed_category(
-                    row["merchant"], batch["bank_source"]
-                )
+                    # (status == "loaded" was verified above) — never write
+                    # predicted_category=NULL (constraint #6). Re-decide
+                    # through the same shared path, not a second rule set.
+                    decision = decide_batch(
+                        [(row["merchant"], batch["bank_source"])],
+                        self._categorization,
+                        memory,
+                    )[0]
+                    predicted_category = decision.predicted_category
+                    merchant_key = decision.merchant_key
+                    confirmed_category = decision.confirmed_category
+                else:
+                    predicted_category = row["predicted_category"]
+                    merchant_key = row["merchant_key"]
+                    # Prefer a correction the user made since preview; fall
+                    # back to the one preview showed. Either way this value
+                    # only ever originates from a real user action —
+                    # system-generated "Other" writes predicted_category and
+                    # leaves confirmed_category NULL, so auto-routing can
+                    # never seed correction memory.
+                    confirmed_category = (
+                        memory.lookup(merchant_key) or row["remembered_category"]
+                    )
 
                 self._txn_repo.create(
                     {
@@ -283,6 +296,7 @@ class IngestionService:
                         "bank_source": batch["bank_source"],
                         "predicted_category": predicted_category,
                         "confirmed_category": confirmed_category,
+                        "merchant_key": merchant_key,
                         "import_batch_id": batch_id,
                         "data_mode": "real",
                         "dedup_key": row["dedup_key"],

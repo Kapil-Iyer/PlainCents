@@ -23,6 +23,13 @@ class StagedTransactionRepository:
                 int(r.get("is_duplicate", False)),
                 int(r.get("is_valid", True)),
                 r.get("invalid_reason"),
+                # ML-G: the complete decision computed once at preview by
+                # backend/services/category_decision.py, so confirm
+                # re-validates rather than re-decides.
+                r.get("merchant_key"),
+                r.get("remembered_category"),
+                r.get("decision_source"),
+                r.get("model_category"),
             )
             for r in rows
         ]
@@ -30,8 +37,9 @@ class StagedTransactionRepository:
             """
             INSERT INTO staged_transactions
                 (import_batch_id, date, raw_description, merchant, amount,
-                 predicted_category, dedup_key, is_duplicate, is_valid, invalid_reason)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 predicted_category, dedup_key, is_duplicate, is_valid, invalid_reason,
+                 merchant_key, remembered_category, decision_source, model_category)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             payload,
         )

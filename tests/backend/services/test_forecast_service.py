@@ -29,30 +29,33 @@ def service(conn):
 # -- check_status ------------------------------------------------------------
 
 
-def test_check_status_cold_start_when_below_6_months(service, conn):
-    # ML-F eligibility amendment (PRD §21 / TRD §12.5, reports/ml/
-    # ML_F_SELECTION_RECORD.json): MONTHS_REQUIRED lowered from 12 to 6.
-    seed_months(conn, 5, ["Food & Dining"])
+@pytest.mark.parametrize("months", [0, 1, 2])
+def test_check_status_cold_start_below_three_months(service, conn, months):
+    """ML-G eligibility: forecasting becomes available after THREE completed
+    months — the minimum history the selected 3-month rolling mean needs to
+    compute one full window. Not an accuracy-equivalence claim."""
+    if months:
+        seed_months(conn, months, ["Food & Dining"])
 
     status = service.check_status("real")
 
     assert status["status"] == "cold_start"
-    assert status["months_available"] == 5
-    assert status["months_required"] == 6
+    assert status["months_available"] == months
+    assert status["months_required"] == 3
     assert status["latest_run_id"] is None
     assert status["is_stale"] is None
 
 
-def test_check_status_eligible_at_exactly_6_months(service, conn):
-    # Boundary case: history EQUAL TO the new threshold must be eligible,
-    # not cold-start (ML-F brief §26).
-    seed_months(conn, 6, ["Food & Dining"])
+def test_check_status_eligible_at_exactly_three_months(service, conn):
+    """Boundary: history EQUAL TO the threshold must be eligible, not cold
+    start."""
+    seed_months(conn, 3, ["Food & Dining"])
 
     status = service.check_status("real")
 
     assert status["status"] == "no_forecast_yet"
-    assert status["months_available"] == 6
-    assert status["months_required"] == 6
+    assert status["months_available"] == 3
+    assert status["months_required"] == 3
 
 
 def test_check_status_no_forecast_yet_when_eligible_but_no_run(service, conn):
@@ -104,8 +107,8 @@ def test_get_latest_never_fits(service, conn):
 # -- run_forecast: cold start --------------------------------------------------
 
 
-def test_run_forecast_raises_cold_start_error_below_6_months(service, conn):
-    seed_months(conn, 3, ["Food & Dining"])
+def test_run_forecast_raises_cold_start_error_below_three_months(service, conn):
+    seed_months(conn, 2, ["Food & Dining"])
 
     with pytest.raises(ForecastColdStartError):
         service.run_forecast("real")
@@ -114,20 +117,27 @@ def test_run_forecast_raises_cold_start_error_below_6_months(service, conn):
     assert ForecastRepository(conn).get_latest_run(data_mode="real") is None
 
 
-def test_run_forecast_succeeds_at_exactly_6_months_without_crashing(service, conn):
-    # Regression guard for the ML-F-A audit's found gap: ForecastService's
-    # own MONTHS_REQUIRED check is only half the gate — pipeline.forecast.
-    # aggregate_monthly() enforces its own threshold independently, and
-    # run_forecast() calls it directly. Both were lowered to 6 together
-    # (ML-F brief §25); this proves history exactly AT the new threshold
-    # does not fall through the service-layer check only to raise inside
-    # aggregate_monthly() as an unhandled error.
-    seed_months(conn, 6, ["Food & Dining"])
+def test_run_forecast_succeeds_at_exactly_three_months_without_crashing(service, conn):
+    # ForecastService's own MONTHS_REQUIRED check is only half the gate:
+    # pipeline.forecast.aggregate_monthly() enforces its own threshold
+    # independently and run_forecast() calls it directly, so a mismatch would
+    # let a request past the service check and then raise inside
+    # aggregate_monthly() as an unhandled 500. This proves history exactly AT
+    # the threshold does not fall through that gap.
+    seed_months(conn, 3, ["Food & Dining"])
 
     run = service.run_forecast("real")
 
-    assert run["months_available"] == 6
+    assert run["months_available"] == 3
     assert run["is_stale"] is False
+
+
+def test_service_and_pipeline_month_thresholds_are_identical():
+    """The two independent gates must never drift apart — see above."""
+    from pipeline.forecast import MONTHS_REQUIRED as PIPELINE_MONTHS_REQUIRED
+    from backend.services.forecast_service import MONTHS_REQUIRED as SERVICE_MONTHS_REQUIRED
+
+    assert SERVICE_MONTHS_REQUIRED == PIPELINE_MONTHS_REQUIRED == 3
 
 
 # -- run_forecast: success / persistence / retention --------------------------

@@ -9,15 +9,15 @@
  *      serve — every spec drives the app through this same packaged mode,
  *      not the Vite dev server, so E2E exercises the real reviewer path.
  *   2. Ensures a loadable ML categorizer artifact exists at
- *      models/tfidf_logreg_v2.pkl (ML-F: the ML-F selected word TF-IDF
- *      (200 features) + Logistic Regression recipe, superseding ML-D's
- *      tfidf_logreg_v1.pkl and the retired K-Means path), using the repo's
+ *      models/categorizer_v3.pkl — the path backend/config.py's
+ *      CATEGORIZER_MODEL_PATH points at — falling back to the repo's
  *      deterministic test-artifact bootstrap
- *      (tests/fixtures/build_test_logreg_model.py) when the real production
- *      artifact isn't present — this is the same fixture the backend unit
- *      tests already rely on, just also placed where backend/config.py's
- *      LOGREG_MODEL_PATH expects it. Never overwrites a real model artifact
- *      if one is already there.
+ *      (tests/fixtures/build_test_categorizer_model.py) when the real
+ *      production artifact isn't present. That fixture carries the same
+ *      payload shape production uses, including the recorded text
+ *      normalizer and abstention threshold, so E2E exercises the real
+ *      decision path rather than a stripped-down one. Never overwrites a
+ *      real model artifact if one is already there.
  *
  * Each spec file starts/stops its OWN backend process against its own
  * isolated temp SQLite database and its own port (see
@@ -29,16 +29,26 @@ import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
 const ROOT = path.resolve(__dirname, "..", "..");
-const MODEL_PATH = path.join(ROOT, "models", "tfidf_logreg_v2.pkl");
-const TEST_MODEL_PATH = path.join(ROOT, "tests", "fixtures", "logreg_model_test.pkl");
-const BUILD_TEST_MODEL_SCRIPT = path.join(ROOT, "tests", "fixtures", "build_test_logreg_model.py");
+const MODEL_PATH = path.join(ROOT, "models", "categorizer_v3.pkl");
+const TEST_MODEL_PATH = path.join(ROOT, "tests", "fixtures", "categorizer_model_test.pkl");
+const BUILD_TEST_MODEL_SCRIPT = path.join(
+  ROOT,
+  "tests",
+  "fixtures",
+  "build_test_categorizer_model.py",
+);
 
 function pythonExe(): string {
-  const venvPy =
+  // Both layouts appear in this repo's history (.venv and venv); try each
+  // before falling back to whatever `python` resolves to on PATH.
+  const candidates =
     process.platform === "win32"
-      ? path.join(ROOT, "venv", "Scripts", "python.exe")
-      : path.join(ROOT, "venv", "bin", "python");
-  return existsSync(venvPy) ? venvPy : "python";
+      ? [
+          path.join(ROOT, ".venv", "Scripts", "python.exe"),
+          path.join(ROOT, "venv", "Scripts", "python.exe"),
+        ]
+      : [path.join(ROOT, ".venv", "bin", "python"), path.join(ROOT, "venv", "bin", "python")];
+  return candidates.find(existsSync) ?? "python";
 }
 
 function ensureFrontendBuilt(): void {
@@ -56,12 +66,12 @@ function ensureFrontendBuilt(): void {
 
 function ensureCategorizerArtifact(): void {
   if (existsSync(MODEL_PATH)) {
-    console.log("[e2e global-setup] models/tfidf_logreg_v2.pkl already present, reusing it.");
+    console.log("[e2e global-setup] models/categorizer_v3.pkl already present, reusing it.");
     return;
   }
   console.log(
-    "[e2e global-setup] models/tfidf_logreg_v2.pkl is missing — bootstrapping it from the " +
-      "existing deterministic test-artifact mechanism (tests/fixtures/build_test_logreg_model.py) " +
+    "[e2e global-setup] models/categorizer_v3.pkl is missing — bootstrapping it from the " +
+      "deterministic test-artifact mechanism (tests/fixtures/build_test_categorizer_model.py) " +
       "so the Import E2E flow has a loadable categorizer, without inventing a new artifact workflow.",
   );
   if (!existsSync(TEST_MODEL_PATH)) {

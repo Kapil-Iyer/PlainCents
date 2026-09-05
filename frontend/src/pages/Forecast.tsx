@@ -2,6 +2,7 @@ import { LineChart, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ForecastAccuracyCard } from "@/components/analytics/ForecastAccuracyCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/shared/Toast";
@@ -98,6 +99,11 @@ export function ForecastPage() {
               <ForecastMetadata generatedAt={latest.generated_at} monthsAvailable={latest.months_available} />
               <ForecastChart predictions={latest.predictions} />
               <CategoryForecastList predictions={latest.predictions} />
+              {/* Deliberately rendered even before any forecast history
+               * exists: its empty state explains WHY there is nothing to
+               * show yet, which is more useful than the card silently not
+               * being there. */}
+              <ForecastAccuracyCard />
             </>
           )}
         </div>

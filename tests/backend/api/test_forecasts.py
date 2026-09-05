@@ -41,19 +41,20 @@ def test_status_cold_start_on_fresh_database(client: TestClient):
     body = response.json()
     assert body["status"] == "cold_start"
     assert body["months_available"] == 0
-    assert body["months_required"] == 6  # ML-F eligibility amendment (PRD §21 / TRD §12.5)
+    # ML-G: three completed months, the 3-month rolling mean's window.
+    assert body["months_required"] == 3
     assert body["latest_run_id"] is None
 
 
 def test_status_cold_start_with_partial_history(client: TestClient, conn):
-    _seed_real(conn, 5, ["Food & Dining"])
+    _seed_real(conn, 2, ["Food & Dining"])
 
     response = client.get("/api/forecasts/status")
 
     assert response.status_code == 200
     body = response.json()
     assert body["status"] == "cold_start"
-    assert body["months_available"] == 5
+    assert body["months_available"] == 2
 
 
 def test_status_no_forecast_yet_when_eligible_but_never_generated(client: TestClient, conn):
@@ -69,7 +70,7 @@ def test_status_no_forecast_yet_when_eligible_but_never_generated(client: TestCl
 
 
 def test_run_forecast_rejected_with_422_during_cold_start(client: TestClient, conn):
-    _seed_real(conn, 3, ["Food & Dining"])
+    _seed_real(conn, 2, ["Food & Dining"])
 
     response = client.post("/api/forecasts/run")
 

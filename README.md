@@ -62,34 +62,56 @@ Product surfaces: **Dashboard**, **Transactions**, **Import**, **Forecast**,
   the frozen V2 PRD (§19) pass under manual verification.
 - **ML scientific evaluation and production integration: complete.** A
   leakage-safe evaluation (merchant-grouped splits for categorization,
-  temporal expanding-window validation for forecasting) benchmarked
-  multiple candidates per problem and selected TF-IDF + Logistic Regression
-  (categorization) and a 3-month rolling mean (forecasting), now integrated
-  as the running app's production implementations. Full methodology,
-  evidence, and exact numbers — with their evidence-tier caveats — are in
-  `reports/ml/`, particularly `ML_F_SELECTION_RECORD.json` (current
-  production recipe) and `ML_E_FINAL_ML_REPORT.md`/`ML_E_CLAIM_MATRIX.json`
-  (historical ML-C decision, superseded but preserved). **In one sentence,
-  with the caveat attached:** the selected categorizer scored 30.8% accuracy
-  / 0.1742 macro F1 on a held-out slice of a sanitized, hand-curated
-  deployment-oriented benchmark (fabricated merchants, structurally modeled
-  on a private real-bank-export audit — not real-world data itself); the
-  selected forecaster scored 17.84% WAPE on a reserved period of a synthetic
-  (not real-world) dataset — neither number should be read as real-world
-  accuracy.
-- **ML-F: deployment-aware categorization + correction memory + forecast
-  re-selection: complete.** A private audit of actual RBC and Scotiabank
-  exports (read locally only, never committed) found the ML-C/D-era
-  categorizer's 50-word vocabulary barely overlapped real merchant text. A
-  new sanitized deployment-oriented training/evaluation benchmark
-  (`ml/data/build_deployment_benchmark.py`) closed most of that gap; a
-  personalized correction-memory layer and a deterministic ambiguous-row
-  router (generic e-transfer/ATM/ABM) address the two remaining root causes.
-  A small, pre-registered forecast re-evaluation found a 3-month rolling
-  mean beats the previous Naive baseline by a meaningful margin, and the
-  forecast history-eligibility gate was lowered from 12 to 6 months
-  (a product-usability floor, not an accuracy claim — see
-  `reports/ml/ML_F_SELECTION_RECORD.json`).
+  temporal expanding-window validation for forecasting) benchmarked multiple
+  classical candidates per problem. Full methodology, evidence and exact
+  numbers — with their evidence-tier caveats — are in `reports/ml/`.
+  `ML_G_SELECTION_RECORD.json` is the current production record;
+  `ML_F_SELECTION_RECORD.json`, `ML_C_SELECTION_RECORD.json` and
+  `ML_E_FINAL_ML_REPORT.md` are preserved as historical evidence of the
+  decisions they document, and no longer describe what ships.
+- **ML-G: categorization rebuild. Complete.** Real RBC/Scotiabank import
+  testing showed almost everything collapsing into one category. The cause
+  was measured, not guessed: on the shipped artifact, 11 of 18 realistic
+  deployment-shaped probe strings vectorized to an all-zero feature row, and
+  a linear model on an all-zero row returns `argmax(intercept_)` — one fixed
+  class, forever, for every description it cannot read. That class was
+  Food & Dining.
+
+  Three root causes were fixed. **The corpus**: the previous benchmark gave
+  each descriptive word to exactly one merchant, so under a
+  merchant-isolated split a held-out merchant shared no feature at all with
+  training — generalization was impossible by construction. The rebuilt
+  corpus (`ml/data/build_deployment_benchmark_v2.py`, 970 rows / 199
+  merchants, up from 190 / 73) shares category-typical head nouns across
+  many distinct fabricated merchants, and draws boilerplate from one shared
+  pool so transaction-method text cannot act as a category shortcut. **The
+  representation**: word TF-IDF alone leaves truncated and run-together
+  descriptions unreadable; the selected model unions word and character
+  n-grams. **The decision**: the system now declines to answer when it has
+  no evidence or its top two categories are effectively tied, rather than
+  serving a confident-looking guess.
+
+  Sealed-test macro-F1 on merchants never seen in training went from
+  **0.174 to 0.593** (0.576 with the abstention policy applied); zero-feature
+  rate went to 0%. On the actual private exports the diagnostic script
+  reports 0% zero-feature rows. **The caveat, attached:** the benchmark is
+  hand-authored with fabricated merchant names. It supports no real-world
+  accuracy claim, and none can be computed — private exports carry no
+  category labels. Real brand names with no descriptive word in them remain
+  the honest weak point, which is what correction memory exists for.
+- **Human-in-the-loop, preview/commit agreement, and correction memory.**
+  One shared decision path (`backend/services/category_decision.py`) now
+  serves both Import Preview and Confirm, so the category shown before
+  importing is the category stored after. Correction memory keys on a stable
+  merchant identity rather than the raw description, so a card suffix or
+  store number changing every month no longer defeats it — and a description
+  naming nothing (a generic e-transfer) yields no key at all, so unrelated
+  transfers can never share one remembered category.
+- **Forecasting: available after three completed months.** The selected
+  method is a 3-month rolling mean, and three months is the minimum history
+  it needs to compute one full window. That is a mathematical floor, **not**
+  a finding that three months forecasts as accurately as six or twelve — the
+  history-length experiments never tested three months at all.
 - **CSV import supports four Canadian bank export formats.** PlainCents
   currently supports transaction CSV imports for RBC, Scotiabank, TD, and
   CIBC. RBC and Scotiabank formats were validated against actual exports;
@@ -117,8 +139,8 @@ cp .env.example .env      # optional — defaults work out of the box
 cd frontend && npm install && cd ..
 ```
 
-If you already have a trained categorizer at `models/tfidf_logreg_v2.pkl`,
-nothing else is needed. If not, run `python -m scripts.build_production_logreg_model`
+If you already have a trained categorizer at `models/categorizer_v3.pkl`,
+nothing else is needed. If not, run `python -m scripts.build_production_categorizer`
 once (see [Model artifact](#model-artifact) below) — or just use **Explore
 demo**, which doesn't need it at all.
 
@@ -139,13 +161,13 @@ Backend tests: from the repo root, first build the deterministic test
 categorizer fixture (once per fresh clone), then run pytest:
 
 ```bash
-python tests/fixtures/build_test_logreg_model.py
+python tests/fixtures/build_test_categorizer_model.py
 pytest
 ```
 
-(`tests/fixtures/logreg_model_test.pkl` is gitignored — see
+(`tests/fixtures/categorizer_model_test.pkl` is gitignored — see
 `tests/fixtures/README.md`. Production artifact:
-`python -m scripts.build_production_logreg_model`.)
+`python -m scripts.build_production_categorizer`.)
 
 ## Reviewer / demo launch (one command)
 
@@ -172,7 +194,7 @@ build exists first.)
 
 From an empty install (packaged mode or dev mode), the app's first screen
 offers **Explore demo** / **Load demo data**: a deterministic, clearly
-synthetic dataset (12 months of transactions, comfortably above the 6-month
+synthetic dataset (12 months of transactions, comfortably above the 3-month
 forecast eligibility floor, a prebuilt forecast, sample
 portfolio holdings) that populates every screen so you can see the product
 work without importing anything. Everything loaded this way is labeled
@@ -186,15 +208,21 @@ loading the interactive demo).
 
 ## Model artifact
 
-The categorizer needs a trained artifact at `models/tfidf_logreg_v2.pkl`
-(gitignored — never committed) — TF-IDF + Logistic Regression, the model
-selected by the evaluation in `reports/ml/` (see
-[ML scientific evaluation](#mvp--product-status) above). To build it from
-the frozen benchmark evidence committed in this repo:
+The categorizer needs a trained artifact at `models/categorizer_v3.pkl`
+(gitignored — never committed): word TF-IDF (1–2 grams) unioned with
+character TF-IDF (2–6 grams) over normalized merchant text, feeding logistic
+regression, plus the abstention policy fitted on held-out data. All of it is
+frozen in `reports/ml/ML_G_SELECTION_RECORD.json`. To build it from the
+benchmark evidence committed in this repo:
 
 ```bash
-python -m scripts.build_production_logreg_model
+python -m scripts.build_production_categorizer
 ```
+
+The artifact carries its own decision contract — which text normalizer it was
+fit with, and the margin below which it declines to answer — so what gets
+served is what was evaluated, rather than something the serving code has to
+assume.
 
 This fits on the frozen deployment-oriented TRAIN partition only (never on
 the held-out VALIDATION/FINAL_TEST rows scored during evaluation) and
@@ -273,8 +301,8 @@ PlainCents/
 │   ├── ml/               # ML evaluation-infrastructure tests
 │   ├── e2e/              # Playwright E2E (4 flows)
 │   └── fixtures/         # td_csv/ fixtures, deterministic test ML artifacts
-├── models/               # tfidf_logreg_v2.pkl (selected, production), kmeans_model.pkl, rf_model.pkl (retired) — all gitignored
-├── scripts/              # build_production_logreg_model.py + V1 synthetic-data generators
+├── models/               # categorizer_v3.pkl (selected, production), tfidf_logreg_v2.pkl/kmeans_model.pkl/rf_model.pkl (retired) — all gitignored
+├── scripts/              # build_production_categorizer.py, diagnostics, re-categorization, V1 generators
 ├── main.py, viz/, data/  # V1 — see below
 └── playwright.config.ts, package.json   # E2E tooling only (no app code here)
 ```

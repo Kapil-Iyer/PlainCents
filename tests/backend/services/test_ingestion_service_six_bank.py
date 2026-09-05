@@ -14,7 +14,7 @@ from backend.services.categorization_service import CategorizationService
 from backend.services.ingestion_service import IngestionService
 
 FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent / "fixtures"
-TEST_MODEL_PATH = FIXTURES_DIR / "logreg_model_test.pkl"
+TEST_MODEL_PATH = FIXTURES_DIR / "categorizer_model_test.pkl"
 
 
 def _read(subdir: str, name: str) -> bytes:

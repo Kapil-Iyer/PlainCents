@@ -1,0 +1,1611 @@
+{
+  "abstention_policy": {
+    "abstain_category": "Other",
+    "macro_f1_cost_of_policy_on_validation": 0.0415,
+    "max_abstain_rate": 0.15,
+    "min_margin": 0.02,
+    "rescue_ratio": 2.0,
+    "score_statistic": "top-vs-runner-up margin (see top_margin())",
+    "selection_rule": "Largest swept margin threshold that abstains on at most 15% of VALIDATION rows AND rescues at least 2x as many wrong predictions as the correct ones it costs. Deliberately not a macro-F1 optimization -- abstaining routes rows to 'Other', which dilutes that class's precision, so macro-F1 would select 'never abstain' for the wrong reason. Fitted after the model was frozen, on VALIDATION only; it could not change which model won.",
+    "validation_effect": {
+      "abstain_rate": 0.12307692307692308,
+      "abstained_rows_whose_true_label_is_other": 1,
+      "accuracy_after_policy": 0.6410256410256411,
+      "correct_predictions_abstained": 7,
+      "macro_f1_after_policy": 0.6243781751669064,
+      "min_margin": 0.02,
+      "n_abstained": 24,
+      "wrong_predictions_abstained": 17
+    },
+    "zero_feature_rule": "always abstain (unconditional)"
+  },
+  "abstention_sweep_validation": [
+    {
+      "abstain_rate": 0.0,
+      "abstained_rows_whose_true_label_is_other": 0,
+      "accuracy_after_policy": 0.6717948717948717,
+      "correct_predictions_abstained": 0,
+      "macro_f1_after_policy": 0.6658908339300496,
+      "min_margin": 0.0,
+      "n_abstained": 0,
+      "wrong_predictions_abstained": 0
+    },
+    {
+      "abstain_rate": 0.07692307692307693,
+      "abstained_rows_whose_true_label_is_other": 0,
+      "accuracy_after_policy": 0.6512820512820513,
+      "correct_predictions_abstained": 4,
+      "macro_f1_after_policy": 0.631415007355135,
+      "min_margin": 0.01,
+      "n_abstained": 15,
+      "wrong_predictions_abstained": 11
+    },
+    {
+      "abstain_rate": 0.12307692307692308,
+      "abstained_rows_whose_true_label_is_other": 1,
+      "accuracy_after_policy": 0.6410256410256411,
+      "correct_predictions_abstained": 7,
+      "macro_f1_after_policy": 0.6243781751669064,
+      "min_margin": 0.02,
+      "n_abstained": 24,
+      "wrong_predictions_abstained": 17
+    },
+    {
+      "abstain_rate": 0.2205128205128205,
+      "abstained_rows_whose_true_label_is_other": 2,
+      "accuracy_after_policy": 0.558974358974359,
+      "correct_predictions_abstained": 24,
+      "macro_f1_after_policy": 0.5388997467377612,
+      "min_margin": 0.03,
+      "n_abstained": 43,
+      "wrong_predictions_abstained": 19
+    },
+    {
+      "abstain_rate": 0.3128205128205128,
+      "abstained_rows_whose_true_label_is_other": 3,
+      "accuracy_after_policy": 0.5230769230769231,
+      "correct_predictions_abstained": 32,
+      "macro_f1_after_policy": 0.5183778478209599,
+      "min_margin": 0.05,
+      "n_abstained": 61,
+      "wrong_predictions_abstained": 29
+    },
+    {
+      "abstain_rate": 0.4512820512820513,
+      "abstained_rows_whose_true_label_is_other": 3,
+      "accuracy_after_policy": 0.46153846153846156,
+      "correct_predictions_abstained": 44,
+      "macro_f1_after_policy": 0.4785739128724226,
+      "min_margin": 0.08,
+      "n_abstained": 88,
+      "wrong_predictions_abstained": 44
+    },
+    {
+      "abstain_rate": 0.5692307692307692,
+      "abstained_rows_whose_true_label_is_other": 3,
+      "accuracy_after_policy": 0.41025641025641024,
+      "correct_predictions_abstained": 54,
+      "macro_f1_after_policy": 0.450211932131575,
+      "min_margin": 0.12,
+      "n_abstained": 111,
+      "wrong_predictions_abstained": 57
+    },
+    {
+      "abstain_rate": 0.6564102564102564,
+      "abstained_rows_whose_true_label_is_other": 4,
+      "accuracy_after_policy": 0.3384615384615385,
+      "correct_predictions_abstained": 69,
+      "macro_f1_after_policy": 0.36314969020609095,
+      "min_margin": 0.18,
+      "n_abstained": 128,
+      "wrong_predictions_abstained": 59
+    },
+    {
+      "abstain_rate": 0.6974358974358974,
+      "abstained_rows_whose_true_label_is_other": 4,
+      "accuracy_after_policy": 0.3128205128205128,
+      "correct_predictions_abstained": 74,
+      "macro_f1_after_policy": 0.3143238186685201,
+      "min_margin": 0.25,
+      "n_abstained": 136,
+      "wrong_predictions_abstained": 62
+    }
+  ],
+  "authority": "Supersedes reports/ml/ML_F_SELECTION_RECORD.json for the PRODUCTION categorization recipe, training corpus and decision policy. ML-C's and ML-F's records, corpora and splits are preserved untouched as historical evidence and are re-reported here only as continuity checks.",
+  "candidates_evaluated": {
+    "G10_complement_nb_union": {
+      "config": {
+        "C": 1.0,
+        "alpha": 0.3,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 3000,
+          "ngram_range": [
+            3,
+            5
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": null,
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "complement_nb",
+        "name": "G10_complement_nb_union",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 3524,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.6307692307692307,
+      "validation_macro_f1": 0.6404332038812928,
+      "validation_zero_feature_rate": 0.0
+    },
+    "G11_multinomial_nb_union": {
+      "config": {
+        "C": 1.0,
+        "alpha": 0.3,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 3000,
+          "ngram_range": [
+            3,
+            5
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": null,
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "multinomial_nb",
+        "name": "G11_multinomial_nb_union",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 3524,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.6,
+      "validation_macro_f1": 0.6076629024904887,
+      "validation_zero_feature_rate": 0.0
+    },
+    "G12_word_unigram_char_union": {
+      "config": {
+        "C": 1.0,
+        "alpha": 1.0,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 3000,
+          "ngram_range": [
+            3,
+            5
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": "balanced",
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G12_word_unigram_char_union",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 3325,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            1
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.5846153846153846,
+      "validation_macro_f1": 0.5968048109187025,
+      "validation_zero_feature_rate": 0.0
+    },
+    "G13_union_wide_C4": {
+      "config": {
+        "C": 4.0,
+        "alpha": 1.0,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 8000,
+          "ngram_range": [
+            2,
+            6
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": null,
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G13_union_wide_C4",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 8524,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.6615384615384615,
+      "validation_macro_f1": 0.6527468405777229,
+      "validation_zero_feature_rate": 0.0
+    },
+    "G14_union_wide_balanced": {
+      "config": {
+        "C": 1.0,
+        "alpha": 1.0,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 8000,
+          "ngram_range": [
+            2,
+            6
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": "balanced",
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G14_union_wide_balanced",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 8524,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.6717948717948717,
+      "validation_macro_f1": 0.6636459963361934,
+      "validation_zero_feature_rate": 0.0
+    },
+    "G1_mlf_recipe_on_v2": {
+      "config": {
+        "C": 1.0,
+        "alpha": 1.0,
+        "char_config": null,
+        "class_weight": null,
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G1_mlf_recipe_on_v2",
+        "normalizer_name": null,
+        "random_state": 42,
+        "vocabulary_size": 200,
+        "word_config": {
+          "max_features": 200,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.3384615384615385,
+      "validation_macro_f1": 0.36078102935713496,
+      "validation_zero_feature_rate": 0.05641025641025641
+    },
+    "G2_word_unbounded": {
+      "config": {
+        "C": 1.0,
+        "alpha": 1.0,
+        "char_config": null,
+        "class_weight": null,
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G2_word_unbounded",
+        "normalizer_name": null,
+        "random_state": 42,
+        "vocabulary_size": 908,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.49230769230769234,
+      "validation_macro_f1": 0.5054140115692434,
+      "validation_zero_feature_rate": 0.02564102564102564
+    },
+    "G3_word_unbounded_normalized": {
+      "config": {
+        "C": 1.0,
+        "alpha": 1.0,
+        "char_config": null,
+        "class_weight": null,
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G3_word_unbounded_normalized",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 524,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.6051282051282051,
+      "validation_macro_f1": 0.6315450070470982,
+      "validation_zero_feature_rate": 0.40512820512820513
+    },
+    "G4_char_only": {
+      "config": {
+        "C": 1.0,
+        "alpha": 1.0,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 3000,
+          "ngram_range": [
+            3,
+            5
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": null,
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G4_char_only",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 3000,
+        "word_config": null
+      },
+      "validation_accuracy": 0.5384615384615384,
+      "validation_macro_f1": 0.5523697857579437,
+      "validation_zero_feature_rate": 0.0
+    },
+    "G5_word_char_union": {
+      "config": {
+        "C": 1.0,
+        "alpha": 1.0,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 3000,
+          "ngram_range": [
+            3,
+            5
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": null,
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G5_word_char_union",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 3524,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.6461538461538462,
+      "validation_macro_f1": 0.6461426237161532,
+      "validation_zero_feature_rate": 0.0
+    },
+    "G6_word_char_union_wide": {
+      "config": {
+        "C": 1.0,
+        "alpha": 1.0,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 8000,
+          "ngram_range": [
+            2,
+            6
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": null,
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G6_word_char_union_wide",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 8524,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.6717948717948717,
+      "validation_macro_f1": 0.6658908339300496,
+      "validation_zero_feature_rate": 0.0
+    },
+    "G7_word_char_union_balanced": {
+      "config": {
+        "C": 1.0,
+        "alpha": 1.0,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 3000,
+          "ngram_range": [
+            3,
+            5
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": "balanced",
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G7_word_char_union_balanced",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 3524,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.5948717948717949,
+      "validation_macro_f1": 0.6032354088626275,
+      "validation_zero_feature_rate": 0.0
+    },
+    "G8_word_char_union_C4": {
+      "config": {
+        "C": 4.0,
+        "alpha": 1.0,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 3000,
+          "ngram_range": [
+            3,
+            5
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": "balanced",
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "logreg",
+        "name": "G8_word_char_union_C4",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 3524,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.6,
+      "validation_macro_f1": 0.6087012410288273,
+      "validation_zero_feature_rate": 0.0
+    },
+    "G9_linear_svm_union": {
+      "config": {
+        "C": 1.0,
+        "alpha": 1.0,
+        "char_config": {
+          "analyzer": "char_wb",
+          "max_features": 3000,
+          "ngram_range": [
+            3,
+            5
+          ],
+          "sublinear_tf": true
+        },
+        "class_weight": "balanced",
+        "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+        "max_iter": 2000,
+        "model_kind": "linear_svm",
+        "name": "G9_linear_svm_union",
+        "normalizer_name": "normalize_deployment_text_v2",
+        "random_state": 42,
+        "vocabulary_size": 3524,
+        "word_config": {
+          "max_features": null,
+          "min_df": 1,
+          "ngram_range": [
+            1,
+            2
+          ],
+          "sublinear_tf": true
+        }
+      },
+      "validation_accuracy": 0.5743589743589743,
+      "validation_macro_f1": 0.5890686734542705,
+      "validation_zero_feature_rate": 0.0
+    }
+  },
+  "continuity_evaluations": {
+    "deployment_benchmark_v1": {
+      "final_test": {
+        "accuracy": 0.2564102564102564,
+        "confusion_matrix": {
+          "Entertainment": {
+            "Entertainment": 0,
+            "Food & Dining": 1,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 3,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Food & Dining": {
+            "Entertainment": 0,
+            "Food & Dining": 8,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Healthcare": {
+            "Entertainment": 0,
+            "Food & Dining": 3,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 1,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Other": {
+            "Entertainment": 0,
+            "Food & Dining": 3,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Rent & Utilities": {
+            "Entertainment": 0,
+            "Food & Dining": 4,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 2,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Shopping": {
+            "Entertainment": 0,
+            "Food & Dining": 3,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 3,
+            "Transport": 0
+          },
+          "Subscriptions": {
+            "Entertainment": 0,
+            "Food & Dining": 4,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Transport": {
+            "Entertainment": 0,
+            "Food & Dining": 4,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          }
+        },
+        "macro_f1": 0.10818713450292397,
+        "n": 39,
+        "per_category": {
+          "Entertainment": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Food & Dining": {
+            "f1": 0.42105263157894735,
+            "precision": 0.26666666666666666,
+            "recall": 1.0,
+            "support": 8
+          },
+          "Healthcare": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Other": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 3
+          },
+          "Rent & Utilities": {
+            "f1": 0.4444444444444444,
+            "precision": 0.6666666666666666,
+            "recall": 0.3333333333333333,
+            "support": 6
+          },
+          "Shopping": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 6
+          },
+          "Subscriptions": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Transport": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          }
+        }
+      },
+      "note": "Continuity evaluation only -- not used to select the ML-G winner.",
+      "validation": {
+        "accuracy": 0.1951219512195122,
+        "confusion_matrix": {
+          "Entertainment": {
+            "Entertainment": 0,
+            "Food & Dining": 6,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Food & Dining": {
+            "Entertainment": 0,
+            "Food & Dining": 2,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 3,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Healthcare": {
+            "Entertainment": 0,
+            "Food & Dining": 3,
+            "Healthcare": 2,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Other": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 4,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Rent & Utilities": {
+            "Entertainment": 0,
+            "Food & Dining": 5,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Shopping": {
+            "Entertainment": 0,
+            "Food & Dining": 5,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Subscriptions": {
+            "Entertainment": 0,
+            "Food & Dining": 4,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Transport": {
+            "Entertainment": 0,
+            "Food & Dining": 7,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          }
+        },
+        "macro_f1": 0.20994208494208494,
+        "n": 41,
+        "per_category": {
+          "Entertainment": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 6
+          },
+          "Food & Dining": {
+            "f1": 0.10810810810810811,
+            "precision": 0.0625,
+            "recall": 0.4,
+            "support": 5
+          },
+          "Healthcare": {
+            "f1": 0.5714285714285714,
+            "precision": 1.0,
+            "recall": 0.4,
+            "support": 5
+          },
+          "Other": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 4
+          },
+          "Rent & Utilities": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 5
+          },
+          "Shopping": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 5
+          },
+          "Subscriptions": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Transport": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 7
+          }
+        }
+      }
+    },
+    "tier_b_benchmark_v1": {
+      "final_test": {
+        "accuracy": 0.5555555555555556,
+        "confusion_matrix": {
+          "Entertainment": {
+            "Entertainment": 2,
+            "Food & Dining": 2,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Food & Dining": {
+            "Entertainment": 0,
+            "Food & Dining": 4,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 1,
+            "Subscriptions": 0,
+            "Transport": 3
+          },
+          "Healthcare": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 5,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Other": {
+            "Entertainment": 0,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 4,
+            "Rent & Utilities": 1,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Rent & Utilities": {
+            "Entertainment": 0,
+            "Food & Dining": 1,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 3,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 1
+          },
+          "Shopping": {
+            "Entertainment": 0,
+            "Food & Dining": 2,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 2,
+            "Subscriptions": 0,
+            "Transport": 1
+          },
+          "Subscriptions": {
+            "Entertainment": 2,
+            "Food & Dining": 1,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 1,
+            "Transport": 0
+          },
+          "Transport": {
+            "Entertainment": 0,
+            "Food & Dining": 3,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 2,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 4
+          }
+        },
+        "macro_f1": 0.5824675324675325,
+        "n": 45,
+        "per_category": {
+          "Entertainment": {
+            "f1": 0.5,
+            "precision": 0.5,
+            "recall": 0.5,
+            "support": 4
+          },
+          "Food & Dining": {
+            "f1": 0.38095238095238093,
+            "precision": 0.3076923076923077,
+            "recall": 0.5,
+            "support": 8
+          },
+          "Healthcare": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 5
+          },
+          "Other": {
+            "f1": 0.8888888888888888,
+            "precision": 1.0,
+            "recall": 0.8,
+            "support": 5
+          },
+          "Rent & Utilities": {
+            "f1": 0.5454545454545454,
+            "precision": 0.5,
+            "recall": 0.6,
+            "support": 5
+          },
+          "Shopping": {
+            "f1": 0.5,
+            "precision": 0.6666666666666666,
+            "recall": 0.4,
+            "support": 5
+          },
+          "Subscriptions": {
+            "f1": 0.4,
+            "precision": 1.0,
+            "recall": 0.25,
+            "support": 4
+          },
+          "Transport": {
+            "f1": 0.4444444444444444,
+            "precision": 0.4444444444444444,
+            "recall": 0.4444444444444444,
+            "support": 9
+          }
+        }
+      },
+      "note": "Continuity evaluation only -- not used to select the ML-G winner.",
+      "validation": {
+        "accuracy": 0.36,
+        "confusion_matrix": {
+          "Entertainment": {
+            "Entertainment": 0,
+            "Food & Dining": 2,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 1,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 4
+          },
+          "Food & Dining": {
+            "Entertainment": 0,
+            "Food & Dining": 7,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 4,
+            "Subscriptions": 0,
+            "Transport": 2
+          },
+          "Healthcare": {
+            "Entertainment": 0,
+            "Food & Dining": 2,
+            "Healthcare": 1,
+            "Other": 1,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Other": {
+            "Entertainment": 0,
+            "Food & Dining": 2,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 2,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Rent & Utilities": {
+            "Entertainment": 2,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 4,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 1
+          },
+          "Shopping": {
+            "Entertainment": 0,
+            "Food & Dining": 5,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 0
+          },
+          "Subscriptions": {
+            "Entertainment": 2,
+            "Food & Dining": 0,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 1,
+            "Transport": 1
+          },
+          "Transport": {
+            "Entertainment": 0,
+            "Food & Dining": 1,
+            "Healthcare": 0,
+            "Other": 0,
+            "Rent & Utilities": 0,
+            "Shopping": 0,
+            "Subscriptions": 0,
+            "Transport": 5
+          }
+        },
+        "macro_f1": 0.291905545112782,
+        "n": 50,
+        "per_category": {
+          "Entertainment": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 7
+          },
+          "Food & Dining": {
+            "f1": 0.4375,
+            "precision": 0.3684210526315789,
+            "recall": 0.5384615384615384,
+            "support": 13
+          },
+          "Healthcare": {
+            "f1": 0.4,
+            "precision": 1.0,
+            "recall": 0.25,
+            "support": 4
+          },
+          "Other": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 4
+          },
+          "Rent & Utilities": {
+            "f1": 0.5714285714285714,
+            "precision": 0.5714285714285714,
+            "recall": 0.5714285714285714,
+            "support": 7
+          },
+          "Shopping": {
+            "f1": 0.0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "support": 5
+          },
+          "Subscriptions": {
+            "f1": 0.4,
+            "precision": 1.0,
+            "recall": 0.25,
+            "support": 4
+          },
+          "Transport": {
+            "f1": 0.5263157894736842,
+            "precision": 0.38461538461538464,
+            "recall": 0.8333333333333334,
+            "support": 6
+          }
+        }
+      }
+    }
+  },
+  "dataset": {
+    "dataset_id": "deployment_benchmark_v2",
+    "evidence_tier": "Sanitized deployment-oriented bank-description benchmark v2 (hand-curated, fabricated merchants; category-typical head nouns shared across many distinct merchant groups so a merchant-group-isolated split still leaves learnable signal -- NOT real-world data)",
+    "partition_counts_categorical_only": {
+      "FINAL_TEST": 195,
+      "TRAIN": 580,
+      "VALIDATION": 195
+    },
+    "partition_merchant_group_counts": {
+      "FINAL_TEST": 40,
+      "TRAIN": 119,
+      "VALIDATION": 40
+    },
+    "source": "ml/data/build_deployment_benchmark_v2.py -> data/evaluation/deployment_benchmark_v2.csv",
+    "split_definition_ref": "data/evaluation/deployment_split_v2.json",
+    "train_class_distribution": {
+      "Entertainment": 70,
+      "Food & Dining": 95,
+      "Healthcare": 70,
+      "Other": 50,
+      "Rent & Utilities": 70,
+      "Shopping": 80,
+      "Subscriptions": 65,
+      "Transport": 80
+    }
+  },
+  "declaration": "The winner was selected on deployment_benchmark_v2 VALIDATION macro-F1 alone. The abstention policy was fitted afterwards, on VALIDATION only, and could not change which model won. The v2 FINAL_TEST partition was evaluated exactly once, after both were frozen.",
+  "hypotheses": {
+    "G10_complement_nb_union": "Hypothesis: ComplementNB is specifically designed for imbalanced text classification and is nearly free to fit -- worth one honest attempt.",
+    "G11_multinomial_nb_union": "Control for G10: the standard Naive Bayes variant, to confirm any NB gain comes from the complement formulation rather than NB in general.",
+    "G12_word_unigram_char_union": "Hypothesis: word bigrams are near-useless on 2-4 word merchant strings and only dilute the L2 norm; unigrams plus char n-grams may be strictly better.",
+    "G13_union_wide_C4": "Hypothesis: the wide word+char union is the best representation, and its remaining headroom is regularization -- C=4 on that exact representation.",
+    "G14_union_wide_balanced": "Hypothesis: on the wide union, class_weight='balanced' trades a little accuracy on the largest category for recall on the smallest ones -- which is what macro-F1 rewards.",
+    "G1_mlf_recipe_on_v2": "Control: the exact ML-F production recipe (word TF-IDF, 200 features, no normalization) re-fit on the v2 corpus. Isolates how much of the ML-F failure was the corpus rather than the model.",
+    "G2_word_unbounded": "Hypothesis: the 200-term cap, not the word representation itself, was starving the vocabulary. Remove the cap, change nothing else.",
+    "G3_word_unbounded_normalized": "Hypothesis: v2 boilerplate stripping (ONLINE PURCHASE / E-TRANSFER / REF-token removal, which ML-F's v1 normalizer missed) frees vocabulary capacity for merchant-identity terms.",
+    "G4_char_only": "Hypothesis: character n-grams alone survive Scotiabank-style mid-word truncation and the glued ONLINE-PURCHASE-....COM shape, where whole word tokens do not exist.",
+    "G5_word_char_union": "Hypothesis: word features carry head-noun/merchant identity, char features carry truncation robustness, and a FeatureUnion of both dominates either alone -- the central ML-G representation hypothesis.",
+    "G6_word_char_union_wide": "Hypothesis: widening the char n-gram range (2-6) and cap catches shorter stems (PHARM, DENT) that 3-5 truncates away.",
+    "G7_word_char_union_balanced": "Hypothesis: class_weight='balanced' lifts the smaller categories' recall, which is what macro-F1 (as opposed to accuracy) actually rewards.",
+    "G8_word_char_union_C4": "Hypothesis: with high-dimensional sparse text and few rows per class, the default C=1.0 is over-regularized; C=4 should sharpen the decision boundaries without the vocabulary being large enough to overfit badly.",
+    "G9_linear_svm_union": "Hypothesis: LinearSVC is the classical strong baseline on sparse text and may beat LogReg on the same representation."
+  },
+  "phase": "ML-G -- deployment-aware categorization rebuild",
+  "ranked_by_validation_macro_f1": [
+    [
+      "G6_word_char_union_wide",
+      0.6658908339300496
+    ],
+    [
+      "G14_union_wide_balanced",
+      0.6636459963361934
+    ],
+    [
+      "G13_union_wide_C4",
+      0.6527468405777229
+    ],
+    [
+      "G5_word_char_union",
+      0.6461426237161532
+    ],
+    [
+      "G10_complement_nb_union",
+      0.6404332038812928
+    ],
+    [
+      "G3_word_unbounded_normalized",
+      0.6315450070470982
+    ],
+    [
+      "G8_word_char_union_C4",
+      0.6087012410288273
+    ],
+    [
+      "G11_multinomial_nb_union",
+      0.6076629024904887
+    ],
+    [
+      "G7_word_char_union_balanced",
+      0.6032354088626275
+    ],
+    [
+      "G12_word_unigram_char_union",
+      0.5968048109187025
+    ],
+    [
+      "G9_linear_svm_union",
+      0.5890686734542705
+    ],
+    [
+      "G4_char_only",
+      0.5523697857579437
+    ],
+    [
+      "G2_word_unbounded",
+      0.5054140115692434
+    ],
+    [
+      "G1_mlf_recipe_on_v2",
+      0.36078102935713496
+    ]
+  ],
+  "sealed_final_test_model_only": {
+    "accuracy": 0.6102564102564103,
+    "confusion_matrix": {
+      "Entertainment": {
+        "Entertainment": 4,
+        "Food & Dining": 5,
+        "Healthcare": 6,
+        "Other": 0,
+        "Rent & Utilities": 0,
+        "Shopping": 4,
+        "Subscriptions": 0,
+        "Transport": 1
+      },
+      "Food & Dining": {
+        "Entertainment": 0,
+        "Food & Dining": 32,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 0,
+        "Shopping": 2,
+        "Subscriptions": 0,
+        "Transport": 1
+      },
+      "Healthcare": {
+        "Entertainment": 0,
+        "Food & Dining": 5,
+        "Healthcare": 17,
+        "Other": 0,
+        "Rent & Utilities": 2,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Transport": 1
+      },
+      "Other": {
+        "Entertainment": 0,
+        "Food & Dining": 1,
+        "Healthcare": 0,
+        "Other": 11,
+        "Rent & Utilities": 0,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Transport": 8
+      },
+      "Rent & Utilities": {
+        "Entertainment": 0,
+        "Food & Dining": 6,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 9,
+        "Shopping": 4,
+        "Subscriptions": 0,
+        "Transport": 6
+      },
+      "Shopping": {
+        "Entertainment": 0,
+        "Food & Dining": 0,
+        "Healthcare": 1,
+        "Other": 0,
+        "Rent & Utilities": 5,
+        "Shopping": 13,
+        "Subscriptions": 0,
+        "Transport": 6
+      },
+      "Subscriptions": {
+        "Entertainment": 4,
+        "Food & Dining": 2,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 0,
+        "Shopping": 0,
+        "Subscriptions": 14,
+        "Transport": 0
+      },
+      "Transport": {
+        "Entertainment": 0,
+        "Food & Dining": 1,
+        "Healthcare": 0,
+        "Other": 0,
+        "Rent & Utilities": 0,
+        "Shopping": 5,
+        "Subscriptions": 0,
+        "Transport": 19
+      }
+    },
+    "macro_f1": 0.5931481823558141,
+    "n": 195,
+    "per_category": {
+      "Entertainment": {
+        "f1": 0.2857142857142857,
+        "precision": 0.5,
+        "recall": 0.2,
+        "support": 20
+      },
+      "Food & Dining": {
+        "f1": 0.735632183908046,
+        "precision": 0.6153846153846154,
+        "recall": 0.9142857142857143,
+        "support": 35
+      },
+      "Healthcare": {
+        "f1": 0.6938775510204082,
+        "precision": 0.7083333333333334,
+        "recall": 0.68,
+        "support": 25
+      },
+      "Other": {
+        "f1": 0.7096774193548387,
+        "precision": 1.0,
+        "recall": 0.55,
+        "support": 20
+      },
+      "Rent & Utilities": {
+        "f1": 0.43902439024390244,
+        "precision": 0.5625,
+        "recall": 0.36,
+        "support": 25
+      },
+      "Shopping": {
+        "f1": 0.49056603773584906,
+        "precision": 0.4642857142857143,
+        "recall": 0.52,
+        "support": 25
+      },
+      "Subscriptions": {
+        "f1": 0.8235294117647058,
+        "precision": 1.0,
+        "recall": 0.7,
+        "support": 20
+      },
+      "Transport": {
+        "f1": 0.5671641791044776,
+        "precision": 0.4523809523809524,
+        "recall": 0.76,
+        "support": 25
+      }
+    }
+  },
+  "sealed_final_test_policy_effect": {
+    "abstain_rate": 0.17435897435897435,
+    "abstained_rows_whose_true_label_is_other": 1,
+    "accuracy_after_policy": 0.5948717948717949,
+    "correct_predictions_abstained": 4,
+    "macro_f1_after_policy": 0.5761814811261899,
+    "min_margin": 0.02,
+    "n_abstained": 34,
+    "wrong_predictions_abstained": 30
+  },
+  "sealed_final_test_prediction_distribution": {
+    "Entertainment": 4,
+    "Food & Dining": 45,
+    "Healthcare": 22,
+    "Other": 45,
+    "Rent & Utilities": 11,
+    "Shopping": 23,
+    "Subscriptions": 13,
+    "Transport": 32
+  },
+  "sealed_final_test_representation_coverage": {
+    "mean_active_features": 54.56923076923077,
+    "mean_top_margin": 0.20285245383322184,
+    "mean_top_score": 0.34137257425737605,
+    "n_rows": 195,
+    "weak_feature_rate_lte_2": 0.0,
+    "weak_feature_rows_lte_2": 0,
+    "zero_feature_rate": 0.0,
+    "zero_feature_rows": 0
+  },
+  "sealed_final_test_with_policy": {
+    "accuracy": 0.5948717948717949,
+    "confusion_matrix": {
+      "Entertainment": {
+        "Entertainment": 4,
+        "Food & Dining": 1,
+        "Healthcare": 5,
+        "Other": 6,
+        "Rent & Utilities": 0,
+        "Shopping": 4,
+        "Subscriptions": 0,
+        "Transport": 0
+      },
+      "Food & Dining": {
+        "Entertainment": 0,
+        "Food & Dining": 32,
+        "Healthcare": 0,
+        "Other": 1,
+        "Rent & Utilities": 0,
+        "Shopping": 1,
+        "Subscriptions": 0,
+        "Transport": 1
+      },
+      "Healthcare": {
+        "Entertainment": 0,
+        "Food & Dining": 5,
+        "Healthcare": 16,
+        "Other": 1,
+        "Rent & Utilities": 2,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Transport": 1
+      },
+      "Other": {
+        "Entertainment": 0,
+        "Food & Dining": 0,
+        "Healthcare": 0,
+        "Other": 12,
+        "Rent & Utilities": 0,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Transport": 8
+      },
+      "Rent & Utilities": {
+        "Entertainment": 0,
+        "Food & Dining": 5,
+        "Healthcare": 0,
+        "Other": 11,
+        "Rent & Utilities": 9,
+        "Shopping": 0,
+        "Subscriptions": 0,
+        "Transport": 0
+      },
+      "Shopping": {
+        "Entertainment": 0,
+        "Food & Dining": 0,
+        "Healthcare": 1,
+        "Other": 6,
+        "Rent & Utilities": 0,
+        "Shopping": 13,
+        "Subscriptions": 0,
+        "Transport": 5
+      },
+      "Subscriptions": {
+        "Entertainment": 0,
+        "Food & Dining": 1,
+        "Healthcare": 0,
+        "Other": 6,
+        "Rent & Utilities": 0,
+        "Shopping": 0,
+        "Subscriptions": 13,
+        "Transport": 0
+      },
+      "Transport": {
+        "Entertainment": 0,
+        "Food & Dining": 1,
+        "Healthcare": 0,
+        "Other": 2,
+        "Rent & Utilities": 0,
+        "Shopping": 5,
+        "Subscriptions": 0,
+        "Transport": 17
+      }
+    },
+    "macro_f1": 0.5761814811261899,
+    "n": 195,
+    "n_merchant_groups": 39,
+    "per_category": {
+      "Entertainment": {
+        "f1": 0.3333333333333333,
+        "precision": 1.0,
+        "recall": 0.2,
+        "support": 20
+      },
+      "Food & Dining": {
+        "f1": 0.8,
+        "precision": 0.7111111111111111,
+        "recall": 0.9142857142857143,
+        "support": 35
+      },
+      "Healthcare": {
+        "f1": 0.6808510638297872,
+        "precision": 0.7272727272727273,
+        "recall": 0.64,
+        "support": 25
+      },
+      "Other": {
+        "f1": 0.36923076923076925,
+        "precision": 0.26666666666666666,
+        "recall": 0.6,
+        "support": 20
+      },
+      "Rent & Utilities": {
+        "f1": 0.5,
+        "precision": 0.8181818181818182,
+        "recall": 0.36,
+        "support": 25
+      },
+      "Shopping": {
+        "f1": 0.5416666666666666,
+        "precision": 0.5652173913043478,
+        "recall": 0.52,
+        "support": 25
+      },
+      "Subscriptions": {
+        "f1": 0.7878787878787878,
+        "precision": 1.0,
+        "recall": 0.65,
+        "support": 20
+      },
+      "Transport": {
+        "f1": 0.5964912280701754,
+        "precision": 0.53125,
+        "recall": 0.68,
+        "support": 25
+      }
+    }
+  },
+  "structural_ambiguity_routing": {
+    "FINAL_TEST": {
+      "coverage": 1.0,
+      "false_positive_rate": 0.0,
+      "false_positive_routes": 0,
+      "n_ambiguous": 6,
+      "n_correctly_routed": 6,
+      "n_non_ambiguous": 195
+    },
+    "TRAIN": {
+      "coverage": 1.0,
+      "false_positive_rate": 0.0,
+      "false_positive_routes": 0,
+      "n_ambiguous": 20,
+      "n_correctly_routed": 20,
+      "n_non_ambiguous": 580
+    },
+    "VALIDATION": {
+      "coverage": 1.0,
+      "false_positive_rate": 0.0,
+      "false_positive_routes": 0,
+      "n_ambiguous": 6,
+      "n_correctly_routed": 6,
+      "n_non_ambiguous": 195
+    }
+  },
+  "what_improved": [
+    "Sealed FINAL_TEST macro-F1 on held-out merchant groups rose from 0.174 (ML-F) to 0.593 model-only / 0.576 with the abstention policy.",
+    "Zero-feature (no-evidence) rate on held-out rows fell to 0.0%; ML-F's shipped artifact produced an all-zero feature vector for 11 of 18 realistic deployment probe strings, every one of which it answered 'Food & Dining' because that is argmax(intercept_).",
+    "Structural-ambiguity over-routing fixed: the previous bare-regex rule routed 13.8% of legitimate FINAL_TEST rows to 'Other' because they happened to contain e-transfer boilerplate. False-positive routing is now 0.0% with ambiguous-row coverage still 100%.",
+    "The training corpus now carries category-typical head nouns across multiple distinct merchant groups, so a merchant-group-isolated split still leaves learnable signal for an unseen merchant.",
+    "Boilerplate can no longer act as a category shortcut: every merchant in the corpus draws from the same shared pool of transaction-method templates."
+  ],
+  "what_still_cannot_be_inferred": [
+    "This is a sanitized, fabricated corpus. It supports no real-world accuracy claim, and none is made anywhere in the product.",
+    "A merchant whose description is a brand name with no category-typical head noun ('ZENOVARA') cannot be placed from text alone. Those rows are in the corpus on purpose so the reported numbers are not inflated; in production they are what abstention and correction memory exist for.",
+    "Private RBC/Scotiabank exports carry no category ground truth, so no accuracy figure can be computed on them -- only representation-coverage and prediction-distribution diagnostics."
+  ],
+  "winner": {
+    "candidate_name": "G6_word_char_union_wide",
+    "exact_configuration": {
+      "C": 1.0,
+      "alpha": 1.0,
+      "char_config": {
+        "analyzer": "char_wb",
+        "max_features": 8000,
+        "ngram_range": [
+          2,
+          6
+        ],
+        "sublinear_tf": true
+      },
+      "class_weight": null,
+      "isolation": "vectorizer/model fit on TRAIN only (n=580)",
+      "max_iter": 2000,
+      "model_kind": "logreg",
+      "name": "G6_word_char_union_wide",
+      "normalizer_name": "normalize_deployment_text_v2",
+      "random_state": 42,
+      "vocabulary_size": 8524,
+      "word_config": {
+        "max_features": null,
+        "min_df": 1,
+        "ngram_range": [
+          1,
+          2
+        ],
+        "sublinear_tf": true
+      }
+    },
+    "label": "Word TF-IDF (1-2 grams, unbounded vocabulary) UNION character TF-IDF (char_wb 2-6 grams, 8000 features), both on v2-normalized merchant text, feeding multinomial Logistic Regression.",
+    "source_code": "ml/categorization/candidates_v2.py::SparseTextCandidate"
+  },
+  "winner_selection_reasoning": "Highest VALIDATION macro-F1 among the 14 pre-registered classical candidates, tie-broken within 0.01 toward the simpler representation and then LogReg > LinearSVC > Naive Bayes. Selected before FINAL_TEST was touched. Abstention thresholds were fitted afterwards, on VALIDATION only, and could not change which model won."
+}

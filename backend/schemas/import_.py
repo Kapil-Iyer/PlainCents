@@ -6,12 +6,32 @@ from pydantic import BaseModel
 
 class ImportSampleRow(BaseModel):
     """One row of ImportPreview.sample_rows — enough to show the user what
-    was parsed, without exposing staged_transactions' internal id/dedup_key."""
+    was parsed and WHY it was categorized the way it was, without exposing
+    staged_transactions' internal id/dedup_key.
+
+    ML-G: the decision fields below are what make Preview an honest preview.
+    Previously this carried only `predicted_category` (the raw model output),
+    while Confirm separately applied structural-ambiguity routing and
+    remembered corrections — so the table showed a category that would not be
+    the one stored.
+
+      predicted_category   the SYSTEM's decision for this row
+      remembered_category  a prior GENUINE user correction that will be
+                           written to confirmed_category on confirm; None if
+                           no correction is remembered
+      effective_category   what the row will actually count as — exactly
+                           COALESCE(remembered, predicted), the same rule the
+                           v_transactions_effective view applies
+      decision_source      'model' | 'structural_other' | 'low_confidence_other'
+    """
 
     date: str
     merchant: str
     amount: float
     predicted_category: str | None
+    remembered_category: str | None = None
+    effective_category: str | None = None
+    decision_source: str | None = None
     is_duplicate: bool
 
 

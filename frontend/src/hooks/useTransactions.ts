@@ -7,6 +7,7 @@ import {
   updateTransaction,
 } from "@/api/transactions";
 import { APP_STATE_QUERY_KEY } from "@/context/AppStateContext";
+import { ANALYTICS_QUERY_KEY } from "@/hooks/useAnalytics";
 import { DASHBOARD_QUERY_KEY } from "@/hooks/useDashboard";
 import type {
   TransactionCreate,
@@ -32,6 +33,7 @@ export function useCreateTransaction() {
       queryClient.invalidateQueries({ queryKey: [TRANSACTIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: APP_STATE_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ANALYTICS_QUERY_KEY });
     },
   });
 }
@@ -44,6 +46,7 @@ export function useUpdateTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TRANSACTIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ANALYTICS_QUERY_KEY });
     },
   });
 }
@@ -55,6 +58,7 @@ export function useDeleteTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TRANSACTIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ANALYTICS_QUERY_KEY });
     },
   });
 }

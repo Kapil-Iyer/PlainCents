@@ -4,7 +4,16 @@ export interface ImportSampleRow {
   date: string;
   merchant: string;
   amount: number;
+  /** The SYSTEM's decision for this row. */
   predicted_category: string | null;
+  /** A prior genuine correction of yours for this merchant, which will be
+   * applied on confirm. Null when none is remembered. */
+  remembered_category: string | null;
+  /** What the row will actually count as — COALESCE(remembered, predicted),
+   * the same rule the rest of the app uses. */
+  effective_category: string | null;
+  /** Why `predicted_category` is what it is. */
+  decision_source: "model" | "structural_other" | "low_confidence_other" | null;
   is_duplicate: boolean;
 }
 

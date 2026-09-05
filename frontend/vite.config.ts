@@ -24,5 +24,11 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     css: true,
+    // Vitest's 5s default is tight for a jsdom + Recharts + Framer Motion
+    // suite running files in parallel: several tests pass comfortably in
+    // isolation but intermittently time out under full-suite load. This is
+    // a slow-environment allowance, not a licence for slow tests — nothing
+    // here is expected to take anywhere near 20s.
+    testTimeout: 20000,
   },
 });

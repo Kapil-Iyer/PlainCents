@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { clearDemo, loadDemo } from "@/api/demo";
 import { APP_STATE_QUERY_KEY } from "@/context/AppStateContext";
+import { ANALYTICS_QUERY_KEY } from "@/hooks/useAnalytics";
 import { DASHBOARD_QUERY_KEY } from "@/hooks/useDashboard";
 import { FORECAST_LATEST_QUERY_KEY, FORECAST_STATUS_QUERY_KEY } from "@/hooks/useForecast";
 
@@ -14,6 +15,7 @@ import { FORECAST_LATEST_QUERY_KEY, FORECAST_STATUS_QUERY_KEY } from "@/hooks/us
 function invalidateModeScopedQueries(queryClient: ReturnType<typeof useQueryClient>) {
   queryClient.invalidateQueries({ queryKey: APP_STATE_QUERY_KEY });
   queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ANALYTICS_QUERY_KEY });
   queryClient.invalidateQueries({ queryKey: FORECAST_STATUS_QUERY_KEY });
   queryClient.invalidateQueries({ queryKey: FORECAST_LATEST_QUERY_KEY });
   queryClient.invalidateQueries({ queryKey: ["transactions"] });

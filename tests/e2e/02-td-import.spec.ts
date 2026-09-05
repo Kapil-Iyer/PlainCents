@@ -30,13 +30,13 @@ test("upload TD CSV -> preview -> confirm -> transactions show predicted categor
 
   // Preview stage: sample rows with a predicted category each.
   await expect(page.getByRole("heading", { name: "Preview" })).toBeVisible();
-  await expect(page.getByText("Valid rows")).toBeVisible();
+  await expect(page.getByText("Spend rows to import")).toBeVisible();
   const previewTable = page.locator("table").first();
   await expect(previewTable.locator("tbody tr").first()).toBeVisible();
   // At least one predicted category cell is populated (not the "—" fallback).
   await expect(previewTable.locator("tbody tr").first().locator("td").nth(3)).not.toHaveText("—");
 
-  await page.getByRole("button", { name: "Confirm import" }).click();
+  await page.getByRole("button", { name: /Import \d+ transactions?/ }).click();
 
   // Result stage.
   await expect(page.getByText("Import complete")).toBeVisible();

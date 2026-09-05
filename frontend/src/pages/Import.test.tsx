@@ -26,7 +26,16 @@ const preview: ImportPreview = {
   rows_skipped_currency: 0,
   date_range: { from: "2026-01-01", to: "2026-01-31" },
   sample_rows: [
-    { date: "2026-01-05", merchant: "Loblaws", amount: -50, predicted_category: "Food & Dining", is_duplicate: false },
+    {
+      date: "2026-01-05",
+      merchant: "Loblaws",
+      amount: -50,
+      predicted_category: "Food & Dining",
+      remembered_category: null,
+      effective_category: "Food & Dining",
+      decision_source: "model",
+      is_duplicate: false,
+    },
   ],
   status: "previewing",
   categorization_available: true,
@@ -65,7 +74,7 @@ describe("ImportPage", () => {
     expect(createImport).toHaveBeenCalledWith(file, "Auto");
     expect(screen.getByText("Loblaws")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Confirm import" }));
+    await user.click(screen.getByRole("button", { name: /Import \d+ transactions?/ }));
 
     await screen.findByText("Import complete");
     expect(confirmImport).toHaveBeenCalledWith(42);
@@ -88,7 +97,7 @@ describe("ImportPage", () => {
     await user.click(screen.getByRole("button", { name: /Upload & preview/i }));
 
     await screen.findByText("Preview");
-    await user.click(screen.getByRole("button", { name: "Confirm import" }));
+    await user.click(screen.getByRole("button", { name: /Import \d+ transactions?/ }));
 
     await waitFor(() =>
       expect(screen.getByText(/can't be confirmed yet/)).toBeInTheDocument(),

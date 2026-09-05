@@ -1,29 +1,42 @@
 /**
- * Claim-safety qualifiers, transcribed from reports/ml/ML_E_CLAIM_MATRIX.json.
- * Anything listed in NOT_SUPPORTED_CLAIMS must never be rendered as an
- * asserted product claim anywhere in the How It Works page (or elsewhere).
- * The SUPPORTED_WITH_QUALIFICATION strings below are the "safest_wording"
- * text from that file, verbatim — they carry their own limitation and are
- * meant to be shown on-card, not hidden in a tooltip.
+ * Claims PlainCents deliberately does NOT make.
+ *
+ * This list is not decoration. Each entry is a sentence that sounds
+ * reasonable, that the evidence in this repository does NOT support, and
+ * that a reader could easily infer from the numbers shown elsewhere on the
+ * How It Works page if nobody said otherwise. They are rendered on the page
+ * for exactly that reason.
+ *
+ * Rule: nothing here may ever appear as an asserted claim anywhere in the
+ * product. If a future phase produces evidence for one of these, move it out
+ * of this list in the same change that adds the evidence — never before.
+ *
+ * ML-G update: the figures quoted below were refreshed from
+ * reports/ml/ML_G_SELECTION_RECORD.json. The claims themselves are unchanged
+ * in kind — a better model does not make a fabricated benchmark into
+ * real-world evidence.
  */
 
 export const NOT_SUPPORTED_CLAIMS = [
-  "PlainCents categorizes real-world bank transactions at 30.8% accuracy.",
-  "PlainCents forecasts real-world personal spending at approximately 17.8% WAPE.",
-  "TD CSV support is verified against a real TD export.",
-  "PlainCents uses real bank transaction data for ML evaluation.",
-  "PlainCents automatically retrains from user corrections.",
-  "V2 categorization improved over V1.",
+  "PlainCents categorizes real-world bank transactions at 58% accuracy.",
+  "PlainCents is more accurate than your bank's own categorization.",
+  "PlainCents forecasts real-world personal spending to within 18%.",
+  "Three months of history forecasts as accurately as six or twelve.",
+  "PlainCents learns from your corrections and retrains itself.",
+  "Bank CSV support is verified against real exports from every supported bank.",
 ] as const;
 
 export const CATEGORIZATION_EVIDENCE_QUALIFIER =
-  "30.8% accuracy on a sanitized, hand-curated deployment-oriented benchmark (fabricated merchants, not real-world bank data). A real, private RBC/Scotiabank export audit informed this benchmark's structure but was never trained or evaluated on directly, and is not the source of this number.";
+  "0.58 macro-F1 on a sanitized, hand-authored benchmark of Canadian-bank-style descriptions with fabricated merchant names — measured on merchants held out of training entirely. It is not a real-world accuracy figure, and no real-world figure can be computed: private bank exports carry no category labels to check against.";
 
 export const FORECASTING_EVIDENCE_QUALIFIER =
-  "17.84% WAPE on a synthetic 3-month reserved evaluation period — a mechanism/behavior check, not a real-world accuracy figure.";
+  "The forecast method (a three-month average per category) was selected on a synthetic 24-month grid using walk-forward validation. That is a mechanism check, not a real-world accuracy figure.";
 
-export const TD_IMPORT_QUALIFIER =
-  "TD import is tested against synthetic fixtures shaped like TD's publicly documented export columns — not field-verified against a real export.";
+export const THREE_MONTH_MINIMUM_QUALIFIER =
+  "Three completed months is the mathematical minimum for a three-month average — exactly one full window. It has not been shown to forecast as accurately as six, nine or twelve months; the history-length experiments never tested a three-month history at all.";
+
+export const BANK_IMPORT_QUALIFIER =
+  "Import is tested against synthetic fixtures shaped like each bank's documented export columns, plus a read-only structural audit of real RBC and Scotiabank exports. Individual banks change their export format without notice.";
 
 export const RETRAINING_QUALIFIER =
-  "There is no online learning: a correction only ever writes confirmed_category. The categorization model artifact is fit offline and never refit at request time or on correction — verified directly by tests asserting predict()/predict_batch() never call .fit()/.fit_transform().";
+  "There is no online learning. A correction only ever writes your category for that merchant on that bank; the model artifact is fit offline and is byte-identical on every request — verified by tests asserting the inference path never calls fit().";

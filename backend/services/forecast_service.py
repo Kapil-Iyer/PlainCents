@@ -36,20 +36,24 @@ from backend.repositories.transaction_repository import TransactionRepository
 from backend.services.app_state_service import AppStateService
 from pipeline.forecast import aggregate_monthly, train_and_predict
 
-# TRD Section 12.5 / PRD Section 21 (ML-F amendment, reports/ml/
-# ML_F_SELECTION_RECORD.json's forecasting_selection): lowered from 12 to 6
-# unique calendar months. This is a product-history USABILITY threshold, not
-# an accuracy claim — the ML-F-selected 3-month rolling mean mathematically
-# needs only 3 months per category and was found pooled-WAPE-stable across
-# 6/9/12/18 months of truncated history (identical to how Naive behaved
-# under ML-C's own history-length sensitivity experiment), so 6 months no
-# longer buys any measurable forecast-quality improvement over a lower
-# threshold — it is kept only because a single month's rolling average is
-# too thin a product experience to present as "your forecast." MUST stay in
-# sync with pipeline/forecast.py's aggregate_monthly() — that function
-# enforces the identical threshold independently and this constant does not
-# override it; both were changed together (ML-F brief Section 25).
-MONTHS_REQUIRED = 6
+# Forecast eligibility: THREE completed months.
+#
+# This is the mathematical minimum the selected production method needs. The
+# production forecaster is a 3-month rolling mean
+# (ml/forecasting/baselines.py::rolling_mean_predict, window=3, selected in
+# reports/ml/ML_F_SELECTION_RECORD.json's forecasting_selection), so three
+# completed months is exactly the history required to compute one full
+# window. It is NOT a claim that three months forecasts as accurately as
+# six, nine or twelve — no such equivalence was established, and the ML-C/
+# ML-F history-length sensitivity experiments (which truncated to 6/9/12/18
+# months) never evaluated a three-month history at all.
+#
+# MUST stay in sync with pipeline/forecast.py's aggregate_monthly(), which
+# enforces the identical threshold independently and is called directly by
+# run_forecast() below — this constant does not override it. There is a test
+# asserting the two are equal, because a silent divergence would produce a
+# 500 from a request the service layer had already accepted.
+MONTHS_REQUIRED = 3
 
 # ML Spec Section 18: identifies the forecasting implementation actually
 # used to generate a run — not a persisted artifact (Section 18's explicit
@@ -139,7 +143,7 @@ class ForecastService:
     def run_forecast(self, data_mode: str | None) -> dict:
         """The only ForecastService method that touches pipeline.forecast
         (TRD Section 7.4/Section 12.2). Raises ForecastColdStartError (422)
-        without persisting anything if months_available < 12 — an explicit
+        without persisting anything if months_available < MONTHS_REQUIRED — an explicit
         generation attempt during cold-start is a rejected write, distinct
         from the 200 status read (TRD Section 5.6/Section 15)."""
         months_available = self._txn_repo.count_distinct_months(data_mode=data_mode)

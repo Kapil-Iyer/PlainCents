@@ -1,9 +1,28 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { HowItWorksPage } from "@/pages/HowItWorks";
+
+beforeAll(() => {
+  // jsdom implements neither, and the page uses both: an IntersectionObserver
+  // to highlight the current section, and scrollIntoView when a section is
+  // selected. Stubbing them keeps the tests about content and semantics
+  // rather than about scroll physics jsdom cannot simulate anyway.
+  vi.stubGlobal(
+    "IntersectionObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
+  Element.prototype.scrollIntoView = vi.fn();
+  // The video section probes for a walkthrough recording that is not in the
+  // repository. Default every probe to "not found", which is the real state.
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, headers: new Headers() }));
+});
 
 function renderAt(path = "/how-it-works") {
   return render(
@@ -14,152 +33,249 @@ function renderAt(path = "/how-it-works") {
 }
 
 describe("HowItWorksPage", () => {
-  it("renders the Overview pipeline by default", () => {
+  it("leads with the product premise, before any technical detail", () => {
     renderAt();
 
     expect(screen.getByRole("heading", { name: "How It Works" })).toBeInTheDocument();
-    expect(screen.getByText("PlainCents in one pipeline")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Overview" })).toHaveAttribute("aria-selected", "true");
+    const overview = document.getElementById("overview")!;
+    expect(within(overview).getByText("What is PlainCents?")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: /reads your bank statements and tells you where the money actually went/i,
+      }),
+    ).toBeInTheDocument();
   });
 
-  it("switches sections on tab click", async () => {
-    const user = userEvent.setup();
+  it("says plainly what the product will not do", () => {
     renderAt();
 
-    await user.click(screen.getByRole("tab", { name: "Categorization" }));
-
-    expect(screen.getByRole("tab", { name: "Categorization" })).toHaveAttribute("aria-selected", "true");
-    // AnimatePresence exit/enter is real-timer-driven — wait for the new
-    // panel's content rather than asserting synchronously post-click.
-    expect(await screen.findByText("Candidates benchmarked on VALIDATION")).toBeInTheDocument();
+    expect(screen.getByText(/What it deliberately doesn't do/)).toBeInTheDocument();
+    expect(screen.getByText(/Connect to your bank/)).toBeInTheDocument();
+    expect(screen.getByText(/Track income/)).toBeInTheDocument();
   });
 
-  it("opens the categorization tab directly from a #categorization hash", () => {
+  it("renders every section on one page rather than hiding them behind tabs", () => {
+    renderAt();
+
+    for (const id of [
+      "overview",
+      "walkthrough",
+      "video",
+      "categorization",
+      "memory",
+      "forecasting",
+      "evaluation",
+      "limitations",
+    ]) {
+      expect(document.getElementById(id)).not.toBeNull();
+    }
+  });
+
+  it("keeps the #categorization deep link from Transactions working", async () => {
     renderAt("/how-it-works#categorization");
 
-    expect(screen.getByRole("tab", { name: "Categorization" })).toHaveAttribute("aria-selected", "true");
-    // All eight ML-F benchmarked candidates must appear, not only the winner.
-    expect(screen.getByText("A — Baseline (word TF-IDF, 50 features)")).toBeInTheDocument();
-    expect(screen.getByText("B — Word TF-IDF, 200 features")).toBeInTheDocument();
-    expect(screen.getByText("D — Character n-grams (3-5), TF-IDF")).toBeInTheDocument();
-    // Evidence tier is visible on the card, not tooltip-only.
-    expect(screen.getByText("Sanitized deployment-oriented evidence")).toBeInTheDocument();
+    expect(document.getElementById("categorization")).not.toBeNull();
+    // The page defers the scroll to the next frame so the sections exist
+    // before it measures them.
+    await waitFor(() => expect(Element.prototype.scrollIntoView).toHaveBeenCalled());
   });
 
-  it("opens the forecasting tab directly from a #forecasting hash and preserves strategy variants", () => {
+  it("keeps the #forecasting deep link from Forecast working", () => {
     renderAt("/how-it-works#forecasting");
 
-    expect(screen.getByRole("tab", { name: "Forecasting" })).toHaveAttribute("aria-selected", "true");
-    // Ridge/RF each appear as two separate rows (last-known vs recursive),
-    // never collapsed into one score.
-    expect(screen.getAllByText("Ridge")).toHaveLength(2);
-    expect(screen.getAllByText("Random Forest")).toHaveLength(2);
-    expect(screen.getAllByText("Last-known")).toHaveLength(2);
-    expect(screen.getAllByText("Recursive")).toHaveLength(2);
-    // Naive/rolling-mean/EWMA/Seasonal Naive strategy is displayed as N/A,
-    // not blank or invented (7 candidates with no strategy axis).
-    expect(screen.getAllByText("N/A")).toHaveLength(7);
+    expect(document.getElementById("forecasting")).not.toBeNull();
   });
 
-  it("lists claims the product does not make on the Limitations tab", async () => {
-    const user = userEvent.setup();
-    renderAt();
-
-    await user.click(screen.getByRole("tab", { name: "Limitations & Evidence" }));
-
-    expect(
-      await screen.findByText("PlainCents categorizes real-world bank transactions at 30.8% accuracy."),
-    ).toBeInTheDocument();
-    expect(screen.getByText("PlainCents automatically retrains from user corrections.")).toBeInTheDocument();
-  });
-
-  it("shows the human-in-the-loop predicted/confirmed/effective chain", async () => {
-    const user = userEvent.setup();
-    renderAt();
-
-    await user.click(screen.getByRole("tab", { name: "Human-in-the-Loop" }));
-
-    expect(await screen.findByText("predicted_category")).toBeInTheDocument();
-    expect(screen.getByText("confirmed_category")).toBeInTheDocument();
-    expect(
-      screen.getByText("effective_category = COALESCE(confirmed_category, predicted_category)"),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/do NOT trigger automatic retraining/)).toBeInTheDocument();
-  });
-
-  describe("Human-in-the-loop interactive demo (Phase 11C-B)", () => {
-    async function openHitl() {
-      const user = userEvent.setup();
-      renderAt();
-      await user.click(screen.getByRole("tab", { name: "Human-in-the-Loop" }));
-      await screen.findByText("predicted_category");
-      return user;
-    }
-
-    it("starts with a predicted category and no confirmation", async () => {
-      await openHitl();
-
-      // Predicted badge shows the initial prediction.
-      expect(screen.getAllByText("Transport").length).toBeGreaterThan(0);
-      // confirmed_category is not yet set.
-      expect(screen.getByText("not corrected")).toBeInTheDocument();
-      // No API/network layer is involved — this is local state only, so the
-      // picker is a plain <select>, not something wired to a query/mutation.
-      expect(screen.getByLabelText("Correct the predicted category")).toBeInTheDocument();
-    });
-
-    it("updates confirmed_category on correction while preserving predicted_category", async () => {
-      const user = await openHitl();
-
-      await user.selectOptions(screen.getByLabelText("Correct the predicted category"), "Entertainment");
-
-      // A confirmed badge for the new category appears...
-      expect(screen.getAllByText("Entertainment").length).toBeGreaterThan(0);
-      // ...while the original prediction is still shown, never overwritten.
-      expect(screen.getAllByText("Transport").length).toBeGreaterThan(0);
-      expect(screen.queryByText("not corrected")).not.toBeInTheDocument();
-    });
-
-    it("moves the downstream total from the predicted bucket to the confirmed bucket", async () => {
-      const user = await openHitl();
-
-      expect(screen.getByTestId("downstream-count-Transport")).toHaveTextContent("3");
-      expect(screen.getByTestId("downstream-count-Entertainment")).toHaveTextContent("1");
-
-      await user.selectOptions(screen.getByLabelText("Correct the predicted category"), "Entertainment");
-
-      expect(screen.getByTestId("downstream-count-Transport")).toHaveTextContent("2");
-      expect(screen.getByTestId("downstream-count-Entertainment")).toHaveTextContent("2");
-    });
-  });
-
-  describe("Evaluation Methodology (Phase 11C-B)", () => {
-    it("shows merchant-group partition sizes for TRAIN/VALIDATION/FINAL_TEST", async () => {
+  describe("app walkthrough", () => {
+    it("starts on the first step and advances", async () => {
       const user = userEvent.setup();
       renderAt();
 
-      await user.click(screen.getByRole("tab", { name: "Evaluation Methodology" }));
+      const walkthrough = within(document.getElementById("walkthrough")!);
+      expect(walkthrough.getByText("Step 1 of 10")).toBeInTheDocument();
+      expect(walkthrough.getByText("Start empty, or load the demo")).toBeInTheDocument();
 
-      expect(await screen.findByText("TRAIN")).toBeInTheDocument();
-      expect(screen.getByText("VALIDATION")).toBeInTheDocument();
-      expect(screen.getByText("FINAL_TEST")).toBeInTheDocument();
-      expect(screen.getByText("96 rows · 38 merchant groups")).toBeInTheDocument();
-      expect(screen.getByText("41 rows · 15 merchant groups")).toBeInTheDocument();
-      expect(screen.getByText("39 rows · 15 merchant groups")).toBeInTheDocument();
+      await user.click(walkthrough.getByRole("button", { name: /Next/ }));
+
+      expect(await walkthrough.findByText("Step 2 of 10")).toBeInTheDocument();
+      expect(walkthrough.getByText("Upload a bank CSV")).toBeInTheDocument();
     });
 
-    it("switches to the forecasting temporal view and back", async () => {
+    it("wraps around when stepping back from the first step", async () => {
       const user = userEvent.setup();
       renderAt();
 
-      await user.click(screen.getByRole("tab", { name: "Evaluation Methodology" }));
-      await screen.findByText("TRAIN");
+      const walkthrough = within(document.getElementById("walkthrough")!);
+      await user.click(walkthrough.getByRole("button", { name: /Previous/ }));
 
-      await user.click(screen.getByRole("button", { name: "Forecasting timeline" }));
-      expect(await screen.findByText(/Reserved \(FINAL\)/)).toBeInTheDocument();
+      expect(await walkthrough.findByText("Step 10 of 10")).toBeInTheDocument();
+    });
+  });
 
-      await user.click(screen.getByRole("button", { name: "Categorization split" }));
-      expect(await screen.findByText("TRAIN")).toBeInTheDocument();
+  describe("video walkthrough", () => {
+    it("shows an honest placeholder when no recording is present", async () => {
+      renderAt();
+
+      expect(
+        await screen.findByText(/The walkthrough hasn't been recorded yet/),
+      ).toBeInTheDocument();
+      // The expected drop-in path is named, so it is actionable rather than
+      // just an apology.
+      expect(
+        screen.getByText("frontend/public/media/plaincents-walkthrough.mp4"),
+      ).toBeInTheDocument();
+    });
+
+    it("lists what the recording will cover", () => {
+      renderAt();
+
+      expect(screen.getByText("What the recording covers")).toBeInTheDocument();
+      expect(screen.getByText(/Importing a real bank CSV/)).toBeInTheDocument();
+    });
+  });
+
+  describe("categorization journey", () => {
+    it("shows the system and human columns as separate stored values", () => {
+      renderAt();
+
+      const journey = document.getElementById("categorization")!;
+      expect(within(journey).getByText("What the system decided")).toBeInTheDocument();
+      expect(within(journey).getByText("What you decided")).toBeInTheDocument();
+      expect(within(journey).getAllByText("predicted_category").length).toBeGreaterThan(0);
+      expect(within(journey).getAllByText("confirmed_category").length).toBeGreaterThan(0);
+    });
+
+    it("explains why a description with no merchant name is not classified", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      await user.click(screen.getByRole("tab", { name: "Nothing to categorize" }));
+
+      expect(await screen.findByText("E-TRANSFER SENT")).toBeInTheDocument();
+      expect(screen.getByText(/guessing here isn't classification, it's invention/)).toBeInTheDocument();
+    });
+
+    it("explains abstention on a merchant it cannot place", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      await user.click(screen.getByRole("tab", { name: "Not confident enough" }));
+
+      expect(await screen.findByText(/top two categories are nearly tied/)).toBeInTheDocument();
+    });
+  });
+
+  describe("correction memory", () => {
+    it("walks through prediction, correction and reuse", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      expect(screen.getByText("PlainCents makes a call")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /February/ }));
+
+      expect(await screen.findByText("Your correction is reused")).toBeInTheDocument();
+      // The model's own answer survives the correction — that is the point.
+      const memory = within(document.getElementById("memory")!);
+      // The system's answer and the user's both remain on screen: the point
+      // is that a correction does not overwrite the prediction. "Shopping"
+      // appears twice by design — once as the stored correction, once as the
+      // effective category everything downstream uses.
+      expect(memory.getByText("Healthcare")).toBeInTheDocument();
+      expect(memory.getAllByText("Shopping")).toHaveLength(2);
+    });
+
+    it("states that a system-assigned category never counts as a correction", () => {
+      renderAt();
+
+      expect(
+        screen.getByText(/never counts as a correction, so it can never/),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("forecast explainer", () => {
+    it("shows the arithmetic for the selected history", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      expect(screen.getByText(/\$300\.00 \+ \$450\.00 \+ \$600\.00\) ÷ 3 =/)).toBeInTheDocument();
+
+      await user.click(screen.getByRole("radio", { name: "Flat" }));
+
+      expect(await screen.findByText(/\$420\.00 \+ \$410\.00 \+ \$430\.00\) ÷ 3 =/)).toBeInTheDocument();
+    });
+
+    it("does not claim three months is as accurate as six or twelve", () => {
+      renderAt();
+
+      expect(
+        screen.getByText(/not a finding that three months forecasts as well as six or twelve/),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("evidence", () => {
+    it("leads with the sealed-test score, not the score the model was chosen on", () => {
+      renderAt();
+
+      const evaluation = document.getElementById("evaluation")!;
+      expect(within(evaluation).getByText("0.58")).toBeInTheDocument();
+      expect(
+        within(evaluation).getByText("Macro-F1 on held-out merchants"),
+      ).toBeInTheDocument();
+    });
+
+    it("says on the card, not in a tooltip, that the corpus is fabricated", () => {
+      renderAt();
+
+      const evaluation = document.getElementById("evaluation")!;
+      expect(within(evaluation).getByText("fabricated")).toBeInTheDocument();
+      expect(
+        within(evaluation).getByText(/every merchant in it was invented for the benchmark/),
+      ).toBeInTheDocument();
+    });
+
+    it("lists every configuration that was tried, not only the winner", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      await user.click(screen.getByText(/Every configuration tried \(11\)/));
+
+      expect(
+        await screen.findByText(/Word \+ character TF-IDF union \(char 2–6\)/),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Complement Naive Bayes on the union")).toBeInTheDocument();
+      expect(screen.getByText("Linear SVM on the union")).toBeInTheDocument();
+      expect(
+        screen.getByText("The previous production recipe (word TF-IDF, 200 features)"),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("limitations", () => {
+    it("states the limits plainly rather than hiding them", () => {
+      renderAt();
+
+      expect(
+        screen.getByText("The evaluation corpus is fabricated, not real"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("The model never learns from your corrections automatically"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("PlainCents does not track income")).toBeInTheDocument();
+    });
+
+    it("lists the claims the product refuses to make", () => {
+      renderAt();
+
+      expect(screen.getByText("Things PlainCents does not claim")).toBeInTheDocument();
+      expect(
+        screen.getByText("PlainCents learns from your corrections and retrains itself."),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Three months of history forecasts as accurately as six or twelve."),
+      ).toBeInTheDocument();
     });
   });
 });

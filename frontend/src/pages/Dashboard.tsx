@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboardSummary } from "@/hooks/useDashboard";
 import { formatMonthLabel } from "@/lib/utils";
 
+import { CategoryMoversCard } from "@/components/analytics/CategoryMoversCard";
+import { SpendPaceCard } from "@/components/analytics/SpendPaceCard";
 import { CategoryBreakdown } from "@/pages/dashboard/CategoryBreakdown";
 import { RecentTransactions } from "@/pages/dashboard/RecentTransactions";
 import { SpendingOverview } from "@/pages/dashboard/SpendingOverview";
@@ -39,6 +41,15 @@ export function DashboardPage() {
       ) : (
         <div className="flex flex-col gap-5">
           <SpendingOverview summary={data} />
+
+          {/* Dashboard answers "how am I doing right now?". The two cards
+           * below are the pair that actually answer it: am I on pace, and
+           * what moved. Deeper category and merchant analysis lives on
+           * Transactions, where the underlying rows are. */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <SpendPaceCard />
+            <CategoryMoversCard />
+          </div>
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <CategoryBreakdown items={data.category_breakdown} />
