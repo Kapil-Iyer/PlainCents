@@ -30,9 +30,11 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 FRONTEND_DIR = ROOT_DIR / "frontend"
 FRONTEND_DIST = FRONTEND_DIR / "dist"
 FRONTEND_SRC = FRONTEND_DIR / "src"
-# ML-D: the production categorizer is now the ML-C selected TF-IDF + Logistic
-# Regression artifact, not the retired K-Means one.
-MODEL_PATH = ROOT_DIR / "models" / "tfidf_logreg_v1.pkl"
+# ML-G: the production categorizer is the word+char TF-IDF + Logistic
+# Regression artifact with the frozen abstention policy (see
+# backend/config.py::CATEGORIZER_MODEL_PATH and reports/ml/ML_G_FINAL_REPORT.md).
+# Superseded ML-D's K-Means artifact and ML-F's tfidf_logreg_v1/v2 recipes.
+MODEL_PATH = ROOT_DIR / "models" / "categorizer_v3.pkl"
 
 HOST = "127.0.0.1"
 PORT = "8000"
@@ -76,9 +78,9 @@ def ensure_frontend_built() -> None:
 def warn_if_model_missing() -> None:
     if not MODEL_PATH.is_file():
         print(
-            "[reviewer] WARNING: models/tfidf_logreg_v1.pkl not found. Real CSV import will "
+            "[reviewer] WARNING: models/categorizer_v3.pkl not found. Real CSV import will "
             "report the categorization model as unavailable. Explore Demo does not need "
-            "it and will still work. Build it with: python -m scripts.build_production_logreg_model",
+            "it and will still work. Build it with: python -m scripts.build_production_categorizer",
             file=sys.stderr,
         )
 

@@ -4,7 +4,7 @@ Fixtures for FastAPI API tests (Build Plan Phase 2, extended Phase 3).
 The app's DB and CategorizationService dependencies are overridden to use
 the isolated, temporary `conn` fixture and the checked-in test model artifact
 (tests/fixtures/categorizer_model_test.pkl) — tests never touch a developer's
-real plaincents_v2.db or the production models/tfidf_logreg_v1.pkl, and never
+real plaincents_v2.db or the production models/categorizer_v3.pkl, and never
 run the lifespan hook's own get_connection()/CategorizationService(...)
 against those default paths.
 """
