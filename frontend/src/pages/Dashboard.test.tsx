@@ -9,6 +9,7 @@ import { DashboardPage } from "@/pages/Dashboard";
 
 vi.mock("@/api/dashboard", () => ({
   getDashboardSummary: vi.fn(),
+  getAvailableMonths: vi.fn().mockResolvedValue({ months: [] }),
 }));
 
 vi.mock("@/api/demo", () => ({
@@ -34,6 +35,7 @@ const baseTransaction: TransactionResponse = {
 function emptySummary(): DashboardSummaryResponse {
   return {
     period: { current: "2026-06", previous: "2026-05" },
+    is_current_incomplete: true,
     total_spend_current: 0,
     total_spend_previous: 0,
     total_spend_previous_to_date: 0,
@@ -54,6 +56,7 @@ function emptySummary(): DashboardSummaryResponse {
 function realSummary(): DashboardSummaryResponse {
   return {
     period: { current: "2026-06", previous: "2026-05" },
+    is_current_incomplete: true,
     total_spend_current: 150.5,
     total_spend_previous: 100,
     total_spend_previous_to_date: 100,
@@ -74,8 +77,13 @@ function realSummary(): DashboardSummaryResponse {
 }
 
 describe("DashboardPage", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetAllMocks();
+    const { getAvailableMonths } = await import("@/api/dashboard");
+    // No dedicated assertions target the analysis-month selector here — a
+    // single-month result hides it (see AnalysisMonthSelector), keeping
+    // these tests focused on the summary data itself.
+    vi.mocked(getAvailableMonths).mockResolvedValue({ months: [] });
   });
 
   it("renders the onboarding empty state when data_mode is EMPTY", async () => {

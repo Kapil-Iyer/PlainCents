@@ -14,15 +14,25 @@ interface SpendingOverviewProps {
  * noticing) in warning tone; a decrease in success tone — mirroring the
  * refund/spend color convention already used in TransactionTable.
  *
- * PRODUCT-SEMANTICS FIX: `change_pct` compares the current month's spend
- * through today against the previous month's spend through the SAME
- * day-of-month (`comparable_day`) — never the previous month's full total,
- * which reads as a misleading steep decline early in a month. The middle
- * card still shows the full previous month's total on its own terms; only
- * the Change card's copy names the actual elapsed comparison being made.
+ * PRODUCT-SEMANTICS FIX: when the selected month is still in progress,
+ * `change_pct` compares the current month's spend through today against
+ * the previous month's spend through the SAME day-of-month
+ * (`comparable_day`) — never the previous month's full total, which reads
+ * as a misleading steep decline early in a month. When the user has
+ * selected a fully-completed historical month instead (`is_current_incomplete`
+ * is false), both sides are simply full calendar months, and the copy below
+ * says so plainly rather than naming an elapsed-day range that no longer
+ * applies.
  */
 export function SpendingOverview({ summary }: SpendingOverviewProps) {
-  const { period, total_spend_current, total_spend_previous, comparable_day, change_pct } = summary;
+  const {
+    period,
+    is_current_incomplete,
+    total_spend_current,
+    total_spend_previous,
+    comparable_day,
+    change_pct,
+  } = summary;
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -34,7 +44,9 @@ export function SpendingOverview({ summary }: SpendingOverviewProps) {
         </CardHeader>
         <CardContent>
           <p className="text-3xl font-bold tabular-nums">{formatCurrency(total_spend_current)}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Total spend this month</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {is_current_incomplete ? "Total spend so far" : "Total spend"}
+          </p>
         </CardContent>
       </Card>
 
@@ -46,7 +58,7 @@ export function SpendingOverview({ summary }: SpendingOverviewProps) {
         </CardHeader>
         <CardContent>
           <p className="text-3xl font-bold tabular-nums">{formatCurrency(total_spend_previous)}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Total spend last month</p>
+          <p className="mt-1 text-xs text-muted-foreground">Total spend, full month</p>
         </CardContent>
       </Card>
 
@@ -59,7 +71,9 @@ export function SpendingOverview({ summary }: SpendingOverviewProps) {
         <CardContent>
           <ChangeIndicator changePct={change_pct} />
           <p className="mt-1 text-xs text-muted-foreground">
-            Vs. {formatDayRangeLabel(period.previous, comparable_day)}
+            {is_current_incomplete
+              ? `Vs. ${formatDayRangeLabel(period.previous, comparable_day)}`
+              : `Vs. ${formatMonthLabel(period.previous)}`}
           </p>
         </CardContent>
       </Card>

@@ -87,3 +87,31 @@ def test_forecast_accuracy_is_honest_about_having_no_snapshots(client: TestClien
     assert body["available"] is False
     assert body["reason"] == "no_snapshots_yet"
     assert body["items"] == []
+
+
+# -- month query param: the shared analysis-month selector --------------------
+
+
+def test_category_movers_month_param_selects_a_historical_month(client: TestClient, conn):
+    """`_seed` dates everything into 2026-01 -- selecting that month
+    explicitly via ?month= (from an app whose real clock is well past it)
+    must report it as a completed historical month, not the current one."""
+    _seed(conn)
+    AppStateRepository(conn).set_mode("REAL")
+    conn.commit()
+
+    body = client.get("/api/analytics/category-movers?month=2026-01").json()
+
+    assert body["current_month"] == "2026-01"
+    assert body["is_current_incomplete"] is False
+
+
+def test_spend_pace_month_param_selects_a_historical_month(client: TestClient, conn):
+    _seed(conn)
+    AppStateRepository(conn).set_mode("REAL")
+    conn.commit()
+
+    body = client.get("/api/analytics/spend-pace?month=2026-01").json()
+
+    assert body["current_month"] == "2026-01"
+    assert body["is_current_incomplete"] is False

@@ -55,20 +55,32 @@ def get_top_merchants(
     return TopMerchantsResponse(**service.top_merchants(data_mode, limit=limit, months=months))
 
 
+_MONTH_QUERY = Query(
+    default=None,
+    description=(
+        "'YYYY-MM' analysis month -- the ONE shared clock also driving the "
+        "Dashboard's Change KPI and (via the sibling endpoint) Spend Pace / "
+        "Category Movers together. Defaults to the current calendar month."
+    ),
+)
+
+
 @router.get("/category-movers", response_model=CategoryMoversResponse)
 def get_category_movers(
+    month: str | None = _MONTH_QUERY,
     conn: sqlite3.Connection = Depends(get_db),
 ) -> CategoryMoversResponse:
     service, data_mode = _service(conn)
-    return CategoryMoversResponse(**service.category_movers(data_mode))
+    return CategoryMoversResponse(**service.category_movers(data_mode, analysis_month=month))
 
 
 @router.get("/spend-pace", response_model=SpendPaceResponse)
 def get_spend_pace(
+    month: str | None = _MONTH_QUERY,
     conn: sqlite3.Connection = Depends(get_db),
 ) -> SpendPaceResponse:
     service, data_mode = _service(conn)
-    return SpendPaceResponse(**service.spend_pace(data_mode))
+    return SpendPaceResponse(**service.spend_pace(data_mode, analysis_month=month))
 
 
 @router.get("/forecast-accuracy", response_model=ForecastAccuracyResponse)

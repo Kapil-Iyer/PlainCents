@@ -223,6 +223,37 @@ def test_category_movers_caps_previous_month_at_the_same_elapsed_day(service, re
     assert sum(m["change"] for m in result["movers"]) == pytest.approx(result["total_change"])
 
 
+def test_category_movers_historical_month_uses_full_months_uncapped(service, repo, conn):
+    """`analysis_month` selecting a fully-completed past month must compare
+    FULL calendar months on both sides, regardless of how far "today" is
+    into a later month -- and additivity must still hold."""
+    _txn(repo, conn, date_="2026-02-05", merchant="A DINER", amount=100.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-03-05", merchant="A DINER", amount=180.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-03-25", merchant="C PHARMACY", amount=25.0, predicted="Healthcare")
+
+    # "Today" is well past March -- April 6 -- so March is a fully-completed
+    # historical month, not the still-in-progress current one.
+    result = service.category_movers("real", reference_date=date(2026, 4, 6), analysis_month="2026-03")
+
+    assert result["current_month"] == "2026-03"
+    assert result["previous_month"] == "2026-02"
+    assert result["is_current_incomplete"] is False
+    assert result["total_current"] == 205.0  # both March rows, including day 25
+    assert result["total_previous"] == 100.0
+    assert result["total_change"] == 105.0
+    assert sum(m["change"] for m in result["movers"]) == pytest.approx(result["total_change"])
+
+
+def test_category_movers_explicit_current_month_still_incomplete(service, repo, conn):
+    _txn(repo, conn, date_="2026-03-05", merchant="A DINER", amount=10.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-03-20", merchant="A DINER", amount=999.0, predicted="Food & Dining")
+
+    result = service.category_movers("real", reference_date=TODAY, analysis_month="2026-03")
+
+    assert result["is_current_incomplete"] is True
+    assert result["total_current"] == 10.0  # day-20 row still excluded, "today" is the 15th
+
+
 # -- spend pace ---------------------------------------------------------------
 
 
@@ -282,6 +313,44 @@ def test_spend_pace_day_1_compares_a_single_day_on_each_side(service, repo, conn
     assert result["current_to_date"] == 12.0
     # The day-15 May transaction must NOT be pulled into "previous_same_point".
     assert result["previous_same_point"] == 7.0
+
+
+def test_spend_pace_historical_month_runs_both_curves_to_full_length(service, repo, conn):
+    """Selecting a fully-completed historical month: both the current and
+    previous curves run to their own full real length (no "today" to stop
+    at), and the scalar to-date figures are full-month totals on both
+    sides -- not the day-aligned "comparable point" semantics used for the
+    still-in-progress month."""
+    _txn(repo, conn, date_="2026-02-05", merchant="A DINER", amount=40.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-02-28", merchant="A DINER", amount=60.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-03-03", merchant="A DINER", amount=30.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-03-31", merchant="A DINER", amount=20.0, predicted="Food & Dining")
+
+    # "Today" is well past March -- April 6 -- so March is fully complete.
+    result = service.spend_pace("real", reference_date=date(2026, 4, 6), analysis_month="2026-03")
+
+    assert result["is_current_incomplete"] is False
+    assert result["day_of_month"] == 31  # March's own full length
+    assert result["current_to_date"] == 50.0  # full March total
+    assert result["previous_same_point"] == 100.0  # full February total
+    assert result["difference"] == -50.0
+
+    by_day = {p["day"]: p for p in result["points"]}
+    # The current curve reaches all the way to March 31 -- no gap, since the
+    # month is fully complete (unlike the still-in-progress regime).
+    assert by_day[31]["current_cumulative"] == 50.0
+    assert by_day[28]["previous_cumulative"] == 100.0
+
+
+def test_spend_pace_explicit_current_month_still_uses_today_semantics(service, repo, conn):
+    _txn(repo, conn, date_="2026-03-03", merchant="A DINER", amount=30.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-03-20", merchant="A DINER", amount=999.0, predicted="Food & Dining")
+
+    result = service.spend_pace("real", reference_date=TODAY, analysis_month="2026-03")
+
+    assert result["is_current_incomplete"] is True
+    assert result["day_of_month"] == 15
+    assert result["current_to_date"] == 30.0  # day-20 row not yet "today"
 
 
 # -- demo / real isolation ----------------------------------------------------

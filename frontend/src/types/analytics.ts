@@ -50,6 +50,11 @@ export interface CategoryMover {
 export interface CategoryMoversResponse {
   current_month: string;
   previous_month: string;
+  /** True when `current_month` is still in progress. When true, both totals
+   * below are capped at the same day-of-month (`comparable_day`); when
+   * false (a completed historical month was selected), both are full
+   * calendar months, uncapped. */
+  is_current_incomplete: boolean;
   total_current: number;
   total_previous: number;
   total_change: number;
@@ -68,6 +73,11 @@ export interface SpendPacePoint {
 export interface SpendPaceResponse {
   current_month: string;
   previous_month: string;
+  /** True when `current_month` is still in progress. When false (a
+   * completed historical month was selected), both curves and to-date
+   * figures run to their own full real length — there is no "today" to
+   * stop at and no comparable-vs-context split. */
+  is_current_incomplete: boolean;
   day_of_month: number;
   /** The previous month's own length may be shorter than day_of_month
    * (e.g. day 30/31 vs. February) — use this for any label naming the

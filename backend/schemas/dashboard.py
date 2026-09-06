@@ -41,6 +41,12 @@ class DashboardSummaryResponse(BaseModel):
     """
 
     period: DashboardPeriod
+    # True when `period.current` is still in progress (the analysis month
+    # equals today's own calendar month) -- False for a fully-completed
+    # historical month the user selected. Drives whether the frontend labels
+    # this "day 1 through today" (MTD-aligned) or a full calendar-month
+    # comparison -- see backend.services.date_windows.analysis_window.
+    is_current_incomplete: bool
     total_spend_current: float
     total_spend_previous: float
     # Previous month's spend, capped at the SAME day-of-month the current
@@ -56,3 +62,11 @@ class DashboardSummaryResponse(BaseModel):
     forecast_summary: dict | None = None
     portfolio_summary: dict | None = None
     data_mode: Literal["EMPTY", "DEMO", "REAL"]
+
+
+class AvailableMonthsResponse(BaseModel):
+    """Backs the ONE shared analysis-month selector (Change KPI, Spending
+    Pace, Category Movers) -- only months a user actually has data in,
+    newest first, never an arbitrary/empty calendar picker."""
+
+    months: list[str]

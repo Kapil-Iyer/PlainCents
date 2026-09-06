@@ -88,3 +88,86 @@ def elapsed_window(reference_date: date) -> ElapsedWindow:
         comparable_day=comparable_day,
         previous_comparable_end=f"{prev_y:04d}-{prev_m:02d}-{comparable_day:02d}",
     )
+
+
+@dataclass(frozen=True)
+class AnalysisWindow:
+    """The comparison window for a user-SELECTED analysis month against its
+    immediately preceding calendar month -- generalizes ElapsedWindow so
+    dashboard/analytics can also analyze a FULLY COMPLETED historical month
+    (e.g. "show me August vs July"), not just the in-progress current one.
+
+    is_current_incomplete=True: `selected_month` IS reference_date's own
+    calendar month, so it's genuinely still in progress. `current_end` is
+    `reference_date` itself (today); `previous_end` is capped at the SAME
+    day-of-month (comparable_day) -- identical semantics to ElapsedWindow,
+    which this reuses verbatim rather than recomputing.
+
+    is_current_incomplete=False: `selected_month` is any other month
+    (necessarily fully in the past -- nothing can exist beyond
+    reference_date's own month). `current_end`/`previous_end` are each
+    month's own FULL last day -- a genuine month-over-month comparison,
+    never capped, since neither side is partial. `comparable_day` here
+    means something different from the incomplete case: it's
+    min(current_month_length, previous_month_length) -- the last day both
+    months actually share, for callers (Spending Pace) that want to draw a
+    fair overlapping region distinct from a longer month's extra tail days,
+    WITHOUT fabricating data the shorter month never had (e.g. no invented
+    "February 29-31").
+    """
+
+    is_current_incomplete: bool
+    selected_month: str            # "YYYY-MM"
+    previous_month: str            # "YYYY-MM"
+    current_start: str             # "YYYY-MM-01"
+    current_end: str               # inclusive upper bound for the SELECTED period's query
+    previous_start: str            # "YYYY-MM-01"
+    previous_end: str              # inclusive upper bound for the PREVIOUS period's query
+    comparable_day: int
+    current_month_length: int
+    previous_month_length: int
+
+
+def analysis_window(reference_date: date, selected_month: str | None = None) -> AnalysisWindow:
+    """`selected_month` ("YYYY-MM") defaults to `reference_date`'s own
+    month -- i.e. calling this with no `selected_month` reproduces today's
+    existing "current vs previous, day-aligned" behavior exactly (see
+    ElapsedWindow's docstring), so every pre-existing caller keeps working
+    unchanged. Passing an explicit, fully-past month switches to a full
+    calendar-month-over-month comparison instead."""
+    today = reference_date
+    current_month_of_today = month_str(today.year, today.month)
+    month = selected_month or current_month_of_today
+    is_current_incomplete = month == current_month_of_today
+
+    if is_current_incomplete:
+        ew = elapsed_window(today)
+        return AnalysisWindow(
+            is_current_incomplete=True,
+            selected_month=ew.current_month,
+            previous_month=ew.previous_month,
+            current_start=ew.current_start,
+            current_end=today.strftime("%Y-%m-%d"),
+            previous_start=ew.previous_start,
+            previous_end=ew.previous_comparable_end,
+            comparable_day=ew.comparable_day,
+            current_month_length=calendar.monthrange(today.year, today.month)[1],
+            previous_month_length=ew.previous_month_length,
+        )
+
+    year_i, month_i = int(month[:4]), int(month[5:7])
+    prev_y, prev_m = shift_month(year_i, month_i, -1)
+    current_month_length = calendar.monthrange(year_i, month_i)[1]
+    previous_month_length = calendar.monthrange(prev_y, prev_m)[1]
+    return AnalysisWindow(
+        is_current_incomplete=False,
+        selected_month=month,
+        previous_month=month_str(prev_y, prev_m),
+        current_start=month_start(year_i, month_i),
+        current_end=f"{year_i:04d}-{month_i:02d}-{current_month_length:02d}",
+        previous_start=month_start(prev_y, prev_m),
+        previous_end=f"{prev_y:04d}-{prev_m:02d}-{previous_month_length:02d}",
+        comparable_day=min(current_month_length, previous_month_length),
+        current_month_length=current_month_length,
+        previous_month_length=previous_month_length,
+    )

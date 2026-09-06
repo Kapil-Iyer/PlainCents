@@ -104,6 +104,22 @@ def generate_demo_transactions(as_of: date | None = None) -> list[dict]:
     for year, month in months:
         month_str = f"{year:04d}-{month:02d}"
         mult = MONTH_MULTIPLIER[month]
+        # The CURRENT calendar month is still in progress -- a row dated
+        # after `as_of` would be a future-dated transaction, which is never
+        # honest, and would silently inflate "spent so far" once anything
+        # reads this data through a day-capped window (e.g.
+        # DashboardService.get_summary). Every other month here is already
+        # fully in the past.
+        #
+        # The fix is to SKIP (not remap) any current-month draw whose day
+        # lands after `as_of` -- each merchant's transaction this month
+        # either has genuinely happened by today or it hasn't, so a skipped
+        # draw represents a real visit that simply hasn't occurred yet in
+        # the story, the same way it would for a real bank account six days
+        # into a month. Remapping the day range down to 1..as_of.day instead
+        # would cram a full month's worth of spend into a handful of days,
+        # producing an equally dishonest (if less obviously wrong) spike.
+        is_current_month = (year, month) == (as_of.year, as_of.month)
 
         for category in CATEGORIES:
             lo, hi = AMOUNT_RANGES[category]
@@ -122,6 +138,8 @@ def generate_demo_transactions(as_of: date | None = None) -> list[dict]:
             for merchant in merchants:
                 amount = round_money(rng.uniform(lo, hi) * cat_mult)
                 day = rng.randint(1, 28)
+                if is_current_month and day > as_of.day:
+                    continue
                 txn_date = f"{month_str}-{day:02d}"
 
                 key_tuple = (txn_date, amount, merchant)

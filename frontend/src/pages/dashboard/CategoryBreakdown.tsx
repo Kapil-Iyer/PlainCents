@@ -17,22 +17,28 @@ import type { CategoryBreakdownItem } from "@/types/dashboard";
 
 interface CategoryBreakdownProps {
   items: CategoryBreakdownItem[];
+  /** The selected analysis month's display label (e.g. "September 2026") --
+   * this breakdown follows the same shared analysis-month clock as the
+   * Change KPI, Spending Pace, and Category Movers (see Dashboard.tsx), so
+   * its copy must name the actual month shown, not always assume "this
+   * month". */
+  monthLabel: string;
 }
 
 /** PRD §11.7: "a category breakdown." Horizontal bars read category names
  * (some are multi-word) more comfortably than a pie chart's small slices. */
-export function CategoryBreakdown({ items }: CategoryBreakdownProps) {
+export function CategoryBreakdown({ items, monthLabel }: CategoryBreakdownProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Spending by category</CardTitle>
-        <CardDescription>This month, by effective category</CardDescription>
+        <CardDescription>{monthLabel}, by effective category</CardDescription>
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
           <EmptyState
-            title="No spending yet this month"
-            description="Categories will appear here once you have transactions in the current calendar month."
+            title="No spending yet"
+            description={`Categories will appear here once you have transactions in ${monthLabel}.`}
             className="border-none py-10"
           />
         ) : (

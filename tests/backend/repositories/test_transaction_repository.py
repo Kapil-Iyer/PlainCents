@@ -237,3 +237,33 @@ def test_find_latest_confirmed_category_ignores_unconfirmed_rows(conn):
     conn.commit()
 
     assert repo.find_latest_confirmed_category("ACME SUB SERVICE", "RBC") is None
+
+
+# -- list_distinct_months (backs the analysis-month selector) ----------------
+
+
+def test_list_distinct_months_returns_newest_first_deduplicated(conn):
+    repo = TransactionRepository(conn)
+    repo.create(_txn(dedup_key="m1", date="2026-06-05"))
+    repo.create(_txn(dedup_key="m2", date="2026-06-20"))  # same month as m1 -- not a duplicate row
+    repo.create(_txn(dedup_key="m3", date="2026-04-01"))
+    repo.create(_txn(dedup_key="m4", date="2026-08-15"))
+    conn.commit()
+
+    assert repo.list_distinct_months() == ["2026-08", "2026-06", "2026-04"]
+
+
+def test_list_distinct_months_filters_by_data_mode(conn):
+    repo = TransactionRepository(conn)
+    repo.create(_txn(dedup_key="m1", date="2026-06-05", data_mode="real"))
+    repo.create(_txn(dedup_key="m2", date="2026-07-05", data_mode="demo"))
+    conn.commit()
+
+    assert repo.list_distinct_months(data_mode="real") == ["2026-06"]
+    assert repo.list_distinct_months(data_mode="demo") == ["2026-07"]
+
+
+def test_list_distinct_months_empty_database_returns_empty_list(conn):
+    repo = TransactionRepository(conn)
+
+    assert repo.list_distinct_months() == []

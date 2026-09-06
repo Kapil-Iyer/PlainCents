@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useCategoryMovers } from "@/hooks/useAnalytics";
 import { colorForCategory } from "@/constants/chartColors";
-import { cn, formatCurrency, formatDayRangeLabel } from "@/lib/utils";
+import { cn, formatCurrency, formatDayRangeLabel, formatMonthLabel } from "@/lib/utils";
 
 import { ChartCardSkeleton } from "@/components/analytics/primitives";
 
@@ -13,18 +13,29 @@ const MAX_ROWS = 6;
 /**
  * "Why did I spend more (or less) than last month?"
  *
- * A diverging bar per category, sized by its share of the LARGEST single
- * movement so the bars stay comparable to each other. The per-category
- * changes sum exactly to the headline total change, which is what makes this
- * an explanation of the month rather than a second, unrelated chart.
+ * A zero-centered diverging bar per category, sized by its share of the
+ * LARGEST single movement so the bars stay comparable to each other.
+ * Direction is read from spatial position — a decrease grows LEFT of the
+ * visible zero tick, an increase grows RIGHT of it — never from color
+ * alone, with an explicit "Less spending / More spending" axis label pair
+ * above the list stating what each side means. The per-category changes
+ * sum exactly to the headline total change, which is what makes this an
+ * explanation of the month rather than a second, unrelated chart.
  *
  * Rendered as bars in the DOM rather than a charting library: each row is
  * one number and one label, the whole point is reading them as a ranked
  * list, and a real list is more accessible than an SVG chart here.
+ *
+ * `month` ("YYYY-MM") is the shared analysis-month clock (see
+ * Dashboard.tsx) -- omitted, this defaults to the current calendar month.
  */
-export function CategoryMoversCard() {
-  const { data, isLoading, isError } = useCategoryMovers();
+export function CategoryMoversCard({ month }: { month?: string }) {
+  const { data, isLoading, isError } = useCategoryMovers(month);
   const reduceMotion = useReducedMotion();
+
+  const title = data && !data.is_current_incomplete
+    ? `What changed in ${formatMonthLabel(data.current_month, "short")}`
+    : "What changed so far";
 
   if (isLoading) return <ChartCardSkeleton title="What changed so far" />;
   if (isError || !data) {
@@ -50,10 +61,11 @@ export function CategoryMoversCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>What changed so far</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <CardDescription>
-          {formatDayRangeLabel(data.current_month, data.comparable_day)} vs.{" "}
-          {formatDayRangeLabel(data.previous_month, data.comparable_day)} — each category&apos;s contribution
+          {data.is_current_incomplete
+            ? `${formatDayRangeLabel(data.current_month, data.comparable_day)} vs. ${formatDayRangeLabel(data.previous_month, data.comparable_day)} — each category's contribution`
+            : `${formatMonthLabel(data.current_month)} vs. ${formatMonthLabel(data.previous_month)}, full months — each category's contribution`}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -75,11 +87,19 @@ export function CategoryMoversCard() {
                 {formatCurrency(Math.abs(data.total_change))}
               </span>
               <span className="text-sm text-muted-foreground">
-                {up ? "more" : "less"} than the same point last month
+                {up ? "more" : "less"} than{" "}
+                {data.is_current_incomplete ? "the same point last month" : "last month"}
               </span>
             </div>
 
-            <ul className="flex flex-col gap-2.5">
+            {/* Explicit axis labels: direction is stated in words, not left
+             * to be inferred from color or bar position alone. */}
+            <div className="flex items-center justify-between text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <span>← Less spending</span>
+              <span>More spending →</span>
+            </div>
+
+            <ul className="flex flex-col gap-3">
               {movers.map((mover, i) => {
                 const pct = (Math.abs(mover.change) / largest) * 100;
                 const rose = mover.change > 0;
@@ -110,17 +130,23 @@ export function CategoryMoversCard() {
                         )}
                       </span>
                     </div>
-                    {/* Centre line at 50%: increases grow right, decreases
-                     * grow left, so direction is readable at a glance
-                     * without depending on colour alone. */}
+                    {/* Zero-centered diverging bar: increases grow right of
+                     * center, decreases grow left -- direction is readable
+                     * from POSITION, not color alone. The 1px tick at
+                     * center is the visible zero reference every bar is
+                     * measured from. */}
                     <div
-                      className="relative h-1.5 overflow-hidden rounded-full bg-muted"
+                      className="relative h-2.5 overflow-hidden rounded-sm bg-muted"
                       role="img"
                       aria-label={`${mover.category} ${rose ? "increased" : "decreased"} by ${formatCurrency(Math.abs(mover.change))}`}
                     >
+                      <span
+                        aria-hidden
+                        className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border"
+                      />
                       <motion.span
                         className={cn(
-                          "absolute top-0 h-full rounded-full",
+                          "absolute top-0 h-full rounded-sm",
                           rose ? "bg-warning left-1/2" : "bg-success right-1/2",
                         )}
                         initial={reduceMotion ? { width: `${pct / 2}%` } : { width: 0 }}

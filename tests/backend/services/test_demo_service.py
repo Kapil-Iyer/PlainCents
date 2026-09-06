@@ -296,3 +296,36 @@ def test_seed_generation_is_deterministic():
     second = generate_demo_transactions(as_of=date(2026, 9, 2))
 
     assert first == second
+
+
+def test_seed_generation_never_dates_a_current_month_row_after_as_of():
+    """BUG FIX regression test: the current calendar month's rows must never
+    land after `as_of` -- a future-dated "spent so far" row is never
+    honest, and previously this generated up to day 28 unconditionally, even
+    early in the month (see date_windows.py / dashboard_service's day-capped
+    'total_spend_current')."""
+    from datetime import date
+
+    as_of = date(2026, 9, 6)
+    rows = generate_demo_transactions(as_of=as_of)
+    current_month_days = [
+        int(r["date"][8:10]) for r in rows if r["date"].startswith("2026-09")
+    ]
+
+    assert current_month_days  # the current month does have rows...
+    assert max(current_month_days) <= as_of.day  # ...none of them in the future
+
+
+def test_seed_generation_handles_day_1_of_the_month():
+    """The edge case where `as_of` is the 1st of the month -- every current-
+    month row must land on day 1, never later, and generation must not
+    crash on a single-day range."""
+    from datetime import date
+
+    as_of = date(2026, 9, 1)
+    rows = generate_demo_transactions(as_of=as_of)
+    current_month_days = {
+        int(r["date"][8:10]) for r in rows if r["date"].startswith("2026-09")
+    }
+
+    assert current_month_days == {1}

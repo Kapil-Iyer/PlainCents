@@ -18,18 +18,22 @@ import {
   LegendSwatch,
   TOOLTIP_STYLE,
 } from "@/components/analytics/primitives";
-import { cn, formatCurrency, formatDayRangeLabel } from "@/lib/utils";
+import { cn, formatCurrency, formatDayRangeLabel, formatMonthLabel } from "@/lib/utils";
 
 /**
  * "Am I ahead of or behind where I was this time last month?"
  *
- * Cumulative spend by day-of-month, current month against the previous one.
- * The current-month line stops at today rather than running flat to the end
- * of the month — a flat tail would read as "spent nothing since", when in
- * fact those days have not happened yet.
+ * Cumulative spend by day-of-month, selected month against the previous
+ * one -- driven by the same shared analysis-month clock as the Dashboard's
+ * Change KPI and Category Movers (see Dashboard.tsx). When the selected
+ * month is still in progress, its line stops at today rather than running
+ * flat to the end of the month — a flat tail would read as "spent nothing
+ * since", when in fact those days have not happened yet. When a
+ * fully-completed historical month is selected instead, both lines run to
+ * their own full real length.
  */
-export function SpendPaceCard() {
-  const { data, isLoading, isError } = useSpendPace();
+export function SpendPaceCard({ month }: { month?: string }) {
+  const { data, isLoading, isError } = useSpendPace(month);
   const reduceMotion = useReducedMotion();
 
   if (isLoading) return <ChartCardSkeleton title="Spending pace" />;
@@ -75,10 +79,13 @@ export function SpendPaceCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Spending pace</CardTitle>
+        <CardTitle>
+          {data.is_current_incomplete ? "Spending pace" : `Spending pace — ${formatMonthLabel(data.current_month, "short")}`}
+        </CardTitle>
         <CardDescription>
-          {formatDayRangeLabel(data.current_month, data.day_of_month)} vs.{" "}
-          {formatDayRangeLabel(data.previous_month, data.comparable_day)}
+          {data.is_current_incomplete
+            ? `${formatDayRangeLabel(data.current_month, data.day_of_month)} vs. ${formatDayRangeLabel(data.previous_month, data.comparable_day)}`
+            : `${formatMonthLabel(data.current_month)} vs. ${formatMonthLabel(data.previous_month)}, full months`}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -108,7 +115,9 @@ export function SpendPaceCard() {
                 {formatCurrency(Math.abs(data.difference))} {ahead ? "ahead of" : "behind"}
               </span>
               <span className="text-sm text-muted-foreground">
-                by day {data.comparable_day} last month
+                {data.is_current_incomplete
+                  ? `by day ${data.comparable_day} last month`
+                  : "for the same full month last time"}
               </span>
             </motion.div>
 

@@ -242,6 +242,20 @@ class TransactionRepository:
         row = self._conn.execute(sql, params).fetchone()
         return row[0] if row else 0
 
+    def list_distinct_months(self, data_mode: str | None = None) -> list[str]:
+        """The actual "YYYY-MM" values represented in the data (newest
+        first) -- unlike count_distinct_months (a count only), this backs a
+        month-selector UI: the analysis-month control offers only months a
+        user actually has data in, never an arbitrary/empty calendar pick."""
+        sql = "SELECT DISTINCT substr(date, 1, 7) AS month FROM transactions"
+        params: list = []
+        if data_mode is not None:
+            sql += " WHERE data_mode = ?"
+            params.append(data_mode)
+        sql += " ORDER BY month DESC"
+        rows = self._conn.execute(sql, params).fetchall()
+        return [r["month"] for r in rows]
+
     def aggregate_by_month_category(
         self, data_mode: str | None = None, date_from: str | None = None, date_to: str | None = None
     ) -> list[dict]:

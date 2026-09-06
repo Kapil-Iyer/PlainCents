@@ -15,10 +15,15 @@ export const getTopMerchants = (limit: number, months: number) =>
     `/analytics/top-merchants?limit=${limit}&months=${months}`,
   );
 
-export const getCategoryMovers = () =>
-  apiClient.get<CategoryMoversResponse>("/analytics/category-movers");
+export const getCategoryMovers = (month?: string) =>
+  apiClient.get<CategoryMoversResponse>(
+    month ? `/analytics/category-movers?month=${month}` : "/analytics/category-movers",
+  );
 
-export const getSpendPace = () => apiClient.get<SpendPaceResponse>("/analytics/spend-pace");
+export const getSpendPace = (month?: string) =>
+  apiClient.get<SpendPaceResponse>(
+    month ? `/analytics/spend-pace?month=${month}` : "/analytics/spend-pace",
+  );
 
 export const getForecastAccuracy = () =>
   apiClient.get<ForecastAccuracyResponse>("/analytics/forecast-accuracy");

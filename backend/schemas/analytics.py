@@ -50,13 +50,17 @@ class CategoryMoversResponse(BaseModel):
     """Per-category contributions to the month-over-month change in total
     spend. The `change` values sum exactly to `total_change`.
 
-    Both `total_current` and `total_previous` are capped at the same
-    day-of-month (`comparable_day`) -- a partial current month is compared
-    against the previous month through that same day, never its full total.
+    When `is_current_incomplete` is True, both `total_current` and
+    `total_previous` are capped at the same day-of-month (`comparable_day`)
+    -- a partial current month is compared against the previous month
+    through that same day, never its full total. When False (a
+    fully-completed historical month was selected), both are full calendar
+    months, uncapped.
     """
 
     current_month: str
     previous_month: str
+    is_current_incomplete: bool
     total_current: float
     total_previous: float
     total_change: float
@@ -76,6 +80,7 @@ class SpendPacePoint(BaseModel):
 class SpendPaceResponse(BaseModel):
     current_month: str
     previous_month: str
+    is_current_incomplete: bool
     day_of_month: int
     # The previous month's own length may be shorter than day_of_month (e.g.
     # day 30/31 of a 31-day month vs. February) -- use THIS for any UI label

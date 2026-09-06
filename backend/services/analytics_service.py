@@ -33,7 +33,7 @@ import sqlite3
 from datetime import date
 
 from backend.repositories.money import round_money
-from backend.services.date_windows import elapsed_window
+from backend.services.date_windows import analysis_window
 
 # Trailing window defaults. Not spec values -- product choices, kept here so
 # the routes and tests share one definition.
@@ -216,7 +216,10 @@ class AnalyticsService:
     # -- 3. Month-over-month category movers ------------------------------
 
     def category_movers(
-        self, data_mode: str | None, reference_date: date | None = None
+        self,
+        data_mode: str | None,
+        reference_date: date | None = None,
+        analysis_month: str | None = None,
     ) -> dict:
         """"Why did I spend more (or less) than last month?"
 
@@ -225,16 +228,22 @@ class AnalyticsService:
         an explanation rather than a second, unrelated chart -- that additive
         property is the whole point, and there is a test asserting it holds.
 
-        BOTH sides of the comparison are capped at the SAME day-of-month
-        (`elapsed_window`, shared with spend_pace's already-correct logic and
-        dashboard_service.get_summary): comparing a partial current month
-        against a FULL previous month is misleading early in a month (it
-        reads as a large decline at identical daily pace), and additivity
-        would otherwise hold against the wrong baseline.
+        `analysis_month` ("YYYY-MM") is the same shared clock used by
+        DashboardService.get_summary and spend_pace (see
+        backend.services.date_windows.analysis_window) -- all three answer
+        the same question about the same month. Two regimes:
+
+          * the current, still-in-progress month: BOTH sides are capped at
+            the SAME day-of-month, so a partial current month is never
+            compared against a full previous month (misleading early in a
+            month -- it reads as a large decline at identical daily pace),
+            and additivity holds against the right baseline.
+          * a fully-completed historical month: FULL calendar month vs FULL
+            calendar month on both sides, uncapped.
         """
         today = reference_date or date.today()
-        window = elapsed_window(today)
-        current = window.current_month
+        window = analysis_window(today, analysis_month)
+        current = window.selected_month
         previous = window.previous_month
 
         def _totals_by_category(start: str, end: str) -> dict[str, float]:
@@ -247,8 +256,8 @@ class AnalyticsService:
             sql += " GROUP BY category"
             return {r["category"]: r["total_spend"] for r in self._conn.execute(sql, params).fetchall()}
 
-        cur_by_cat = _totals_by_category(window.current_start, today.strftime("%Y-%m-%d"))
-        prev_by_cat = _totals_by_category(window.previous_start, window.previous_comparable_end)
+        cur_by_cat = _totals_by_category(window.current_start, window.current_end)
+        prev_by_cat = _totals_by_category(window.previous_start, window.previous_end)
 
         movers = []
         for category in sorted(set(cur_by_cat) | set(prev_by_cat)):
@@ -272,6 +281,7 @@ class AnalyticsService:
         return {
             "current_month": current,
             "previous_month": previous,
+            "is_current_incomplete": window.is_current_incomplete,
             "total_current": total_current,
             "total_previous": total_previous,
             "total_change": round_money(total_current - total_previous),
@@ -282,19 +292,30 @@ class AnalyticsService:
     # -- 4. Cumulative spend pace -----------------------------------------
 
     def spend_pace(
-        self, data_mode: str | None, reference_date: date | None = None
+        self,
+        data_mode: str | None,
+        reference_date: date | None = None,
+        analysis_month: str | None = None,
     ) -> dict:
         """"Am I ahead of or behind where I was this time last month?"
 
-        Cumulative spend by day-of-month for the current month against the
-        previous one. The previous month's curve runs to its own real length;
-        the current month's stops at today, so the comparison is like-for-like
-        up to the day the user is actually on rather than implying the month
-        is already over.
+        Cumulative spend by day-of-month for the selected month against the
+        previous one -- the same shared clock as DashboardService.get_summary
+        and category_movers (see date_windows.analysis_window). Two regimes:
+
+          * the current, still-in-progress month (default): the current
+            curve stops at today; the previous month's curve runs to its own
+            real length so it shows full context beyond the day-aligned
+            comparison point, while the scalar to-date figures
+            (`current_to_date`/`previous_same_point`) stay capped at that
+            same day for a like-for-like comparison.
+          * a fully-completed historical month: there is no "today" to stop
+            at and no partial side, so both curves -- and both to-date
+            figures -- run to their own full real length.
         """
         today = reference_date or date.today()
-        window = elapsed_window(today)
-        current = window.current_month
+        window = analysis_window(today, analysis_month)
+        current = window.selected_month
         previous = window.previous_month
 
         params: list = [window.previous_start]
@@ -309,9 +330,21 @@ class AnalyticsService:
         cur_daily = {r["day"]: r["total_spend"] for r in rows if r["month"] == current}
         prev_daily = {r["day"]: r["total_spend"] for r in rows if r["month"] == previous}
 
-        day_of_month = today.day
-        max_prev_day = max(prev_daily) if prev_daily else 0
-        n_days = max(day_of_month, max_prev_day, 1)
+        if window.is_current_incomplete:
+            day_of_month = today.day
+            max_prev_day = max(prev_daily) if prev_daily else 0
+            n_days = max(day_of_month, max_prev_day, 1)
+            cur_curve_cap = day_of_month
+            prev_curve_cap = max_prev_day
+            prev_to_date_cap = day_of_month
+        else:
+            # Both months are complete -- no partial side, so every curve
+            # and to-date figure runs to its own real full length.
+            day_of_month = window.current_month_length
+            n_days = max(window.current_month_length, window.previous_month_length, 1)
+            cur_curve_cap = window.current_month_length
+            prev_curve_cap = window.previous_month_length
+            prev_to_date_cap = window.previous_month_length
 
         points = []
         cur_running = prev_running = 0.0
@@ -320,18 +353,19 @@ class AnalyticsService:
             prev_running += prev_daily.get(day, 0.0)
             points.append({
                 "day": day,
-                # Beyond today the current month has not happened yet. None
-                # (a gap in the line), never a flat continuation that would
-                # read as "spent nothing".
-                "current_cumulative": round_money(cur_running) if day <= day_of_month else None,
-                "previous_cumulative": round_money(prev_running) if day <= max_prev_day else None,
+                # Beyond the current curve's cap the month has not happened
+                # (or does not exist) yet. None (a gap in the line), never a
+                # flat continuation that would read as "spent nothing".
+                "current_cumulative": round_money(cur_running) if day <= cur_curve_cap else None,
+                "previous_cumulative": round_money(prev_running) if day <= prev_curve_cap else None,
             })
 
-        cur_to_date = round_money(sum(v for d, v in cur_daily.items() if d <= day_of_month))
-        prev_to_date = round_money(sum(v for d, v in prev_daily.items() if d <= day_of_month))
+        cur_to_date = round_money(sum(v for d, v in cur_daily.items() if d <= cur_curve_cap))
+        prev_to_date = round_money(sum(v for d, v in prev_daily.items() if d <= prev_to_date_cap))
         return {
             "current_month": current,
             "previous_month": previous,
+            "is_current_incomplete": window.is_current_incomplete,
             "day_of_month": day_of_month,
             # The previous month may be shorter than day_of_month (e.g. day
             # 30/31 vs February) -- a UI labeling the previous period must

@@ -41,9 +41,18 @@ def test_empty_database_returns_zero_shaped_summary(conn):
 
 
 def test_current_vs_previous_calendar_month_totals(conn):
+    """BUG FIX regression test: `total_spend_current` must be capped at
+    `reference_date` (day 15 here) -- a day-20 row in the SAME current month
+    is dated AFTER "today" and must NOT count as "spent so far", even
+    though it genuinely belongs to June. It still counts in the trend
+    chart's full June total (deliberately uncapped, historical-context
+    semantics -- see `_spending_trend`'s own docstring), so the two figures
+    are EXPECTED to diverge whenever a current-month row exists beyond
+    today (this was previously silently conflated -- the exact bug the
+    +579.6% demo screenshot exposed)."""
     repo = TransactionRepository(conn)
     repo.create(_txn(date="2026-06-05", amount=20.0))
-    repo.create(_txn(date="2026-06-20", amount=30.0))
+    repo.create(_txn(date="2026-06-20", amount=30.0))  # after "today" (day 15) -- not "spent so far"
     repo.create(_txn(date="2026-05-10", amount=15.0))  # previous month
     repo.create(_txn(date="2026-04-01", amount=999.0))  # outside window
     conn.commit()
@@ -52,9 +61,14 @@ def test_current_vs_previous_calendar_month_totals(conn):
     summary = service.get_summary(data_mode="real", app_mode="REAL", reference_date=date(2026, 6, 15))
 
     assert summary["period"] == {"current": "2026-06", "previous": "2026-05"}
-    assert summary["total_spend_current"] == 50.0
+    assert summary["is_current_incomplete"] is True
+    assert summary["total_spend_current"] == 20.0  # day-20 row excluded -- not yet "today"
     assert summary["total_spend_previous"] == 15.0
-    assert summary["change_pct"] == round((50.0 - 15.0) / 15.0 * 100, 1)
+    assert summary["change_pct"] == round((20.0 - 15.0) / 15.0 * 100, 1)
+    # The trend chart's June point is a full, honest calendar-month total --
+    # deliberately includes the day-20 row the KPI card excludes.
+    june_point = next(p for p in summary["spending_trend"] if p["month"] == "2026-06")
+    assert june_point["total_spend"] == 50.0
 
 
 def test_month_boundary_first_day_of_january_rolls_to_prior_december(conn):
@@ -214,6 +228,51 @@ def test_change_pct_on_day_1_compares_a_single_day_on_each_side(conn):
     assert summary["total_spend_previous_to_date"] == 20.0
     assert summary["total_spend_previous"] == 1020.0  # full-month figure unaffected
     assert summary["change_pct"] == round((25.0 - 20.0) / 20.0 * 100, 1)
+
+
+# -- analysis_month: selecting a historical (fully-completed) month ----------
+
+
+def test_historical_month_uses_full_calendar_month_both_sides(conn):
+    """Selecting a completed past month via `analysis_month` must NOT
+    apply the current-month day-capping at all -- both months are full
+    calendar months, even though "today" (the reference date) is a day deep
+    into a LATER month."""
+    repo = TransactionRepository(conn)
+    repo.create(_txn(date="2026-06-05", amount=20.0))
+    repo.create(_txn(date="2026-06-20", amount=30.0))  # counts -- June is fully complete
+    repo.create(_txn(date="2026-05-10", amount=15.0))
+    conn.commit()
+
+    service = DashboardService(conn)
+    summary = service.get_summary(
+        data_mode="real", app_mode="REAL", reference_date=date(2026, 9, 6), analysis_month="2026-06",
+    )
+
+    assert summary["period"] == {"current": "2026-06", "previous": "2026-05"}
+    assert summary["is_current_incomplete"] is False
+    assert summary["total_spend_current"] == 50.0  # both June rows count -- full month
+    assert summary["total_spend_previous"] == 15.0
+    assert summary["total_spend_previous_to_date"] == 15.0  # full previous month too
+    assert summary["change_pct"] == round((50.0 - 15.0) / 15.0 * 100, 1)
+
+
+def test_historical_month_still_current_calendar_month_stays_incomplete(conn):
+    """Explicitly passing the CURRENT calendar month as `analysis_month`
+    must behave identically to omitting it -- still MTD-capped, not treated
+    as a completed historical month."""
+    repo = TransactionRepository(conn)
+    repo.create(_txn(date="2026-06-05", amount=20.0))
+    repo.create(_txn(date="2026-06-20", amount=30.0))
+    conn.commit()
+
+    service = DashboardService(conn)
+    summary = service.get_summary(
+        data_mode="real", app_mode="REAL", reference_date=date(2026, 6, 15), analysis_month="2026-06",
+    )
+
+    assert summary["is_current_incomplete"] is True
+    assert summary["total_spend_current"] == 20.0  # day-20 row still excluded
 
 
 def test_change_pct_handles_leap_year_february(conn):

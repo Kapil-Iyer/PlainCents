@@ -20,6 +20,11 @@ export interface SpendingTrendPoint {
 
 export interface DashboardSummaryResponse {
   period: DashboardPeriod;
+  /** True when `period.current` is still in progress (the analysis month
+   * equals today's own calendar month) — false for a fully-completed
+   * historical month the user selected via the analysis-month selector.
+   * Drives "so far this month" vs. a plain full-month label. */
+  is_current_incomplete: boolean;
   total_spend_current: number;
   total_spend_previous: number;
   /** Previous month's spend capped at `comparable_day` — the fair basis
@@ -36,4 +41,10 @@ export interface DashboardSummaryResponse {
   /** Absent until Phase 8's PortfolioService lands. */
   portfolio_summary: Record<string, unknown> | null;
   data_mode: DataMode;
+}
+
+/** Backs the ONE shared analysis-month selector (Change KPI, Spending Pace,
+ * Category Movers) — only months a user actually has data in, newest first. */
+export interface AvailableMonthsResponse {
+  months: string[];
 }

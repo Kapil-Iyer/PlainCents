@@ -10,7 +10,13 @@ from datetime import date
 
 import pytest
 
-from backend.services.date_windows import elapsed_window, month_start, month_str, shift_month
+from backend.services.date_windows import (
+    analysis_window,
+    elapsed_window,
+    month_start,
+    month_str,
+    shift_month,
+)
 
 
 # -- shift_month / month_str / month_start -----------------------------------
@@ -113,3 +119,94 @@ def test_elapsed_window_previous_month_shorter_is_symmetric_not_only_february():
     assert window.previous_month_length == 30
     assert window.comparable_day == 30
     assert window.previous_comparable_end == "2026-04-30"
+
+
+# -- analysis_window: selected-month generalization --------------------------
+
+
+def test_analysis_window_defaults_to_current_month_matches_elapsed_window():
+    """No selected_month -- reproduces elapsed_window's exact behavior, so
+    every pre-existing caller (dashboard/analytics defaults) is unaffected."""
+    today = date(2026, 9, 6)
+    window = analysis_window(today)
+    ew = elapsed_window(today)
+
+    assert window.is_current_incomplete is True
+    assert window.selected_month == ew.current_month == "2026-09"
+    assert window.previous_month == ew.previous_month == "2026-08"
+    assert window.current_start == ew.current_start
+    assert window.current_end == "2026-09-06"  # today, not month-end
+    assert window.previous_start == ew.previous_start
+    assert window.previous_end == ew.previous_comparable_end
+    assert window.comparable_day == ew.comparable_day == 6
+    assert window.current_month_length == 30
+
+
+def test_analysis_window_explicit_current_month_is_still_incomplete():
+    today = date(2026, 9, 6)
+    window = analysis_window(today, selected_month="2026-09")
+
+    assert window.is_current_incomplete is True
+    assert window.current_end == "2026-09-06"
+
+
+def test_analysis_window_historical_month_uses_full_month_both_sides():
+    """Selecting a fully-completed past month: FULL selected month vs FULL
+    previous month, never capped -- the core historical semantics this
+    module adds."""
+    today = date(2026, 9, 6)
+    window = analysis_window(today, selected_month="2026-08")
+
+    assert window.is_current_incomplete is False
+    assert window.selected_month == "2026-08"
+    assert window.previous_month == "2026-07"
+    assert window.current_start == "2026-08-01"
+    assert window.current_end == "2026-08-31"  # full month, not capped at "today"
+    assert window.previous_start == "2026-07-01"
+    assert window.previous_end == "2026-07-31"  # full previous month too
+    assert window.current_month_length == 31
+    assert window.previous_month_length == 31
+
+
+def test_analysis_window_historical_year_boundary():
+    today = date(2026, 9, 6)
+    window = analysis_window(today, selected_month="2026-01")
+
+    assert window.previous_month == "2025-12"
+    assert window.previous_start == "2025-12-01"
+    assert window.previous_end == "2025-12-31"
+
+
+def test_analysis_window_historical_february_completed():
+    today = date(2026, 9, 6)
+    window = analysis_window(today, selected_month="2026-02")
+
+    assert window.selected_month == "2026-02"
+    assert window.current_month_length == 28  # 2026 is not a leap year
+    assert window.current_end == "2026-02-28"
+    assert window.previous_month == "2026-01"
+    assert window.previous_end == "2026-01-31"
+
+
+def test_analysis_window_historical_leap_year_february():
+    today = date(2028, 9, 6)
+    window = analysis_window(today, selected_month="2028-02")
+
+    assert window.current_month_length == 29
+    assert window.current_end == "2028-02-29"
+
+
+def test_analysis_window_historical_month_length_mismatch_sets_comparable_day():
+    """Historical March (31 days) vs February (28 days in 2026): comparable_day
+    is the SHORTER of the two full lengths -- the last day both months
+    actually share, distinct from the incomplete-month meaning of
+    comparable_day (which is about "today", not month length)."""
+    today = date(2026, 9, 6)
+    window = analysis_window(today, selected_month="2026-03")
+
+    assert window.current_month_length == 31
+    assert window.previous_month_length == 28
+    assert window.comparable_day == 28
+    # Full months on both sides regardless of the length mismatch.
+    assert window.current_end == "2026-03-31"
+    assert window.previous_end == "2026-02-28"
