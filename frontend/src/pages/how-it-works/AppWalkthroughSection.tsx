@@ -406,7 +406,18 @@ function Screen({ children }: { children: React.ReactNode }) {
 }
 
 function Bar({ w, muted }: { w: string; muted?: boolean }) {
-  return <span className={cn("block h-2 rounded-full", w, muted ? "bg-muted" : "bg-muted-foreground/40")} />;
+  // `muted` used to mean `bg-muted` -- a BACKGROUND-family token that sits
+  // only ~2 lightness points away from `Screen`'s own `bg-elevated`
+  // background in both themes, so the bar was practically invisible
+  // (reported as "empty" schematic panels). `muted-foreground` is a
+  // foreground-family token designed for contrast against a panel
+  // background in either theme; a lower opacity than the non-muted variant
+  // keeps the intended "more subtle" hierarchy while staying visible.
+  return (
+    <span
+      className={cn("block h-2 rounded-full", w, muted ? "bg-muted-foreground/20" : "bg-muted-foreground/40")}
+    />
+  );
 }
 
 function Pill({ label, active }: { label: string; active?: boolean }) {

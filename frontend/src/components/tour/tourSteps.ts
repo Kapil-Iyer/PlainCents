@@ -45,14 +45,14 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/dashboard",
     target: "page-header",
     title: "See spending at a glance",
-    body: "A month-over-month summary, spending pace, category movers, and a spending trend — all computed live from your persisted transactions, sharing one selected month across every card.",
+    body: "A month-over-month summary, plus three ways to see it: Spending Pace draws two cumulative lines, this month against last, day by day, so you can tell at a glance if you're ahead or behind. What Changed is a diverging bar chart split left and right around zero, showing exactly which categories drove the difference. And a 6-month trend area chart shows where your spending has been heading. All computed live from your persisted transactions, sharing one selected month across every card.",
   },
   {
     id: "forecast",
     route: "/forecast",
     target: "page-header",
     title: "Forecasts, generated on demand",
-    body: "A category-level spending forecast you generate explicitly — never silently retrained — and marked stale the moment your underlying data changes, so you always know whether what you're looking at is current.",
+    body: "A bar chart per category, your last three actual months next to the next three predicted ones, so you can see the projection right beside the history it came from. Generated explicitly — never silently retrained — and marked stale the moment your underlying data changes, so you always know whether what you're looking at is current.",
   },
   {
     id: "portfolio-holdings",
