@@ -17,6 +17,7 @@ from backend.db.unit_of_work import transaction as db_transaction
 from backend.repositories.holding_repository import HoldingRepository
 from backend.repositories.price_cache_repository import PriceCacheRepository
 from backend.services.app_state_service import AppStateService
+from backend.services.demo_seed_data import DEMO_PRICE_FETCHED_AT
 from pipeline.portfolio import fetch_price
 
 
@@ -43,6 +44,18 @@ class PortfolioService:
             current_value = None
             pnl = None
 
+        # DEMO_PRICE_FETCHED_AT is a fixed sentinel stamped ONLY by
+        # DemoService.load_demo() (never by a genuine fetch_price() call,
+        # which always stamps datetime.now().isoformat()) -- so this
+        # equality check is an exact, no-false-positive way to tell "this
+        # price was never actually fetched, it's synthetic demo data" apart
+        # from a real cached price, however old. Once a demo holding is
+        # refreshed via POST /api/holdings/refresh-prices, its fetched_at
+        # becomes a genuine timestamp and this stops matching -- the flag
+        # naturally flips from "demo snapshot" to "fresh" with no extra
+        # bookkeeping (Build Plan Phase 8 price-state honesty rule).
+        price_is_demo_snapshot = price_last_updated == DEMO_PRICE_FETCHED_AT
+
         return {
             "id": holding["id"],
             "ticker": holding["ticker"],
@@ -52,6 +65,7 @@ class PortfolioService:
             "current_value": current_value,
             "pnl": pnl,
             "price_last_updated": price_last_updated,
+            "price_is_demo_snapshot": price_is_demo_snapshot,
             "created_at": holding["created_at"],
             "updated_at": holding["updated_at"],
         }

@@ -93,6 +93,57 @@ def test_refresh_prices_populates_cache_and_pnl(service, conn):
     assert rows[0]["current_value"] == 1500.0
     assert rows[0]["pnl"] == 500.0
     assert rows[0]["price_last_updated"] is not None
+    # A genuine fetch is never mistaken for a demo snapshot.
+    assert rows[0]["price_is_demo_snapshot"] is False
+
+
+# -- demo price-snapshot honesty (PATCH B) ------------------------------------
+
+
+def test_never_refreshed_holding_is_not_flagged_a_demo_snapshot(service):
+    """No cached price at all is a different, already-honest state ("Not yet
+    refreshed") -- it must not also claim to be a demo snapshot."""
+    row = service.create_holding(_sample())
+
+    assert row["price_is_demo_snapshot"] is False
+
+
+def test_price_cached_at_the_demo_sentinel_timestamp_is_flagged(service, conn):
+    """The exact fixed timestamp DemoService.load_demo() stamps on a
+    never-actually-fetched seeded price must be recognized as a demo
+    snapshot, never presented as if it were a real (if old) cached fetch."""
+    from backend.services.demo_seed_data import DEMO_PRICE_FETCHED_AT
+
+    service.create_holding(_sample(ticker="AAPL"))
+    PriceCacheRepository(conn).upsert_latest("AAPL", 178.50, DEMO_PRICE_FETCHED_AT)
+    conn.commit()
+
+    row = service.get_holding(service.get_holdings_with_prices(data_mode="real")[0]["id"])
+
+    assert row["price_is_demo_snapshot"] is True
+    assert row["price_last_updated"] == DEMO_PRICE_FETCHED_AT
+
+
+def test_refreshing_a_demo_snapshot_price_clears_the_flag(service, conn):
+    """Once a demo holding is refreshed with a genuine fetch, its
+    fetched_at is no longer the sentinel -- the flag must flip to False
+    with no extra bookkeeping, the same way a real holding's would."""
+    from backend.services.demo_seed_data import DEMO_PRICE_FETCHED_AT
+
+    holding = service.create_holding(_sample(ticker="AAPL"))
+    PriceCacheRepository(conn).upsert_latest("AAPL", 178.50, DEMO_PRICE_FETCHED_AT)
+    conn.commit()
+    assert service.get_holding(holding["id"])["price_is_demo_snapshot"] is True
+
+    with patch(
+        "backend.services.portfolio_service.fetch_price",
+        side_effect=_fake_fetch_price({"AAPL": 185.0}),
+    ):
+        service.refresh_prices(data_mode="real")
+
+    refreshed = service.get_holding(holding["id"])
+    assert refreshed["price_is_demo_snapshot"] is False
+    assert refreshed["current_price"] == 185.0
 
 
 def test_refresh_prices_partial_failure_preserves_other_tickers(service):

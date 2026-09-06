@@ -38,6 +38,24 @@ def test_create_holding(client: TestClient):
     assert body["current_price"] is None
     assert body["current_value"] is None
     assert body["pnl"] is None
+    assert body["price_is_demo_snapshot"] is False
+
+
+def test_price_at_demo_sentinel_timestamp_is_flagged_a_snapshot(client: TestClient, conn):
+    """PATCH B: a price stamped with the exact demo-seed sentinel timestamp
+    must come back flagged so the frontend can say "Demo snapshot" instead
+    of implying a real, merely-old cached fetch."""
+    from backend.services.demo_seed_data import DEMO_PRICE_FETCHED_AT
+
+    created = client.post("/api/holdings", json=_sample()).json()
+    PriceCacheRepository(conn).upsert_latest("AAPL", 178.50, DEMO_PRICE_FETCHED_AT)
+    conn.commit()
+
+    body = client.get("/api/holdings").json()
+
+    assert body[0]["id"] == created["id"]
+    assert body[0]["price_is_demo_snapshot"] is True
+    assert body[0]["price_last_updated"] == DEMO_PRICE_FETCHED_AT
 
 
 def test_create_holding_rejects_non_positive_shares(client: TestClient):

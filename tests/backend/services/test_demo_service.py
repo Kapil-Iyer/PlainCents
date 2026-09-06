@@ -52,6 +52,8 @@ def test_load_demo_seeds_transactions_across_at_least_12_months_and_all_categori
 
 
 def test_load_demo_seeds_holdings_with_price_cache(service, conn):
+    from backend.services.demo_seed_data import DEMO_PRICE_FETCHED_AT
+
     service.load_demo()
 
     holdings = HoldingRepository(conn).list(data_mode="demo")
@@ -61,6 +63,11 @@ def test_load_demo_seeds_holdings_with_price_cache(service, conn):
         cached = price_cache.get_last_known(holding["ticker"])
         assert cached is not None
         assert cached["current_price"] > 0
+        # PATCH B: this fixed sentinel (never datetime.now()) is what lets
+        # PortfolioService tell a genuinely-never-fetched demo price apart
+        # from a real cached one, however old -- see PortfolioService.
+        # _to_response's `price_is_demo_snapshot`.
+        assert cached["fetched_at"] == DEMO_PRICE_FETCHED_AT
 
 
 def test_load_demo_seeds_prebuilt_forecast_without_training(service, conn):

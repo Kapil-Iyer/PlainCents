@@ -24,14 +24,12 @@ from backend.repositories.forecast_repository import ForecastRepository
 from backend.repositories.holding_repository import HoldingRepository
 from backend.repositories.price_cache_repository import PriceCacheRepository
 from backend.repositories.transaction_repository import TransactionRepository
-from backend.services.demo_seed_data import generate_demo_forecast, generate_demo_holdings, generate_demo_transactions
-
-# ISO-ish timestamp for seeded price_cache rows — not "now" from datetime,
-# so a demo load's price_cache rows are exactly as deterministic as every
-# other seeded row. Portfolio's read path (TRD §13.3) shows this timestamp
-# as-is regardless of age, so a fixed value is not misleading — it simply
-# reflects that this price was never actually fetched from yfinance.
-_DEMO_PRICE_FETCHED_AT = "2024-01-01T00:00:00"
+from backend.services.demo_seed_data import (
+    DEMO_PRICE_FETCHED_AT,
+    generate_demo_forecast,
+    generate_demo_holdings,
+    generate_demo_transactions,
+)
 
 
 class DemoService:
@@ -86,7 +84,7 @@ class DemoService:
                 # participates in the same transaction/rollback as everything
                 # else here even though the table itself is mode-agnostic.
                 self._price_cache_repo.upsert_latest(
-                    holding["ticker"], holding["current_price"], _DEMO_PRICE_FETCHED_AT
+                    holding["ticker"], holding["current_price"], DEMO_PRICE_FETCHED_AT
                 )
 
             run_id = self._forecast_repo.create_run({**forecast["run"], "data_mode": "demo"})

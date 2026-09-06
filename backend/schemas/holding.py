@@ -38,6 +38,13 @@ class HoldingResponse(BaseModel):
     current_value: float | None = None
     pnl: float | None = None
     price_last_updated: str | None = None
+    # True only when `price_last_updated` is the fixed sentinel
+    # DemoService.load_demo() stamps on a never-actually-fetched seeded
+    # price (see PortfolioService._to_response) -- lets the frontend show
+    # an honest "Demo snapshot" label instead of implying a real (if old)
+    # fetch. False for every real holding and for a demo holding that has
+    # since been refreshed with a genuine price.
+    price_is_demo_snapshot: bool = False
     created_at: datetime
     updated_at: datetime
 

@@ -33,6 +33,18 @@ from backend.services.forecast_service import MONTHS_REQUIRED
 SEED = 42
 MONTHS_OF_HISTORY = 12
 
+# ISO-ish timestamp stamped on every seeded price_cache row (Build Plan
+# Phase 9/8) -- not "now" from datetime, so a demo load's price_cache rows
+# are exactly as deterministic as every other seeded row. It is also the
+# single source of truth PortfolioService compares against to tell a
+# still-synthetic demo price (this exact, never-changing value) apart from
+# a genuine fetch (whose fetched_at is always datetime.now().isoformat(),
+# which will not collide with this literal) -- see PortfolioService.
+# _to_response's `price_is_demo_snapshot`. A demo holding refreshed via
+# POST /api/holdings/refresh-prices gets a real fetched_at like any other
+# holding, so the comparison naturally stops matching once that happens.
+DEMO_PRICE_FETCHED_AT = "2024-01-01T00:00:00"
+
 # TRD §14.1: reuses the merchant/amount-range/seasonal-multiplier *patterns*
 # from db/seed_synthetic_data.py:32-59 (merchant names as sample data are not
 # copyrighted content; only the persistence code is off-limits per Build Plan
