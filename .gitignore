@@ -1,6 +1,7 @@
 # Data Privacy
 data/raw/
 plaincents.db
+private_data/
 
 # Generated exports
 data/exports/*.pdf
