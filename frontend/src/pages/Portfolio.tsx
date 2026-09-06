@@ -60,7 +60,7 @@ export function PortfolioPage() {
           {holdings && holdings.length > 0 && (
             <RefreshPricesButton isPending={refreshMutation.isPending} onClick={handleRefresh} />
           )}
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button data-tour="portfolio-add-holding" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" />
             Add holding
           </Button>

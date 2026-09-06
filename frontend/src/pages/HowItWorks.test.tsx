@@ -110,6 +110,20 @@ describe("HowItWorksPage", () => {
 
       expect(await walkthrough.findByText("Step 10 of 10")).toBeInTheDocument();
     });
+
+    it("explains the dashboard's day-aligned vs. full-month comparison", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      const walkthrough = within(document.getElementById("walkthrough")!);
+      // Step 8 is "Read the dashboard" -- click Next 7 times to reach it.
+      for (let i = 0; i < 7; i++) {
+        await user.click(walkthrough.getByRole("button", { name: /Next/ }));
+      }
+
+      expect(await walkthrough.findByText("Read the dashboard")).toBeInTheDocument();
+      expect(walkthrough.getByText(/day-aligned/)).toBeInTheDocument();
+    });
   });
 
   describe("video walkthrough", () => {
@@ -162,6 +176,30 @@ describe("HowItWorksPage", () => {
       await user.click(screen.getByRole("tab", { name: "Not confident enough" }));
 
       expect(await screen.findByText(/top two categories are nearly tied/)).toBeInTheDocument();
+    });
+
+    it("shows the model's advisory model_category suggestion on an abstained row, never as a percentage", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      await user.click(screen.getByRole("tab", { name: "Not confident enough" }));
+
+      const journey = document.getElementById("categorization")!;
+      expect(await within(journey).findByText("model_category")).toBeInTheDocument();
+      expect(within(journey).getByText("Advisory suggestion")).toBeInTheDocument();
+      expect(
+        within(journey).getByText(/never shown as a confidence percentage/),
+      ).toBeInTheDocument();
+    });
+
+    it("does not show the advisory model_category panel on a row that was never abstained", () => {
+      renderAt();
+
+      // Default selected tab is "The model decided" (a clean, non-abstained
+      // prediction) -- model_category would just repeat predicted_category
+      // there, so the panel must not render.
+      const journey = document.getElementById("categorization")!;
+      expect(within(journey).queryByText("Advisory suggestion")).not.toBeInTheDocument();
     });
   });
 
@@ -234,6 +272,15 @@ describe("HowItWorksPage", () => {
       expect(
         within(evaluation).getByText(/every merchant in it was invented for the benchmark/),
       ).toBeInTheDocument();
+    });
+
+    it("names the benchmark as privacy-safe and deployment-oriented, never as real-world accuracy", () => {
+      renderAt();
+
+      expect(
+        screen.getByText(/privacy-safe, deployment-oriented benchmark/),
+      ).toBeInTheDocument();
+      expect(screen.getByText(/It is not a real-world accuracy figure/)).toBeInTheDocument();
     });
 
     it("lists every configuration that was tried, not only the winner", async () => {

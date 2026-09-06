@@ -4,6 +4,7 @@ import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 import { ToastHost } from "@/components/shared/Toast";
+import { GuidedTourProvider } from "@/context/GuidedTourContext";
 
 export function renderWithProviders(ui: ReactElement) {
   const queryClient = new QueryClient({
@@ -14,7 +15,9 @@ export function renderWithProviders(ui: ReactElement) {
     return (
       <QueryClientProvider client={queryClient}>
         <ToastHost>
-          <MemoryRouter>{children}</MemoryRouter>
+          <MemoryRouter>
+            <GuidedTourProvider>{children}</GuidedTourProvider>
+          </MemoryRouter>
         </ToastHost>
       </QueryClientProvider>
     );

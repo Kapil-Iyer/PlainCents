@@ -27,7 +27,7 @@ export const NOT_SUPPORTED_CLAIMS = [
 ] as const;
 
 export const CATEGORIZATION_EVIDENCE_QUALIFIER =
-  "0.58 macro-F1 on a sanitized, hand-authored benchmark of Canadian-bank-style descriptions with fabricated merchant names — measured on merchants held out of training entirely. It is not a real-world accuracy figure, and no real-world figure can be computed: private bank exports carry no category labels to check against.";
+  "0.58 macro-F1 on a privacy-safe, deployment-oriented benchmark: a sanitized, hand-authored corpus of Canadian-bank-style descriptions with fabricated merchant names, measured on merchants held out of training entirely — built this way because no real bank statement can be used or shared for evaluation. It is not a real-world accuracy figure, and no real-world figure can be computed: private bank exports carry no category labels to check against.";
 
 export const FORECASTING_EVIDENCE_QUALIFIER =
   "The forecast method (a three-month average per category) was selected on a synthetic 24-month grid using walk-forward validation. That is a mechanism check, not a real-world accuracy figure.";

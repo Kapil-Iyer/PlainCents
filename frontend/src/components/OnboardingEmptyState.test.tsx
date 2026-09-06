@@ -16,11 +16,30 @@ describe("OnboardingEmptyState", () => {
     vi.resetAllMocks();
   });
 
-  it("offers both Import real data and Load demo data, distinctly", () => {
+  it("offers Import real data, Load demo data, and Take the tour, distinctly", () => {
     renderWithProviders(<OnboardingEmptyState />);
 
     expect(screen.getByRole("link", { name: /Import real data/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Load demo data/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Take the tour/ })).toBeInTheDocument();
+  });
+
+  it("hides Take the tour when showWalkthrough is false", () => {
+    renderWithProviders(<OnboardingEmptyState showWalkthrough={false} />);
+
+    expect(screen.queryByRole("button", { name: /Take the tour/ })).not.toBeInTheDocument();
+  });
+
+  it("clicking Take the tour does not crash (starts the guided tour)", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<OnboardingEmptyState />);
+
+    await user.click(screen.getByRole("button", { name: /Take the tour/ }));
+
+    // No TourOverlay is mounted in this isolated render (that's exercised
+    // in TourOverlay.test.tsx) -- this only guards against a crash reaching
+    // into GuidedTourContext from here.
+    expect(screen.getByRole("button", { name: /Take the tour/ })).toBeInTheDocument();
   });
 
   it("loading demo data calls the load API and shows a success toast", async () => {

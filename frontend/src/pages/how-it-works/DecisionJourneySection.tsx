@@ -16,6 +16,13 @@ interface Example {
   outcome: Outcome;
   predicted: string;
   confirmed: string | null;
+  /** The classifier's own raw opinion (model_category), stored alongside
+   * `predicted` whenever the row actually reaches the classifier -- kept
+   * even when the abstention policy overrides it with "Other". Shown here
+   * only where it differs from `predicted` (the abstained case); it would
+   * just be a redundant repeat of the same value everywhere else. Never
+   * auto-applied to a transaction on its own. */
+  modelCategory: string | null;
   note: string;
 }
 
@@ -32,6 +39,7 @@ const EXAMPLES: Example[] = [
     outcome: "model",
     predicted: "Healthcare",
     confirmed: null,
+    modelCategory: null,
     note: "The card-rail prefix and the card number are stripped, leaving a name the model can read. PHARMACY is a word it has seen attached to many different pharmacies, so it generalizes to one it has never seen.",
   },
   {
@@ -41,6 +49,7 @@ const EXAMPLES: Example[] = [
     outcome: "structural",
     predicted: "Other",
     confirmed: null,
+    modelCategory: null,
     note: "Strip the boilerplate and there is nothing underneath. This row could be rent, a gift or a repayment — the description simply doesn't say. It's routed to Other before the model is ever asked, because guessing here isn't classification, it's invention.",
   },
   {
@@ -50,7 +59,8 @@ const EXAMPLES: Example[] = [
     outcome: "lowconf",
     predicted: "Other",
     confirmed: null,
-    note: "A brand name with no descriptive word in it. The model produces an answer, but its top two categories are nearly tied — so instead of serving a coin flip dressed up as a decision, the system says Other and leaves it to you.",
+    modelCategory: "Shopping",
+    note: "A brand name with no descriptive word in it. The model produces an answer, but its top two categories are nearly tied — so instead of serving a coin flip dressed up as a decision, the system says Other and leaves it to you. Its raw guess isn't discarded, though: it's kept as an advisory suggestion you can accept with one click, or ignore.",
   },
   {
     id: "remembered",
@@ -59,6 +69,7 @@ const EXAMPLES: Example[] = [
     outcome: "remembered",
     predicted: "Healthcare",
     confirmed: "Shopping",
+    modelCategory: null,
     note: "You previously filed this pharmacy under Shopping. Different card number, same merchant — your category is applied automatically, and the model's own answer is kept alongside it rather than overwritten.",
   },
 ];
@@ -190,6 +201,24 @@ export function DecisionJourneySection() {
                     tone={example.confirmed ? "human" : "empty"}
                   />
                 </div>
+                {example.modelCategory && (
+                  <div className="rounded-md border border-dashed border-muted-foreground/40 bg-transparent px-3 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs font-medium">Advisory suggestion</p>
+                      <Badge variant="outline" className="font-mono text-[10px]">
+                        model_category
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-sm font-semibold">{example.modelCategory}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      The classifier&apos;s raw opinion, kept even though the abstention policy
+                      overrode it with Other above. Shown as a one-click &quot;Use{" "}
+                      {example.modelCategory}&quot; suggestion — never applied automatically, and
+                      never shown as a confidence percentage (the abstention threshold is a
+                      policy cutoff, not a calibrated probability).
+                    </p>
+                  </div>
+                )}
                 <div className="rounded-md border border-border-strong bg-elevated px-3 py-2">
                   <p className="text-xs text-muted-foreground">
                     Counted in every chart and forecast as

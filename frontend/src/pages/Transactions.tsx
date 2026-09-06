@@ -54,7 +54,9 @@ export function TransactionsPage() {
         </Button>
       </div>
 
-      <TransactionsTabs active={tab} onChange={setTab} />
+      <div data-tour="transactions-tabs">
+        <TransactionsTabs active={tab} onChange={setTab} />
+      </div>
 
       <TabPanel id="list" active={tab === "list"}>
         <div className="flex flex-col gap-5">

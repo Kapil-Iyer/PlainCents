@@ -73,7 +73,7 @@ export function ImportPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
+      <div data-tour="page-header">
         <h1 className="text-2xl font-bold tracking-tight">Import</h1>
         <p className="text-sm text-muted-foreground">
           Upload a transaction CSV exported from your bank. Nothing is saved until you confirm the

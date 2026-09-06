@@ -110,7 +110,7 @@ export function HowItWorksPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
+      <div data-tour="page-header">
         <h1 className="text-2xl font-bold tracking-tight">How It Works</h1>
         <p className="text-sm text-muted-foreground">
           What PlainCents does, how it decides, and what it can&apos;t tell you.

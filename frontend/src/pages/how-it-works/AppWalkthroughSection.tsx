@@ -151,7 +151,7 @@ const STEPS: Step[] = [
     id: "dashboard",
     title: "Read the dashboard",
     page: "Dashboard",
-    body: "This month against last, whether you're ahead of your usual pace, and which categories account for the difference. Your corrections are already folded in — the charts and the transaction list never disagree.",
+    body: "This month against last, whether you're ahead of your usual pace, and which categories account for the difference — all sharing one selected month, so the three never disagree about which period they mean. Partway through a month, the comparison is day-aligned (the 1st through today, on both sides) rather than a partial month against a full one, which would always read as a decline. Pick a fully-completed past month instead, and every card switches to a plain full-month comparison. Your corrections are already folded in — the charts and the transaction list never disagree.",
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col gap-2">

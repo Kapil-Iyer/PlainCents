@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Sparkles } from "lucide-react";
+import { AlertTriangle, Compass, Sparkles } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 import { getHealth } from "@/api/health";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAppState } from "@/context/AppStateContext";
+import { useGuidedTour } from "@/context/GuidedTourContext";
 import { cn } from "@/lib/utils";
 
 const MODE_LABEL: Record<string, string> = {
@@ -15,6 +17,7 @@ const MODE_LABEL: Record<string, string> = {
 
 export function TopNav() {
   const { mode } = useAppState();
+  const { start: startTour } = useGuidedTour();
   const { data: health } = useQuery({
     queryKey: ["health"],
     queryFn: getHealth,
@@ -45,7 +48,23 @@ export function TopNav() {
             Categorization model unavailable
           </span>
         )}
-        <Badge variant={mode === "DEMO" ? "warning" : mode === "REAL" ? "success" : "outline"}>
+        {/* Always available, from any screen -- the tour's own Skip/Done
+         * never leaves a user without a way back in (Build Plan PATCH C:
+         * "provide a Replay Tour entry point"). */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={startTour}
+          className="hidden items-center gap-1.5 text-muted-foreground sm:flex"
+        >
+          <Compass className="h-3.5 w-3.5" />
+          Replay tour
+        </Button>
+        <Badge
+          data-tour="topnav-mode-badge"
+          variant={mode === "DEMO" ? "warning" : mode === "REAL" ? "success" : "outline"}
+        >
           {MODE_LABEL[mode] ?? mode}
         </Badge>
       </div>

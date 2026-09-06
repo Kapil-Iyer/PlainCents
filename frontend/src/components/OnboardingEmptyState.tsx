@@ -1,19 +1,19 @@
-import { Loader2, Lock, Sparkles, UploadCloud } from "lucide-react";
+import { Compass, Loader2, Lock, Sparkles, UploadCloud } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useToast } from "@/components/shared/Toast";
+import { useGuidedTour } from "@/context/GuidedTourContext";
 import { useLoadDemo } from "@/hooks/useDemo";
 import { ApiError } from "@/types/common";
-
-import { ProductWalkthrough } from "@/components/walkthrough/ProductWalkthrough";
 
 interface OnboardingEmptyStateProps {
   title?: string;
   description?: string;
-  /** Set to false on non-Dashboard EMPTY surfaces so the walkthrough only
-   * appears once, on the primary first-open screen (PRD §10a). */
+  /** Set to false on non-Dashboard EMPTY surfaces so the "Take the tour"
+   * entry point only appears once, on the primary first-open screen (PRD
+   * §10a) — it stays reachable everywhere else via TopNav's Replay tour. */
   showWalkthrough?: boolean;
 }
 
@@ -24,12 +24,11 @@ interface OnboardingEmptyStateProps {
  * DEMO/REAL mutual-exclusion rule is visible in the UI itself, not just
  * enforced server-side.
  *
- * On the Dashboard (the primary first-open screen) this also carries the
- * Phase 10 recruiter/product walkthrough — a presentation-only preview of
- * the five major product areas, so a reviewer can understand PlainCents in
- * under a minute without importing anything first. It is deliberately not
- * the same action as "Load demo data": the walkthrough never touches
- * application state.
+ * On the Dashboard (the primary first-open screen) this also offers a
+ * guided spotlight tour over the real app (PATCH C) — a reviewer can
+ * understand PlainCents by seeing the actual product navigate itself,
+ * rather than a static mockup. It is deliberately not the same action as
+ * "Load demo data": starting the tour never touches application state.
  */
 export function OnboardingEmptyState({
   title = "Welcome to PlainCents",
@@ -38,6 +37,7 @@ export function OnboardingEmptyState({
 }: OnboardingEmptyStateProps) {
   const loadDemoMutation = useLoadDemo();
   const { toast } = useToast();
+  const { start: startTour } = useGuidedTour();
 
   const handleLoadDemo = async () => {
     try {
@@ -75,6 +75,12 @@ export function OnboardingEmptyState({
                 )}
                 Load demo data
               </Button>
+              {showWalkthrough && (
+                <Button variant="outline" onClick={startTour}>
+                  <Compass className="h-4 w-4" />
+                  Take the tour
+                </Button>
+              )}
             </div>
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Lock className="h-3 w-3" />
@@ -84,13 +90,6 @@ export function OnboardingEmptyState({
           </div>
         }
       />
-
-      {showWalkthrough && (
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-sm font-medium text-muted-foreground">See what PlainCents does</p>
-          <ProductWalkthrough />
-        </div>
-      )}
     </div>
   );
 }
