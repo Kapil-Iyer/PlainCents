@@ -48,7 +48,17 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
                 <td className="px-4 py-2.5 font-medium">{holding.ticker}</td>
                 <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums">{holding.shares}</td>
                 <td className="whitespace-nowrap px-4 py-2.5 text-right tabular-nums">
-                  {formatCurrency(holding.avg_cost)}
+                  {holding.avg_cost === null ? (
+                    <button
+                      type="button"
+                      onClick={() => setEditing(holding)}
+                      className="text-muted-foreground underline decoration-dotted underline-offset-2 hover:text-foreground"
+                    >
+                      Add cost basis
+                    </button>
+                  ) : (
+                    formatCurrency(holding.avg_cost)
+                  )}
                 </td>
                 <td className="whitespace-nowrap px-4 py-2.5 text-right">
                   <PriceStatus holding={holding} />

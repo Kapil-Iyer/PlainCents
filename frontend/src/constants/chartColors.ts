@@ -24,3 +24,13 @@ const CATEGORY_COLOR: Record<Category, string> = Object.fromEntries(
 export function colorForCategory(category: string): string {
   return CATEGORY_COLOR[category as Category] ?? "hsl(218 10% 55%)";
 }
+
+/** Same hue-wheel palette, indexed positionally rather than by a fixed
+ * taxonomy -- for charts over an open-ended set of labels (e.g. portfolio
+ * tickers) where there is no equivalent of CATEGORIES to key off. Stable
+ * for a given sort order within one render; not identity-stable across
+ * additions/removals the way colorForCategory is, which is an acceptable
+ * trade-off for a set that has no fixed membership. */
+export function colorForIndex(i: number): string {
+  return `hsl(${PALETTE[i % PALETTE.length]})`;
+}

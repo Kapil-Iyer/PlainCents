@@ -21,6 +21,49 @@ def test_holding_crud_round_trip(conn):
     assert repo.get(hid) is None
 
 
+# -- optional avg_cost (portfolio + Power BI completion pass) ---------------
+
+
+def test_holding_create_without_avg_cost_key(conn):
+    """`.get("avg_cost")`, never `data["avg_cost"]` -- omitting the key
+    entirely (not just passing None) must not raise KeyError."""
+    repo = HoldingRepository(conn)
+    hid = repo.create({"ticker": "MSFT", "shares": 10, "data_mode": "real"})
+    conn.commit()
+
+    assert repo.get(hid)["avg_cost"] is None
+
+
+def test_holding_create_with_explicit_none_avg_cost(conn):
+    repo = HoldingRepository(conn)
+    hid = repo.create({"ticker": "MSFT", "shares": 10, "avg_cost": None, "data_mode": "real"})
+    conn.commit()
+
+    assert repo.get(hid)["avg_cost"] is None
+
+
+def test_holding_update_can_set_avg_cost_later(conn):
+    repo = HoldingRepository(conn)
+    hid = repo.create({"ticker": "MSFT", "shares": 10, "data_mode": "real"})
+    conn.commit()
+
+    repo.update(hid, {"avg_cost": 280.0})
+    conn.commit()
+
+    assert repo.get(hid)["avg_cost"] == 280.0
+
+
+def test_holding_update_can_clear_avg_cost(conn):
+    repo = HoldingRepository(conn)
+    hid = repo.create({"ticker": "MSFT", "shares": 10, "avg_cost": 280.0, "data_mode": "real"})
+    conn.commit()
+
+    repo.update(hid, {"avg_cost": None})
+    conn.commit()
+
+    assert repo.get(hid)["avg_cost"] is None
+
+
 def test_holding_list_mode_filter(conn):
     repo = HoldingRepository(conn)
     repo.create({"ticker": "AAPL", "shares": 10, "avg_cost": 150.0, "data_mode": "demo"})

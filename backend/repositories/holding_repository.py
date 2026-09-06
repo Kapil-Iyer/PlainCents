@@ -11,9 +11,13 @@ class HoldingRepository:
         self._conn = conn
 
     def create(self, data: dict) -> int:
+        # avg_cost is optional (PRODUCT DECISION: a user may track "10 MSFT
+        # shares" without knowing their cost basis yet) -- `.get()`, never
+        # `data["avg_cost"]`, so omitting the key is not a KeyError, and
+        # round_money(None) already returns None, which binds to SQL NULL.
         cur = self._conn.execute(
             "INSERT INTO holdings (ticker, shares, avg_cost, data_mode) VALUES (?, ?, ?, ?)",
-            (data["ticker"], data["shares"], round_money(data["avg_cost"]), data["data_mode"]),
+            (data["ticker"], data["shares"], round_money(data.get("avg_cost")), data["data_mode"]),
         )
         return cur.lastrowid
 
@@ -34,6 +38,11 @@ class HoldingRepository:
         return [dict(r) for r in rows]
 
     def update(self, holding_id: int, fields: dict) -> bool:
+        # avg_cost may be explicitly set to None here (clearing a
+        # previously-known cost basis, e.g. via the API's PATCH
+        # {"avg_cost": null}) -- round_money(None) is None, which binds to
+        # SQL NULL, same as create(). This is a genuine, deliberate "I no
+        # longer know/want to record this" state, not a bug.
         allowed = {"shares", "avg_cost"}
         set_parts = []
         params = []

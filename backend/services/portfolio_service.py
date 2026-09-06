@@ -35,13 +35,23 @@ class PortfolioService:
         current_price = cache["current_price"] if cache else None
         price_last_updated = cache["fetched_at"] if cache else None
 
+        avg_cost = holding["avg_cost"]
+
         if current_price is not None:
             current_value = holding["shares"] * current_price
-            pnl = holding["shares"] * (current_price - holding["avg_cost"])
         else:
             # TRD §6/Build Plan Phase 8 financial rules: never fabricate a
-            # value/P&L when there is no price to compute it from.
+            # value when there is no price to compute it from.
             current_value = None
+
+        if current_price is not None and avg_cost is not None:
+            pnl = holding["shares"] * (current_price - avg_cost)
+        else:
+            # Cost basis unknown (avg_cost is None) is a genuine "cannot
+            # honestly compute P&L" state, exactly like a missing price --
+            # never fabricated as 0 or derived from current_price itself
+            # (that would silently invent a cost basis equal to today's
+            # price, i.e. a fake "no gain/loss" answer).
             pnl = None
 
         # DEMO_PRICE_FETCHED_AT is a fixed sentinel stamped ONLY by
@@ -60,7 +70,7 @@ class PortfolioService:
             "id": holding["id"],
             "ticker": holding["ticker"],
             "shares": holding["shares"],
-            "avg_cost": holding["avg_cost"],
+            "avg_cost": avg_cost,
             "current_price": current_price,
             "current_value": current_value,
             "pnl": pnl,
@@ -90,7 +100,7 @@ class PortfolioService:
                 {
                     "ticker": ticker,
                     "shares": data["shares"],
-                    "avg_cost": data["avg_cost"],
+                    "avg_cost": data.get("avg_cost"),
                     "data_mode": "real",
                 }
             )

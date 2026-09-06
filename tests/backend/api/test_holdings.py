@@ -70,6 +70,78 @@ def test_create_holding_rejects_negative_avg_cost(client: TestClient):
     assert response.status_code == 422
 
 
+def test_create_holding_without_avg_cost_field_succeeds(client: TestClient):
+    """Ticker and shares are required; average cost is not."""
+    response = client.post("/api/holdings", json={"ticker": "MSFT", "shares": 10})
+
+    assert response.status_code == 201
+    body = response.json()
+    assert body["avg_cost"] is None
+    assert body["pnl"] is None
+
+
+def test_create_holding_with_explicit_null_avg_cost_succeeds(client: TestClient):
+    response = client.post("/api/holdings", json=_sample(avg_cost=None))
+
+    assert response.status_code == 201
+    assert response.json()["avg_cost"] is None
+
+
+def test_market_value_available_without_cost_basis_but_pnl_is_not(client: TestClient, conn):
+    client.post("/api/holdings", json={"ticker": "AAPL", "shares": 10})
+
+    with patch(
+        "backend.services.portfolio_service.fetch_price",
+        side_effect=_fake_fetch_price(conn, {"AAPL": 150.0}),
+    ):
+        client.post("/api/holdings/refresh-prices")
+
+    holdings = client.get("/api/holdings").json()
+    assert holdings[0]["current_value"] == 1500.0
+    assert holdings[0]["pnl"] is None
+
+
+def test_avg_cost_can_be_added_later_and_pnl_then_appears(client: TestClient, conn):
+    created = client.post("/api/holdings", json={"ticker": "AAPL", "shares": 10}).json()
+    with patch(
+        "backend.services.portfolio_service.fetch_price",
+        side_effect=_fake_fetch_price(conn, {"AAPL": 150.0}),
+    ):
+        client.post("/api/holdings/refresh-prices")
+
+    response = client.patch(f"/api/holdings/{created['id']}", json={"avg_cost": 100.0})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["avg_cost"] == 100.0
+    assert body["pnl"] == 500.0
+
+
+def test_avg_cost_can_be_cleared_via_explicit_null(client: TestClient):
+    created = client.post("/api/holdings", json=_sample(avg_cost=100.0)).json()
+    assert created["avg_cost"] == 100.0
+
+    response = client.patch(f"/api/holdings/{created['id']}", json={"avg_cost": None})
+
+    assert response.status_code == 200
+    assert response.json()["avg_cost"] is None
+
+
+def test_refresh_prices_does_not_mutate_shares_or_avg_cost(client: TestClient, conn):
+    created = client.post("/api/holdings", json=_sample(shares=10, avg_cost=100.0)).json()
+
+    with patch(
+        "backend.services.portfolio_service.fetch_price",
+        side_effect=_fake_fetch_price(conn, {"AAPL": 150.0}),
+    ):
+        client.post("/api/holdings/refresh-prices")
+
+    holdings = client.get("/api/holdings").json()
+    assert holdings[0]["id"] == created["id"]
+    assert holdings[0]["shares"] == 10
+    assert holdings[0]["avg_cost"] == 100.0
+
+
 def test_list_holdings_never_calls_fetch_price(client: TestClient):
     client.post("/api/holdings", json=_sample())
 

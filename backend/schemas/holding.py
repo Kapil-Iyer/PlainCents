@@ -14,7 +14,13 @@ def _validate_ticker(value: str) -> str:
 class HoldingCreate(BaseModel):
     ticker: str
     shares: float = Field(gt=0)
-    avg_cost: float = Field(ge=0)
+    # PRODUCT DECISION: Ticker and Shares are required; average cost is not.
+    # A user who knows "I own 10 MSFT shares" but not their exact cost basis
+    # must still be able to add the holding -- current price and market
+    # value are still honest and computable from shares alone (see
+    # PortfolioService._to_response). Omitting avg_cost (or sending it as
+    # null) is a real, deliberate "unknown" state, never coerced to 0.
+    avg_cost: float | None = Field(default=None, ge=0)
 
     _validate_ticker = field_validator("ticker")(_validate_ticker)
 
@@ -26,6 +32,13 @@ class HoldingUpdate(BaseModel):
     # supported update, so the schema doesn't expose a field that would be
     # silently dropped by the repository.
     shares: float | None = Field(default=None, gt=0)
+    # `None` here is ambiguous by design between "field omitted" (the route
+    # uses `model_dump(exclude_unset=True)`, so an omitted field never
+    # reaches the repository at all) and "explicitly set to null" (a real
+    # request to clear a previously-known cost basis) -- Pydantic v2 tracks
+    # which fields were actually present in the request body separately
+    # from their value, so both cases behave correctly with no extra code
+    # here. ge=0 only constrains a non-null value; None always passes.
     avg_cost: float | None = Field(default=None, ge=0)
 
 
@@ -33,7 +46,10 @@ class HoldingResponse(BaseModel):
     id: int
     ticker: str
     shares: float
-    avg_cost: float
+    # None means "cost basis not recorded yet" -- never fabricated from
+    # current_price/a demo value/0. See PortfolioService._to_response for
+    # how pnl derives from this (also None whenever avg_cost is None).
+    avg_cost: float | None = None
     current_price: float | None = None
     current_value: float | None = None
     pnl: float | None = None

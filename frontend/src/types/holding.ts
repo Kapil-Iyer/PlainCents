@@ -4,7 +4,9 @@ export interface HoldingResponse {
   id: number;
   ticker: string;
   shares: number;
-  avg_cost: number;
+  /** null means "cost basis not recorded yet" -- never fabricated from
+   * current_price or a demo value. `pnl` is also null whenever this is. */
+  avg_cost: number | null;
   current_price: number | null;
   current_value: number | null;
   pnl: number | null;
@@ -21,12 +23,16 @@ export interface HoldingResponse {
 export interface HoldingCreate {
   ticker: string;
   shares: number;
-  avg_cost: number;
+  /** Optional -- a holding can be tracked ("10 MSFT shares") without a
+   * known cost basis yet. Omit or send null, never a fabricated 0. */
+  avg_cost?: number | null;
 }
 
 export interface HoldingUpdate {
   shares?: number;
-  avg_cost?: number;
+  /** null explicitly clears a previously-known cost basis; omitting the
+   * key entirely leaves it unchanged (see backend/schemas/holding.py). */
+  avg_cost?: number | null;
 }
 
 export interface RefreshedTicker {

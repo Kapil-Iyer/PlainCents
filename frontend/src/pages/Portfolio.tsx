@@ -10,6 +10,8 @@ import { ApiError } from "@/types/common";
 
 import { HoldingFormDialog } from "@/pages/portfolio/HoldingFormDialog";
 import { HoldingsTable } from "@/pages/portfolio/HoldingsTable";
+import { PortfolioAnalytics } from "@/pages/portfolio/PortfolioAnalytics";
+import { PortfolioHowItWorks } from "@/pages/portfolio/PortfolioHowItWorks";
 import { RefreshPricesButton } from "@/pages/portfolio/RefreshPricesButton";
 
 export function PortfolioPage() {
@@ -88,8 +90,13 @@ export function PortfolioPage() {
           }
         />
       ) : (
-        <HoldingsTable holdings={holdings} />
+        <>
+          <HoldingsTable holdings={holdings} />
+          <PortfolioAnalytics holdings={holdings} />
+        </>
       )}
+
+      <PortfolioHowItWorks />
 
       <HoldingFormDialog open={createOpen} onOpenChange={setCreateOpen} />
     </div>

@@ -152,6 +152,27 @@ def test_portfolio_csv_reuses_the_no_network_read_path(service, conn):
     assert portfolio.iloc[0]["current_value"] == 1500.0
 
 
+def test_portfolio_csv_never_fakes_a_zero_for_unknown_cost_basis(service, conn):
+    """A holding with no recorded avg_cost must export a genuinely blank
+    cell (pandas NaN -> empty CSV field), never a fabricated 0 -- a BI
+    report reading `avg_cost == 0` would otherwise misread "unknown" as
+    "bought for free"."""
+    HoldingRepository(conn).create({"ticker": "MSFT", "shares": 10, "data_mode": "real"})
+    PriceCacheRepository(conn).upsert_latest("MSFT", 300.0, "2026-06-01T00:00:00")
+    conn.commit()
+
+    zip_bytes = service.build_export_zip(data_mode="real")
+
+    with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+        raw_csv_text = zf.read("portfolio.csv").decode("utf-8")
+        portfolio = _read_csv(zf, "portfolio.csv")
+
+    assert pd.isna(portfolio.iloc[0]["avg_cost"])
+    assert pd.isna(portfolio.iloc[0]["pnl"])
+    # The raw CSV text itself has an empty field, not a literal "0.0".
+    assert "MSFT,10.0,,300.0" in raw_csv_text.replace("\r", "")
+
+
 def test_forecast_csv_empty_when_no_run_exists(service):
     zip_bytes = service.build_export_zip(data_mode="real")
 

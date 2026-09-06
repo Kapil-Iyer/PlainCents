@@ -178,6 +178,98 @@ def test_refresh_prices_failure_preserves_last_good_cache(service):
     assert rows[0]["current_price"] == 150.0  # last-good price preserved, not overwritten
 
 
+# -- optional cost basis (portfolio + Power BI completion pass) -------------
+
+
+def test_create_holding_without_avg_cost_succeeds(service):
+    """Ticker and shares are required; average cost is not -- a user who
+    only knows "I own 10 MSFT shares" must still be able to add it."""
+    row = service.create_holding({"ticker": "MSFT", "shares": 10})
+
+    assert row["avg_cost"] is None
+
+
+def test_create_holding_with_explicit_null_avg_cost_succeeds(service):
+    row = service.create_holding(_sample(avg_cost=None))
+
+    assert row["avg_cost"] is None
+
+
+def test_market_value_works_without_avg_cost(service, conn):
+    service.create_holding({"ticker": "AAPL", "shares": 10})
+    with patch(
+        "backend.services.portfolio_service.fetch_price",
+        side_effect=_fake_fetch_price({"AAPL": 150.0}),
+    ):
+        service.refresh_prices(data_mode="real")
+
+    rows = service.get_holdings_with_prices(data_mode="real")
+
+    assert rows[0]["current_price"] == 150.0
+    assert rows[0]["current_value"] == 1500.0  # shares * price, no cost basis needed
+
+
+def test_pnl_is_null_without_avg_cost_even_with_a_known_price(service):
+    service.create_holding({"ticker": "AAPL", "shares": 10})
+    with patch(
+        "backend.services.portfolio_service.fetch_price",
+        side_effect=_fake_fetch_price({"AAPL": 150.0}),
+    ):
+        service.refresh_prices(data_mode="real")
+
+    rows = service.get_holdings_with_prices(data_mode="real")
+
+    assert rows[0]["pnl"] is None  # never fabricated as 0 or derived from current_price
+
+
+def test_pnl_correct_once_avg_cost_is_known(service):
+    created = service.create_holding({"ticker": "AAPL", "shares": 10})
+    with patch(
+        "backend.services.portfolio_service.fetch_price",
+        side_effect=_fake_fetch_price({"AAPL": 150.0}),
+    ):
+        service.refresh_prices(data_mode="real")
+
+    service.update_holding(created["id"], {"avg_cost": 100.0})
+    row = service.get_holding(created["id"])
+
+    assert row["avg_cost"] == 100.0
+    assert row["pnl"] == 500.0  # (150 - 100) * 10
+
+
+def test_avg_cost_can_be_added_later_via_update(service):
+    created = service.create_holding({"ticker": "AAPL", "shares": 10})
+    assert created["avg_cost"] is None
+
+    updated = service.update_holding(created["id"], {"avg_cost": 120.0})
+
+    assert updated["avg_cost"] == 120.0
+
+
+def test_avg_cost_can_be_cleared_via_update(service):
+    created = service.create_holding(_sample(avg_cost=100.0))
+    assert created["avg_cost"] == 100.0
+
+    cleared = service.update_holding(created["id"], {"avg_cost": None})
+
+    assert cleared["avg_cost"] is None
+    assert cleared["pnl"] is None
+
+
+def test_refresh_prices_never_mutates_shares_or_avg_cost(service):
+    created = service.create_holding(_sample(ticker="AAPL", shares=10, avg_cost=100.0))
+
+    with patch(
+        "backend.services.portfolio_service.fetch_price",
+        side_effect=_fake_fetch_price({"AAPL": 150.0}),
+    ):
+        service.refresh_prices(data_mode="real")
+
+    row = service.get_holding(created["id"])
+    assert row["shares"] == 10
+    assert row["avg_cost"] == 100.0
+
+
 def test_update_holding_changes_shares(service):
     created = service.create_holding(_sample())
 

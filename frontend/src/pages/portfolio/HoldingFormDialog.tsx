@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Calculator, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,8 @@ import { useCreateHolding, useUpdateHolding } from "@/hooks/useHoldings";
 import { ApiError } from "@/types/common";
 import type { HoldingResponse } from "@/types/holding";
 
+import { PurchaseLotCalculator } from "@/pages/portfolio/PurchaseLotCalculator";
+
 interface HoldingFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -24,9 +26,19 @@ interface HoldingFormDialogProps {
   holding?: HoldingResponse;
 }
 
-/** Add/Edit holding (Build Plan Phase 8). Ticker is only settable on create —
+/**
+ * Add/Edit holding (Build Plan Phase 8; made avg_cost optional in the
+ * Portfolio + Power BI completion pass). Ticker is only settable on create —
  * HoldingRepository.update() never accepts a ticker change, so the edit form
- * doesn't expose a field that would silently do nothing. */
+ * doesn't expose a field that would silently do nothing.
+ *
+ * PRODUCT DECISION: Ticker and Shares are required; Average cost is not. A
+ * user who only knows "I own 10 MSFT shares" can still add the holding --
+ * current price and market value are still honest without a cost basis.
+ * Cost basis/P&L are never fabricated from current price or any default;
+ * they simply stay unavailable until a real average cost is supplied here
+ * (now or later) or computed via "Calculate from purchases" below.
+ */
 export function HoldingFormDialog({ open, onOpenChange, holding }: HoldingFormDialogProps) {
   const isEdit = !!holding;
   const { toast } = useToast();
@@ -36,25 +48,32 @@ export function HoldingFormDialog({ open, onOpenChange, holding }: HoldingFormDi
   const [ticker, setTicker] = useState("");
   const [shares, setShares] = useState("");
   const [avgCost, setAvgCost] = useState("");
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setTicker(holding?.ticker ?? "");
       setShares(holding ? String(holding.shares) : "");
-      setAvgCost(holding ? String(holding.avg_cost) : "");
+      setAvgCost(holding?.avg_cost != null ? String(holding.avg_cost) : "");
+      setCalculatorOpen(false);
       setError(null);
     }
   }, [open, holding]);
 
   const pending = createMutation.isPending || updateMutation.isPending;
+  const hadCostBasis = holding?.avg_cost != null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     const parsedShares = Number(shares);
-    const parsedAvgCost = Number(avgCost);
+    // Blank means "unknown", not zero -- distinguish "nothing typed" from
+    // "typed 0" before parsing, so an empty field never becomes a
+    // fabricated $0 cost basis.
+    const avgCostTrimmed = avgCost.trim();
+    const parsedAvgCost = avgCostTrimmed === "" ? null : Number(avgCostTrimmed);
 
     if (!isEdit && !ticker.trim()) {
       setError("Ticker is required.");
@@ -64,7 +83,7 @@ export function HoldingFormDialog({ open, onOpenChange, holding }: HoldingFormDi
       setError("Shares must be a positive number.");
       return;
     }
-    if (!Number.isFinite(parsedAvgCost) || parsedAvgCost < 0) {
+    if (parsedAvgCost !== null && (!Number.isFinite(parsedAvgCost) || parsedAvgCost < 0)) {
       setError("Average cost must be zero or a positive number.");
       return;
     }
@@ -95,7 +114,7 @@ export function HoldingFormDialog({ open, onOpenChange, holding }: HoldingFormDi
             <DialogDescription>
               {isEdit
                 ? "Update shares or average cost. Prices only change via Refresh Prices."
-                : "Enter a ticker, shares held, and your average cost per share."}
+                : "Enter a ticker and shares held. Average cost is optional."}
             </DialogDescription>
           </DialogHeader>
 
@@ -125,7 +144,7 @@ export function HoldingFormDialog({ open, onOpenChange, holding }: HoldingFormDi
               />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="holding-avg-cost">Average cost per share</Label>
+              <Label htmlFor="holding-avg-cost">Average cost per share (optional)</Label>
               <Input
                 id="holding-avg-cost"
                 type="number"
@@ -133,10 +152,45 @@ export function HoldingFormDialog({ open, onOpenChange, holding }: HoldingFormDi
                 min="0"
                 value={avgCost}
                 onChange={(e) => setAvgCost(e.target.value)}
-                placeholder="150.00"
-                required
+                placeholder="Optional"
               />
+              {!calculatorOpen && (
+                <>
+                  <p className="text-xs text-muted-foreground">
+                    Don&apos;t know your average cost? {isEdit ? "Save now and" : "Add the holding now and"}{" "}
+                    fill it in later.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="self-start"
+                    onClick={() => setCalculatorOpen(true)}
+                  >
+                    <Calculator className="h-4 w-4" />
+                    Calculate from purchases
+                  </Button>
+                </>
+              )}
             </div>
+
+            {calculatorOpen && (
+              <PurchaseLotCalculator
+                onApply={(computed) => {
+                  setAvgCost(String(computed));
+                  setCalculatorOpen(false);
+                }}
+                onCancel={() => setCalculatorOpen(false)}
+              />
+            )}
+
+            {isEdit && hadCostBasis && avgCost.trim() === "" && (
+              <p className="text-xs text-warning">
+                Clearing this will remove the recorded cost basis and unrealized P&amp;L for this
+                holding.
+              </p>
+            )}
+
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
 
