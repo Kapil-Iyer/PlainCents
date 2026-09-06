@@ -53,6 +53,8 @@ export interface CategoryMoversResponse {
   total_current: number;
   total_previous: number;
   total_change: number;
+  /** Both totals above are capped at this same day-of-month. */
+  comparable_day: number;
   movers: CategoryMover[];
 }
 
@@ -67,6 +69,10 @@ export interface SpendPaceResponse {
   current_month: string;
   previous_month: string;
   day_of_month: number;
+  /** The previous month's own length may be shorter than day_of_month
+   * (e.g. day 30/31 vs. February) — use this for any label naming the
+   * previous period's day range. */
+  comparable_day: number;
   current_to_date: number;
   previous_same_point: number;
   difference: number;

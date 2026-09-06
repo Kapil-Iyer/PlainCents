@@ -15,6 +15,7 @@ import sqlite3
 from datetime import date
 
 from backend.repositories.transaction_repository import TransactionRepository
+from backend.services.date_windows import elapsed_window, shift_month
 
 # PRD §11.7 only requires current-vs-previous calendar month; the trend chart
 # and recent-transactions list are additional visualizations the same section
@@ -32,9 +33,12 @@ def _month_str(d: date) -> str:
 def _shift_month(year: int, month: int, delta: int) -> tuple[int, int]:
     """Shift a (year, month) pair by `delta` months (may be negative),
     wrapping the year — the one piece of arithmetic month-boundary edge
-    cases (e.g. "current month is January") depend on getting right."""
-    zero_based = (month - 1) + delta
-    return year + zero_based // 12, zero_based % 12 + 1
+    cases (e.g. "current month is January") depend on getting right.
+
+    Kept as a thin alias of date_windows.shift_month (rather than removed)
+    so this module's existing internal call sites don't all need touching;
+    the shared implementation now lives in date_windows.py."""
+    return shift_month(year, month, delta)
 
 
 def _change_pct(current: float, previous: float) -> float | None:
@@ -92,9 +96,9 @@ class DashboardService:
         inject a fixed date to exercise month-boundary edge cases.
         """
         today = reference_date or date.today()
-        current_month = _month_str(today)
-        prev_year, prev_month = _shift_month(today.year, today.month, -1)
-        previous_month = f"{prev_year:04d}-{prev_month:02d}"
+        window = elapsed_window(today)
+        current_month = window.current_month
+        previous_month = window.previous_month
 
         trend_start_year, trend_start_month = _shift_month(
             today.year, today.month, -(_TREND_MONTHS - 1)
@@ -116,7 +120,21 @@ class DashboardService:
                 current_month_rows.append(row)
 
         total_spend_current = round(monthly_totals.get(current_month, 0.0), 2)
+        # Full previous calendar month -- a genuinely useful standalone
+        # number ("you spent $X last month total"), kept as-is.
         total_spend_previous = round(monthly_totals.get(previous_month, 0.0), 2)
+
+        # The FAIR comparison basis: the previous month's spend through the
+        # SAME day-of-month the current (possibly partial) month has reached.
+        # Without this, a $0 first day of the month reads as "-100% vs last
+        # month" against the full previous month's total, which is not a
+        # meaningful statement about pace. This is the number `change_pct`
+        # is computed against; `total_spend_previous` above stays the full
+        # month for its own separate, honest standalone meaning.
+        prev_to_date_rows = self._repo.aggregate_by_month_category(
+            data_mode=data_mode, date_from=window.previous_start, date_to=window.previous_comparable_end,
+        )
+        total_spend_previous_to_date = round(sum(r["total_spend"] for r in prev_to_date_rows), 2)
 
         recent_transactions = self._repo.list(
             data_mode=data_mode, sort="-date", limit=_RECENT_TRANSACTIONS_LIMIT
@@ -126,7 +144,9 @@ class DashboardService:
             "period": {"current": current_month, "previous": previous_month},
             "total_spend_current": total_spend_current,
             "total_spend_previous": total_spend_previous,
-            "change_pct": _change_pct(total_spend_current, total_spend_previous),
+            "total_spend_previous_to_date": total_spend_previous_to_date,
+            "comparable_day": window.comparable_day,
+            "change_pct": _change_pct(total_spend_current, total_spend_previous_to_date),
             "category_breakdown": _category_breakdown(current_month_rows, total_spend_current),
             "spending_trend": _spending_trend(today, monthly_totals),
             "recent_transactions": recent_transactions,

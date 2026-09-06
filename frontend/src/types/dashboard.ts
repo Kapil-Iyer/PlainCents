@@ -22,6 +22,11 @@ export interface DashboardSummaryResponse {
   period: DashboardPeriod;
   total_spend_current: number;
   total_spend_previous: number;
+  /** Previous month's spend capped at `comparable_day` — the fair basis
+   * `change_pct` is computed against. `total_spend_previous` above stays
+   * the full previous calendar month, a separate honest standalone figure. */
+  total_spend_previous_to_date: number;
+  comparable_day: number;
   change_pct: number | null;
   category_breakdown: CategoryBreakdownItem[];
   spending_trend: SpendingTrendPoint[];

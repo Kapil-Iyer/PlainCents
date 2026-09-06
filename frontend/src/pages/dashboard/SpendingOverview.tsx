@@ -1,7 +1,7 @@
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn, formatCurrency, formatMonthLabel } from "@/lib/utils";
+import { cn, formatCurrency, formatDayRangeLabel, formatMonthLabel } from "@/lib/utils";
 import type { DashboardSummaryResponse } from "@/types/dashboard";
 
 interface SpendingOverviewProps {
@@ -13,9 +13,16 @@ interface SpendingOverviewProps {
  * period." A spend increase is flagged (not necessarily bad, but worth
  * noticing) in warning tone; a decrease in success tone — mirroring the
  * refund/spend color convention already used in TransactionTable.
+ *
+ * PRODUCT-SEMANTICS FIX: `change_pct` compares the current month's spend
+ * through today against the previous month's spend through the SAME
+ * day-of-month (`comparable_day`) — never the previous month's full total,
+ * which reads as a misleading steep decline early in a month. The middle
+ * card still shows the full previous month's total on its own terms; only
+ * the Change card's copy names the actual elapsed comparison being made.
  */
 export function SpendingOverview({ summary }: SpendingOverviewProps) {
-  const { period, total_spend_current, total_spend_previous, change_pct } = summary;
+  const { period, total_spend_current, total_spend_previous, comparable_day, change_pct } = summary;
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -51,7 +58,9 @@ export function SpendingOverview({ summary }: SpendingOverviewProps) {
         </CardHeader>
         <CardContent>
           <ChangeIndicator changePct={change_pct} />
-          <p className="mt-1 text-xs text-muted-foreground">Vs. last month</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Vs. {formatDayRangeLabel(period.previous, comparable_day)}
+          </p>
         </CardContent>
       </Card>
     </div>

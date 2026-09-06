@@ -203,6 +203,26 @@ def test_category_movers_reports_no_percentage_against_a_zero_baseline(service, 
     assert healthcare["change_pct"] is None
 
 
+def test_category_movers_caps_previous_month_at_the_same_elapsed_day(service, repo, conn):
+    """Early in a month, the previous month's total (and its per-category
+    breakdown) must be capped at the SAME day-of-month as the current
+    (partial) month -- a late-previous-month transaction must not inflate
+    `total_previous`/`previous` beyond what the current month has had a
+    chance to match yet. Reference date here is the 5th of March."""
+    early_march = date(2026, 3, 5)
+    _txn(repo, conn, date_="2026-03-03", merchant="A DINER", amount=10.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-02-04", merchant="A DINER", amount=8.0, predicted="Food & Dining")   # day 4, comparable
+    _txn(repo, conn, date_="2026-02-20", merchant="B TRANSIT FARE", amount=200.0, predicted="Transport")  # day 20, NOT comparable
+
+    result = service.category_movers("real", reference_date=early_march)
+
+    assert result["comparable_day"] == 5
+    assert result["total_current"] == 10.0
+    assert result["total_previous"] == 8.0  # the day-20 Transport row must be excluded
+    assert "Transport" not in {m["category"] for m in result["movers"] if m["previous"] > 0}
+    assert sum(m["change"] for m in result["movers"]) == pytest.approx(result["total_change"])
+
+
 # -- spend pace ---------------------------------------------------------------
 
 
@@ -233,6 +253,35 @@ def test_spend_pace_handles_no_history_at_all(service):
     assert result["current_to_date"] == 0.0
     assert result["previous_same_point"] == 0.0
     assert result["points"]
+
+
+def test_spend_pace_comparable_day_caps_when_previous_month_is_shorter(service, repo, conn):
+    """comparable_day must differ from day_of_month when the previous month
+    is shorter (March 31 vs February) -- a UI label naming the previous
+    period's day range needs comparable_day, never day_of_month, or it
+    would claim a nonexistent 'Feb 1-31'."""
+    _txn(repo, conn, date_="2026-03-31", merchant="A DINER", amount=15.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-02-28", merchant="A DINER", amount=9.0, predicted="Food & Dining")
+
+    result = service.spend_pace("real", reference_date=date(2026, 3, 31))
+
+    assert result["day_of_month"] == 31
+    assert result["comparable_day"] == 28
+    assert result["previous_same_point"] == 9.0
+
+
+def test_spend_pace_day_1_compares_a_single_day_on_each_side(service, repo, conn):
+    _txn(repo, conn, date_="2026-06-01", merchant="A DINER", amount=12.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-05-01", merchant="A DINER", amount=7.0, predicted="Food & Dining")
+    _txn(repo, conn, date_="2026-05-15", merchant="A DINER", amount=500.0, predicted="Food & Dining")
+
+    result = service.spend_pace("real", reference_date=date(2026, 6, 1))
+
+    assert result["day_of_month"] == 1
+    assert result["comparable_day"] == 1
+    assert result["current_to_date"] == 12.0
+    # The day-15 May transaction must NOT be pulled into "previous_same_point".
+    assert result["previous_same_point"] == 7.0
 
 
 # -- demo / real isolation ----------------------------------------------------

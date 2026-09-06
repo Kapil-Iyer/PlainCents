@@ -48,13 +48,19 @@ class CategoryMover(BaseModel):
 
 class CategoryMoversResponse(BaseModel):
     """Per-category contributions to the month-over-month change in total
-    spend. The `change` values sum exactly to `total_change`."""
+    spend. The `change` values sum exactly to `total_change`.
+
+    Both `total_current` and `total_previous` are capped at the same
+    day-of-month (`comparable_day`) -- a partial current month is compared
+    against the previous month through that same day, never its full total.
+    """
 
     current_month: str
     previous_month: str
     total_current: float
     total_previous: float
     total_change: float
+    comparable_day: int
     movers: list[CategoryMover]
 
 
@@ -71,6 +77,10 @@ class SpendPaceResponse(BaseModel):
     current_month: str
     previous_month: str
     day_of_month: int
+    # The previous month's own length may be shorter than day_of_month (e.g.
+    # day 30/31 of a 31-day month vs. February) -- use THIS for any UI label
+    # naming the previous period's day range, not day_of_month.
+    comparable_day: int
     current_to_date: float
     previous_same_point: float
     difference: float

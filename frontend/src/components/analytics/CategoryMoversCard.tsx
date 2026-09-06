@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useCategoryMovers } from "@/hooks/useAnalytics";
 import { colorForCategory } from "@/constants/chartColors";
-import { cn, formatCurrency, formatMonthLabel } from "@/lib/utils";
+import { cn, formatCurrency, formatDayRangeLabel } from "@/lib/utils";
 
 import { ChartCardSkeleton } from "@/components/analytics/primitives";
 
@@ -26,12 +26,12 @@ export function CategoryMoversCard() {
   const { data, isLoading, isError } = useCategoryMovers();
   const reduceMotion = useReducedMotion();
 
-  if (isLoading) return <ChartCardSkeleton title="What changed this month" />;
+  if (isLoading) return <ChartCardSkeleton title="What changed so far" />;
   if (isError || !data) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>What changed this month</CardTitle>
+          <CardTitle>What changed so far</CardTitle>
         </CardHeader>
         <CardContent>
           <EmptyState
@@ -50,10 +50,10 @@ export function CategoryMoversCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>What changed this month</CardTitle>
+        <CardTitle>What changed so far</CardTitle>
         <CardDescription>
-          {formatMonthLabel(data.current_month, "short")} vs.{" "}
-          {formatMonthLabel(data.previous_month, "short")} — each category&apos;s contribution
+          {formatDayRangeLabel(data.current_month, data.comparable_day)} vs.{" "}
+          {formatDayRangeLabel(data.previous_month, data.comparable_day)} — each category&apos;s contribution
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -75,7 +75,7 @@ export function CategoryMoversCard() {
                 {formatCurrency(Math.abs(data.total_change))}
               </span>
               <span className="text-sm text-muted-foreground">
-                {up ? "more" : "less"} than last month
+                {up ? "more" : "less"} than the same point last month
               </span>
             </div>
 

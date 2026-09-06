@@ -43,6 +43,12 @@ class DashboardSummaryResponse(BaseModel):
     period: DashboardPeriod
     total_spend_current: float
     total_spend_previous: float
+    # Previous month's spend, capped at the SAME day-of-month the current
+    # (possibly partial) month has reached -- the fair basis `change_pct` is
+    # computed against. `total_spend_previous` above stays the full previous
+    # calendar month, a separate and still-honest standalone figure.
+    total_spend_previous_to_date: float
+    comparable_day: int
     change_pct: float | None
     category_breakdown: list[CategoryBreakdownItem]
     spending_trend: list[SpendingTrendPoint]

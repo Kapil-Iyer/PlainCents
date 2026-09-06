@@ -36,6 +36,8 @@ function emptySummary(): DashboardSummaryResponse {
     period: { current: "2026-06", previous: "2026-05" },
     total_spend_current: 0,
     total_spend_previous: 0,
+    total_spend_previous_to_date: 0,
+    comparable_day: 15,
     change_pct: 0,
     category_breakdown: [],
     spending_trend: [
@@ -54,6 +56,8 @@ function realSummary(): DashboardSummaryResponse {
     period: { current: "2026-06", previous: "2026-05" },
     total_spend_current: 150.5,
     total_spend_previous: 100,
+    total_spend_previous_to_date: 100,
+    comparable_day: 15,
     change_pct: 50.5,
     category_breakdown: [
       { category: "Food & Dining", total_spend: 150.5, pct_of_total: 100 },

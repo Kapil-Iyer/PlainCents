@@ -33,6 +33,7 @@ import sqlite3
 from datetime import date
 
 from backend.repositories.money import round_money
+from backend.services.date_windows import elapsed_window
 
 # Trailing window defaults. Not spec values -- product choices, kept here so
 # the routes and tests share one definition.
@@ -223,28 +224,31 @@ class AnalyticsService:
         The category deltas sum exactly to the total delta, so this reads as
         an explanation rather than a second, unrelated chart -- that additive
         property is the whole point, and there is a test asserting it holds.
+
+        BOTH sides of the comparison are capped at the SAME day-of-month
+        (`elapsed_window`, shared with spend_pace's already-correct logic and
+        dashboard_service.get_summary): comparing a partial current month
+        against a FULL previous month is misleading early in a month (it
+        reads as a large decline at identical daily pace), and additivity
+        would otherwise hold against the wrong baseline.
         """
         today = reference_date or date.today()
-        current = _month_str(today.year, today.month)
-        prev_y, prev_m = _shift_month(today.year, today.month, -1)
-        previous = _month_str(prev_y, prev_m)
+        window = elapsed_window(today)
+        current = window.current_month
+        previous = window.previous_month
 
-        params: list = [_month_start(prev_y, prev_m)]
-        sql = (
-            "SELECT substr(date, 1, 7) AS month, effective_category AS category, "
-            "SUM(amount) AS total_spend FROM v_transactions_effective WHERE date >= ?"
-        )
-        sql += _mode_clause(data_mode, params)
-        sql += " GROUP BY month, category"
-        rows = [dict(r) for r in self._conn.execute(sql, params).fetchall()]
+        def _totals_by_category(start: str, end: str) -> dict[str, float]:
+            params: list = [start, end]
+            sql = (
+                "SELECT effective_category AS category, SUM(amount) AS total_spend "
+                "FROM v_transactions_effective WHERE date >= ? AND date <= ?"
+            )
+            sql += _mode_clause(data_mode, params)
+            sql += " GROUP BY category"
+            return {r["category"]: r["total_spend"] for r in self._conn.execute(sql, params).fetchall()}
 
-        cur_by_cat: dict[str, float] = {}
-        prev_by_cat: dict[str, float] = {}
-        for r in rows:
-            if r["month"] == current:
-                cur_by_cat[r["category"]] = r["total_spend"]
-            elif r["month"] == previous:
-                prev_by_cat[r["category"]] = r["total_spend"]
+        cur_by_cat = _totals_by_category(window.current_start, today.strftime("%Y-%m-%d"))
+        prev_by_cat = _totals_by_category(window.previous_start, window.previous_comparable_end)
 
         movers = []
         for category in sorted(set(cur_by_cat) | set(prev_by_cat)):
@@ -271,6 +275,7 @@ class AnalyticsService:
             "total_current": total_current,
             "total_previous": total_previous,
             "total_change": round_money(total_current - total_previous),
+            "comparable_day": window.comparable_day,
             "movers": movers,
         }
 
@@ -288,11 +293,11 @@ class AnalyticsService:
         is already over.
         """
         today = reference_date or date.today()
-        current = _month_str(today.year, today.month)
-        prev_y, prev_m = _shift_month(today.year, today.month, -1)
-        previous = _month_str(prev_y, prev_m)
+        window = elapsed_window(today)
+        current = window.current_month
+        previous = window.previous_month
 
-        params: list = [_month_start(prev_y, prev_m)]
+        params: list = [window.previous_start]
         sql = (
             "SELECT substr(date, 1, 7) AS month, CAST(substr(date, 9, 2) AS INTEGER) AS day, "
             "SUM(amount) AS total_spend FROM v_transactions_effective WHERE date >= ?"
@@ -328,6 +333,11 @@ class AnalyticsService:
             "current_month": current,
             "previous_month": previous,
             "day_of_month": day_of_month,
+            # The previous month may be shorter than day_of_month (e.g. day
+            # 30/31 vs February) -- a UI labeling the previous period must
+            # use THIS day count, not day_of_month, so it never claims a
+            # nonexistent "Feb 1-30".
+            "comparable_day": window.comparable_day,
             "current_to_date": cur_to_date,
             "previous_same_point": prev_to_date,
             "difference": round_money(cur_to_date - prev_to_date),

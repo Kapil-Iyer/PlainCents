@@ -18,7 +18,7 @@ import {
   LegendSwatch,
   TOOLTIP_STYLE,
 } from "@/components/analytics/primitives";
-import { cn, formatCurrency, formatMonthLabel } from "@/lib/utils";
+import { cn, formatCurrency, formatDayRangeLabel } from "@/lib/utils";
 
 /**
  * "Am I ahead of or behind where I was this time last month?"
@@ -53,13 +53,32 @@ export function SpendPaceCard() {
   const ahead = data.difference > 0;
   const Icon = ahead ? TrendingUp : TrendingDown;
 
+  // The backend's previous_cumulative already runs to the previous month's
+  // own full length (context: "was last month's pace unusual overall?"),
+  // while the fair day-for-day COMPARISON only actually covers 1..comparable_day
+  // (see date_windows.elapsed_window / spend_pace's own docstring) -- the
+  // metrics above (`difference`, `previous_same_point`) already respect that
+  // cutoff. Split the single previous-month series into two chart-only
+  // series so the two are visually distinguishable rather than reading as
+  // one continuous "last month" comparison: `previous_comparable` (solid
+  // dashed, same as before) IS the fair comparison window; `previous_context`
+  // (lighter, dotted) is everything after it, shown only so a longer prior
+  // month isn't hidden, never implied to be part of the pace comparison.
+  // Both include the point AT comparable_day so the two segments connect
+  // with no visual gap.
+  const chartPoints = data.points.map((p) => ({
+    ...p,
+    previous_comparable: p.day <= data.comparable_day ? p.previous_cumulative : null,
+    previous_context: p.day >= data.comparable_day ? p.previous_cumulative : null,
+  }));
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Spending pace</CardTitle>
         <CardDescription>
-          {formatMonthLabel(data.current_month, "short")} so far vs.{" "}
-          {formatMonthLabel(data.previous_month, "short")}
+          {formatDayRangeLabel(data.current_month, data.day_of_month)} vs.{" "}
+          {formatDayRangeLabel(data.previous_month, data.comparable_day)}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -89,12 +108,12 @@ export function SpendPaceCard() {
                 {formatCurrency(Math.abs(data.difference))} {ahead ? "ahead of" : "behind"}
               </span>
               <span className="text-sm text-muted-foreground">
-                by day {data.day_of_month} last month
+                by day {data.comparable_day} last month
               </span>
             </motion.div>
 
             <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={data.points} margin={{ top: 4, right: 12, bottom: 0, left: 0 }}>
+              <LineChart data={chartPoints} margin={{ top: 4, right: 12, bottom: 0, left: 0 }}>
                 <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
                 <XAxis
                   dataKey="day"
@@ -117,9 +136,24 @@ export function SpendPaceCard() {
                   ]}
                   labelFormatter={(day) => `Day ${day}`}
                 />
+                {/* Rest of last month, shown lightly for context only — not
+                 * part of the pace comparison (see comment above). Drawn
+                 * first so the comparable segment's dot/line stays on top
+                 * at the point where they meet. */}
                 <Line
                   type="monotone"
-                  dataKey="previous_cumulative"
+                  dataKey="previous_context"
+                  stroke="hsl(var(--muted-foreground))"
+                  strokeWidth={1.5}
+                  strokeDasharray="1 5"
+                  strokeOpacity={0.5}
+                  dot={false}
+                  isAnimationActive={!reduceMotion}
+                  animationDuration={400}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="previous_comparable"
                   stroke="hsl(var(--muted-foreground))"
                   strokeWidth={2}
                   strokeDasharray="4 4"
@@ -142,9 +176,12 @@ export function SpendPaceCard() {
               </LineChart>
             </ResponsiveContainer>
 
-            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
               <LegendSwatch className="bg-primary" label="This month" />
-              <LegendSwatch className="bg-muted-foreground" label="Last month" dashed />
+              <LegendSwatch className="bg-muted-foreground" label="Last month (comparable days)" dashed />
+              {data.comparable_day < (chartPoints.at(-1)?.day ?? 0) && (
+                <span className="opacity-70">···· rest of last month, for context only</span>
+              )}
             </div>
           </>
         )}

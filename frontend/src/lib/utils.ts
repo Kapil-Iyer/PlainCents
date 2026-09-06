@@ -31,3 +31,16 @@ export function formatMonthLabel(month: string, style: "long" | "short" = "long"
     month: style,
   });
 }
+
+/**
+ * "Sep 1–5" style day-range label for a comparable-elapsed-period
+ * comparison (product-semantics fix: a partial current month must be
+ * compared against the SAME elapsed days of the previous month, never its
+ * full total — see backend/services/date_windows.py). No year, since this
+ * always describes a period within the last couple of months.
+ */
+export function formatDayRangeLabel(month: string, throughDay: number): string {
+  const [year, m] = month.split("-").map(Number);
+  const monthName = new Date(year, m - 1, 1).toLocaleDateString("en-CA", { month: "short" });
+  return `${monthName} 1–${throughDay}`;
+}
