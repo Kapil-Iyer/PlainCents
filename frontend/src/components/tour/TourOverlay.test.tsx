@@ -148,6 +148,45 @@ describe("TourOverlay", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 
+  it("covers portfolio holdings/analytics/how-it-works and Power BI as distinct steps", () => {
+    const ids = TOUR_STEPS.map((s) => s.id);
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        "portfolio-holdings",
+        "portfolio-analytics",
+        "portfolio-how-it-works",
+        "powerbi",
+      ]),
+    );
+  });
+
+  it("the Power BI step is honest about being a snapshot, not a live connection", () => {
+    const step = TOUR_STEPS.find((s) => s.id === "powerbi")!;
+    expect(step.body).toMatch(/snapshot/i);
+    expect(step.body).toMatch(/not a live connection/i);
+  });
+
+  it("consecutive portfolio steps share one route without extra navigation", async () => {
+    const user = userEvent.setup();
+    renderHarness();
+
+    await user.click(screen.getByText("start-tour"));
+    const holdingsIndex = TOUR_STEPS.findIndex((s) => s.id === "portfolio-holdings");
+    for (let i = 0; i < holdingsIndex; i++) {
+      await screen.findByText(TOUR_STEPS[i].title);
+      await user.click(screen.getByRole("button", { name: "Next" }));
+    }
+
+    await screen.findByText(TOUR_STEPS[holdingsIndex].title);
+    await waitFor(() =>
+      expect(screen.getByTestId("location").textContent).toBe(TOUR_STEPS[holdingsIndex].route),
+    );
+    await user.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(await screen.findByText(TOUR_STEPS[holdingsIndex + 1].title)).toBeInTheDocument();
+    expect(screen.getByTestId("location").textContent).toBe(TOUR_STEPS[holdingsIndex + 1].route);
+  });
+
   it("falls back to a centered card when the target element cannot be found", async () => {
     const user = userEvent.setup();
     render(

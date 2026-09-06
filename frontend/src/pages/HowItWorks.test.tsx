@@ -92,12 +92,12 @@ describe("HowItWorksPage", () => {
       renderAt();
 
       const walkthrough = within(document.getElementById("walkthrough")!);
-      expect(walkthrough.getByText("Step 1 of 11")).toBeInTheDocument();
+      expect(walkthrough.getByText("Step 1 of 12")).toBeInTheDocument();
       expect(walkthrough.getByText("Start empty, or load the demo")).toBeInTheDocument();
 
       await user.click(walkthrough.getByRole("button", { name: /Next/ }));
 
-      expect(await walkthrough.findByText("Step 2 of 11")).toBeInTheDocument();
+      expect(await walkthrough.findByText("Step 2 of 12")).toBeInTheDocument();
       expect(walkthrough.getByText("Upload a bank CSV")).toBeInTheDocument();
     });
 
@@ -108,7 +108,22 @@ describe("HowItWorksPage", () => {
       const walkthrough = within(document.getElementById("walkthrough")!);
       await user.click(walkthrough.getByRole("button", { name: /Previous/ }));
 
-      expect(await walkthrough.findByText("Step 11 of 11")).toBeInTheDocument();
+      expect(await walkthrough.findByText("Step 12 of 12")).toBeInTheDocument();
+    });
+
+    it("explains portfolio tracking, separately from spending", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      const walkthrough = within(document.getElementById("walkthrough")!);
+      // Step 12 (last) is "Track holdings, separately from spending".
+      for (let i = 0; i < 11; i++) {
+        await user.click(walkthrough.getByRole("button", { name: /Next/ }));
+      }
+
+      expect(await walkthrough.findByText("Track holdings, separately from spending")).toBeInTheDocument();
+      expect(walkthrough.getByText(/never a guessed cost basis/)).toBeInTheDocument();
+      expect(walkthrough.getByText(/touches your spending totals or forecasts/)).toBeInTheDocument();
     });
 
     it("explains the on-demand Power BI export", async () => {

@@ -1,0 +1,16 @@
+{
+    "name": "PlainCents Theme",
+    "dataColors": [
+      "#E63946",
+      "#457B9D",
+      "#2A9D8F",
+      "#E9C46A",
+      "#F4A261",
+      "#A8DADC",
+      "#6A4C93",
+      "#A5A5A5"
+    ],
+    "background": "#FFFFFF",
+    "foreground": "#222222",
+    "tableAccent": "#457B9D"
+  }

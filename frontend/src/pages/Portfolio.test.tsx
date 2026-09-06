@@ -233,6 +233,19 @@ describe("PortfolioPage", () => {
     expect(screen.getByText("1 of 2")).toBeInTheDocument();
   });
 
+  it("shows an honest dash, never a fabricated $0.00, when cost basis is known but nothing is priced yet", async () => {
+    const { listHoldings } = await import("@/api/holdings");
+    vi.mocked(listHoldings).mockResolvedValue([
+      { ...neverRefreshed, ticker: "MSFT", avg_cost: 280, current_price: null, current_value: null, pnl: null },
+    ]);
+
+    renderWithProviders(<PortfolioPage />);
+    await screen.findByText("Portfolio analytics");
+
+    expect(screen.getByText("$2,800.00")).toBeInTheDocument(); // known cost basis: 10*280
+    expect(screen.getByText("No priced holdings with a known cost basis yet")).toBeInTheDocument();
+  });
+
   it("Portfolio Analytics never renders for an empty portfolio", async () => {
     const { listHoldings } = await import("@/api/holdings");
     vi.mocked(listHoldings).mockResolvedValue([]);

@@ -52,19 +52,21 @@ export function PortfolioSummaryMetrics({ summary }: PortfolioSummaryMetricsProp
           <p
             className={cn(
               "mt-1 text-2xl font-bold tabular-nums",
-              holdingsWithCostBasis === 0
+              summary.holdingsWithPnl === 0
                 ? "text-muted-foreground"
                 : knownPnl >= 0
                   ? "text-success"
                   : "text-destructive",
             )}
           >
-            {holdingsWithCostBasis === 0 ? "—" : formatCurrency(knownPnl)}
+            {summary.holdingsWithPnl === 0 ? "—" : formatCurrency(knownPnl)}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {fullCoverage
-              ? "Covers every holding"
-              : "Covers only holdings with a known cost basis"}
+            {summary.holdingsWithPnl === 0
+              ? "No priced holdings with a known cost basis yet"
+              : fullCoverage && summary.holdingsWithPnl === holdingsCount
+                ? "Covers every holding"
+                : "Covers only priced holdings with a known cost basis"}
           </p>
         </CardContent>
       </Card>

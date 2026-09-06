@@ -177,7 +177,7 @@ const STEPS: Step[] = [
     id: "export",
     title: "Export the current state for Power BI",
     page: "Dashboard",
-    body: "One button, one ZIP: four CSVs (transactions, category summary, portfolio, forecast) built fresh from the live database on the same request that downloads it — nothing is written to disk first. Grouped by the same effective category every screen uses, scoped to whichever data mode is active, and never includes the raw bank text or the model's internal advisory guess.",
+    body: "A short guided workflow, not one confusing button: download a Power BI-ready snapshot (four CSVs — transactions, category summary, portfolio, forecast — built fresh from the live database on the same request that downloads them), then open the included setup guide to load it into Power BI Desktop. It's a snapshot, not a live connection — download a fresh one and refresh Power BI whenever your data changes. Grouped by the same effective category every screen uses, and never includes the raw bank text or the model's internal advisory guess.",
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
@@ -241,6 +241,28 @@ const STEPS: Step[] = [
               <span className="text-[8px] text-primary">+{i + 1}</span>
             </div>
           ))}
+        </div>
+      </Screen>
+    ),
+  },
+  {
+    id: "portfolio",
+    title: "Track holdings, separately from spending",
+    page: "Portfolio",
+    body: "A holding is a ticker and a share count → PlainCents looks up the latest known price → that gives market value. Average cost is optional; add it (or calculate it from your purchases) to also see cost basis and unrealized P&L. Portfolio Analytics below the table then shows total value, allocation, and gain/loss by holding — using only what's genuinely known, never a guessed cost basis. None of this touches your spending totals or forecasts.",
+    visual: () => (
+      <Screen>
+        <div className="flex h-full flex-col gap-2">
+          <div className="grid grid-cols-2 gap-1.5">
+            <Tile label="$4,997" caption="MSFT value" accent />
+            <Tile label="+$2,197" caption="MSFT P&L" />
+          </div>
+          <div className="flex flex-1 items-end gap-1.5">
+            {[70, 40, 55, 30].map((h, i) => (
+              <div key={i} className="flex-1 rounded-sm bg-primary/35" style={{ height: `${h}%` }} />
+            ))}
+          </div>
+          <span className="text-[9px] text-muted-foreground">Avg cost — · Add cost basis</span>
         </div>
       </Screen>
     ),

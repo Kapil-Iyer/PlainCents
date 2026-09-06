@@ -83,6 +83,20 @@ describe("summarizePortfolio", () => {
     expect(summary.holdingsWithCostBasis).toBe(1);
     expect(summary.knownCostBasis).toBe(1000); // only AAPL's 10*100
     expect(summary.knownPnl).toBe(500); // only AAPL's pnl
+    expect(summary.holdingsWithPnl).toBe(1);
+  });
+
+  it("does not report a real $0 P&L when cost basis is known but no holding has a price yet", () => {
+    // A holding can have a cost basis but never have been priced (Refresh
+    // Prices never clicked) -- that must read as "no priced holdings",
+    // never a fabricated "$0.00 P&L" that would look like a genuine
+    // break-even.
+    const summary = summarizePortfolio([
+      holding({ ticker: "MSFT", shares: 10, avg_cost: 280, current_price: null, current_value: null, pnl: null }),
+    ]);
+    expect(summary.holdingsWithCostBasis).toBe(1);
+    expect(summary.holdingsWithPnl).toBe(0);
+    expect(summary.knownPnl).toBe(0); // the raw sum is 0, but callers must gate display on holdingsWithPnl
   });
 
   it("handles an empty portfolio", () => {
@@ -93,6 +107,7 @@ describe("summarizePortfolio", () => {
       knownPnl: 0,
       holdingsCount: 0,
       holdingsWithCostBasis: 0,
+      holdingsWithPnl: 0,
     });
   });
 

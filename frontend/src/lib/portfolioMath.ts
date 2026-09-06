@@ -54,6 +54,13 @@ export interface PortfolioSummary {
   /** How many holdings have a recorded avg_cost -- "3 of 4 holdings have
    * cost basis", never silently implied to be all of them. */
   holdingsWithCostBasis: number;
+  /** How many holdings actually contributed to `knownPnl` (known cost basis
+   * AND known price). A holding can have a cost basis but no price yet
+   * (never refreshed) -- that holding has NO computable P&L, so `knownPnl`
+   * must not be displayed as a real "$0.00" unless at least one holding
+   * actually contributed to it; otherwise "no holdings have a price yet"
+   * would be indistinguishable from "every holding genuinely broke even". */
+  holdingsWithPnl: number;
 }
 
 export function summarizePortfolio(holdings: HoldingResponse[]): PortfolioSummary {
@@ -61,6 +68,7 @@ export function summarizePortfolio(holdings: HoldingResponse[]): PortfolioSummar
   let knownCostBasis = 0;
   let knownPnl = 0;
   let holdingsWithCostBasis = 0;
+  let holdingsWithPnl = 0;
 
   for (const h of holdings) {
     if (h.current_value !== null) {
@@ -71,6 +79,7 @@ export function summarizePortfolio(holdings: HoldingResponse[]): PortfolioSummar
       knownCostBasis += h.shares * h.avg_cost;
       if (h.pnl !== null) {
         knownPnl += h.pnl;
+        holdingsWithPnl += 1;
       }
     }
   }
@@ -81,6 +90,7 @@ export function summarizePortfolio(holdings: HoldingResponse[]): PortfolioSummar
     knownPnl,
     holdingsCount: holdings.length,
     holdingsWithCostBasis,
+    holdingsWithPnl,
   };
 }
 
