@@ -128,6 +128,11 @@ class PortfolioService:
         if not deleted:
             raise NotFoundError(f"Holding {holding_id} not found.")
         self._conn.commit()
+        # Symmetric to create_holding()'s maybe_transition_to_real(): deleting
+        # the last real holding one at a time must not leave "REAL" stuck
+        # forever (see AppStateService.maybe_transition_to_empty's own
+        # docstring for the exact confusing state this prevents).
+        self._app_state.maybe_transition_to_empty()
 
     def refresh_prices(self, data_mode: str | None) -> dict:
         # TRD §13.4: iterate tickers independently; a per-ticker

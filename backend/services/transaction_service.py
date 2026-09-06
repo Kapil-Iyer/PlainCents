@@ -159,3 +159,8 @@ class TransactionService:
             raise NotFoundError(f"Transaction {transaction_id} not found.")
         self._conn.commit()
         self._forecast.mark_stale("transaction_deleted")
+        # Symmetric to create_manual()'s maybe_transition_to_real(): deleting
+        # the last real row one at a time must not leave "REAL" stuck forever
+        # (see AppStateService.maybe_transition_to_empty's own docstring for
+        # the exact confusing state this prevents).
+        self._app_state.maybe_transition_to_empty()

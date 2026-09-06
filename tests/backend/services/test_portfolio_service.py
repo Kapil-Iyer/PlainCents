@@ -300,6 +300,44 @@ def test_delete_holding_removes_it(service):
         service.get_holding(created["id"])
 
 
+def test_deleting_the_last_holding_transitions_real_back_to_empty(service, app_state_service):
+    """Deleting real holdings one at a time (not the bulk Clear Real Data
+    action) must not leave `mode` stuck on REAL forever."""
+    created = service.create_holding(_sample())
+    assert app_state_service.get_mode() == "REAL"
+
+    service.delete_holding(created["id"])
+
+    assert app_state_service.get_mode() == "EMPTY"
+
+
+def test_deleting_one_of_several_holdings_stays_real(service, app_state_service):
+    first = service.create_holding(_sample(ticker="AAPL"))
+    service.create_holding(_sample(ticker="MSFT"))
+
+    service.delete_holding(first["id"])
+
+    assert app_state_service.get_mode() == "REAL"
+
+
+def test_deleting_the_last_holding_stays_real_if_a_transaction_still_exists(service, conn, app_state_service):
+    """REAL can be reached via either a holding or a transaction -- deleting
+    the last holding must not drop to EMPTY while a real transaction still
+    exists."""
+    from backend.repositories.transaction_repository import TransactionRepository
+
+    created = service.create_holding(_sample())
+    TransactionRepository(conn).create({
+        "date": "2026-01-15", "merchant": "TIM HORTONS", "amount": 4.50,
+        "predicted_category": "Food & Dining", "data_mode": "real", "dedup_key": "k1",
+    })
+    conn.commit()
+
+    service.delete_holding(created["id"])
+
+    assert app_state_service.get_mode() == "REAL"
+
+
 def test_delete_missing_holding_raises_not_found(service):
     with pytest.raises(NotFoundError):
         service.delete_holding(999999)

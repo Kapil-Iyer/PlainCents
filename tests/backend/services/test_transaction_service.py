@@ -222,6 +222,48 @@ def test_delete_missing_transaction_raises_not_found(service):
         service.delete(999999)
 
 
+def test_deleting_the_last_transaction_transitions_real_back_to_empty(service, conn):
+    """Deleting real rows one at a time (not the bulk Clear Real Data
+    action) must not leave `mode` stuck on REAL forever -- otherwise
+    "Load demo data" keeps failing with "real data exists" even though
+    nothing real remains anywhere."""
+    app_state = AppStateService(conn)
+    row = service.create_manual(_sample())
+    assert app_state.get_mode() == "REAL"
+
+    service.delete(row["id"])
+
+    assert app_state.get_mode() == "EMPTY"
+
+
+def test_deleting_one_of_several_transactions_stays_real(service, conn):
+    app_state = AppStateService(conn)
+    first = service.create_manual(_sample(merchant="TIM HORTONS"))
+    service.create_manual(_sample(merchant="STARBUCKS"))
+
+    service.delete(first["id"])
+
+    assert app_state.get_mode() == "REAL"
+
+
+def test_deleting_the_last_transaction_stays_real_if_a_holding_still_exists(service, conn):
+    """REAL can be reached via either a transaction or a holding -- deleting
+    the last transaction must not drop to EMPTY while a real holding still
+    exists, or that holding would misleadingly disappear from view."""
+    from backend.repositories.holding_repository import HoldingRepository
+
+    app_state = AppStateService(conn)
+    row = service.create_manual(_sample())
+    HoldingRepository(conn).create(
+        {"ticker": "AAPL", "shares": 10, "avg_cost": 100.0, "data_mode": "real"}
+    )
+    conn.commit()
+
+    service.delete(row["id"])
+
+    assert app_state.get_mode() == "REAL"
+
+
 def test_correcting_category_does_not_overwrite_predicted_category(service):
     row = service.create_manual(_sample())
     original_predicted = row["predicted_category"]
