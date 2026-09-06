@@ -32,6 +32,7 @@ from backend.api.routes import (
     analytics,
     dashboard,
     demo,
+    export,
     forecasts,
     health,
     holdings,
@@ -86,6 +87,7 @@ app.include_router(dashboard.router)
 app.include_router(analytics.router)
 app.include_router(forecasts.router)
 app.include_router(holdings.router)
+app.include_router(export.router)
 
 # --- Packaged reviewer/demo mode (TRD §1.7, Build Plan §2.3) ---------------
 #

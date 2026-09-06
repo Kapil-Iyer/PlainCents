@@ -174,6 +174,24 @@ const STEPS: Step[] = [
     ),
   },
   {
+    id: "export",
+    title: "Export the current state for Power BI",
+    page: "Dashboard",
+    body: "One button, one ZIP: four CSVs (transactions, category summary, portfolio, forecast) built fresh from the live database on the same request that downloads it — nothing is written to disk first. Grouped by the same effective category every screen uses, scoped to whichever data mode is active, and never includes the raw bank text or the model's internal advisory guess.",
+    visual: () => (
+      <Screen>
+        <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-border-strong">
+            ↓
+          </div>
+          <Bar w="w-36" />
+          <Bar w="w-24" muted />
+          <Pill label="Export for Power BI" active />
+        </div>
+      </Screen>
+    ),
+  },
+  {
     id: "insights",
     title: "Dig into categories and merchants",
     page: "Transactions → Insights",

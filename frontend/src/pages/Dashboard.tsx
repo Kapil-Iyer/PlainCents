@@ -11,6 +11,7 @@ import { formatMonthLabel } from "@/lib/utils";
 import { AnalysisMonthSelector } from "@/components/analytics/AnalysisMonthSelector";
 import { CategoryMoversCard } from "@/components/analytics/CategoryMoversCard";
 import { SpendPaceCard } from "@/components/analytics/SpendPaceCard";
+import { ExportPowerBIButton } from "@/components/shared/ExportPowerBIButton";
 import { CategoryBreakdown } from "@/pages/dashboard/CategoryBreakdown";
 import { RecentTransactions } from "@/pages/dashboard/RecentTransactions";
 import { SpendingOverview } from "@/pages/dashboard/SpendingOverview";
@@ -37,7 +38,10 @@ export function DashboardPage() {
           </p>
         </div>
         {data && data.data_mode !== "EMPTY" && (
-          <AnalysisMonthSelector value={analysisMonth} onChange={setAnalysisMonth} />
+          <div className="flex flex-wrap items-center gap-2">
+            <AnalysisMonthSelector value={analysisMonth} onChange={setAnalysisMonth} />
+            <ExportPowerBIButton />
+          </div>
         )}
       </div>
 

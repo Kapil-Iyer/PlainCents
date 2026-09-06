@@ -120,6 +120,19 @@ Product surfaces: **Dashboard**, **Transactions**, **Import**, **Forecast**,
   National Bank support are coming soon. Do not read this as universal Big
   Six coverage or as a claim that every product/account variant from a
   supported bank is handled.
+- **On-demand Power BI export (current-state, V2).** The Dashboard's
+  "Export for Power BI" button generates a ZIP of four CSVs
+  (`transactions`, `category_summary`, `portfolio`, `forecast`) on the same
+  request that downloads it — no export job, nothing written to disk, no
+  stored artifact. It reads the live V2 database through the same
+  repositories every other screen uses, grouped by `effective_category`
+  (never a raw model guess), scoped to whichever data mode is currently
+  active. This is a full rewrite, not a reuse of V1's `viz/powerbi_export.py`
+  below, which depends on a `session_id` concept that doesn't exist in V2.
+  Field selection is privacy-conscious: the raw, untouched bank description
+  (which can carry masked account/reference numbers) and internal-only
+  columns (merchant-matching keys, the model's advisory-only category
+  guess) are never included.
 
 ---
 

@@ -92,12 +92,12 @@ describe("HowItWorksPage", () => {
       renderAt();
 
       const walkthrough = within(document.getElementById("walkthrough")!);
-      expect(walkthrough.getByText("Step 1 of 10")).toBeInTheDocument();
+      expect(walkthrough.getByText("Step 1 of 11")).toBeInTheDocument();
       expect(walkthrough.getByText("Start empty, or load the demo")).toBeInTheDocument();
 
       await user.click(walkthrough.getByRole("button", { name: /Next/ }));
 
-      expect(await walkthrough.findByText("Step 2 of 10")).toBeInTheDocument();
+      expect(await walkthrough.findByText("Step 2 of 11")).toBeInTheDocument();
       expect(walkthrough.getByText("Upload a bank CSV")).toBeInTheDocument();
     });
 
@@ -108,7 +108,21 @@ describe("HowItWorksPage", () => {
       const walkthrough = within(document.getElementById("walkthrough")!);
       await user.click(walkthrough.getByRole("button", { name: /Previous/ }));
 
-      expect(await walkthrough.findByText("Step 10 of 10")).toBeInTheDocument();
+      expect(await walkthrough.findByText("Step 11 of 11")).toBeInTheDocument();
+    });
+
+    it("explains the on-demand Power BI export", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      const walkthrough = within(document.getElementById("walkthrough")!);
+      // Step 9 is "Export the current state for Power BI" -- click Next 8 times.
+      for (let i = 0; i < 8; i++) {
+        await user.click(walkthrough.getByRole("button", { name: /Next/ }));
+      }
+
+      expect(await walkthrough.findByText("Export the current state for Power BI")).toBeInTheDocument();
+      expect(walkthrough.getByText(/never includes the raw bank text/)).toBeInTheDocument();
     });
 
     it("explains the dashboard's day-aligned vs. full-month comparison", async () => {
