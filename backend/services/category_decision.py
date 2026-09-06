@@ -14,10 +14,47 @@ Everything that decides a category now lives here, and both paths call it.
 There is one ordering, in one place:
 
     1. structural ambiguity  -- text that names nothing gets "Other"
+                                (backend.services.ambiguity, unchanged)
+    1b. E-Transfer, no purpose evidence -- a recipient's NAME survives, but
+                                the text gives no evidence of what the money
+                                was actually for (backend.services.
+                                e_transfer_policy). Narrower than step 1:
+                                does not touch anything step 1 already
+                                handles, only E-Transfers step 1 correctly
+                                leaves ML-eligible because a residual
+                                identity token exists. Uses its OWN source,
+                                SOURCE_AMBIGUOUS_E_TRANSFER -- distinct from
+                                step 1's SOURCE_STRUCTURAL_OTHER, so stored
+                                data can later tell "this text names nothing"
+                                apart from "a name survives but names no
+                                purpose" (see backend/schemas/transaction.py).
+    1c. public-brand gazetteer -- a small, deterministic, PUBLIC merchant/
+                                service knowledge layer (backend.services.
+                                gazetteer) for brands recognizable on sight
+                                that a small sparse-text classifier often
+                                isn't.
     2. model + abstention    -- the classifier, and the policy for when its
                                 answer is not worth serving
     3. correction memory     -- a prior GENUINE user correction for this
-                                merchant identity on this bank
+                                merchant identity on this bank. Applied
+                                uniformly after EVERY step above except step
+                                1 (unchanged, pre-existing behavior -- see
+                                that branch's own comment) so a human
+                                correction stays authoritative over the
+                                gazetteer and the new E-Transfer policy, not
+                                just over the model.
+
+REAL-BANK BASELINE MOTIVATING 1b/1c
+------------------------------------
+Steps 1b and 1c were added after a private, local real-world baseline
+evaluation of the frozen model (never used to retrain or tune anything --
+see scripts/private_eval/) surfaced two distinct, non-ML failure modes: (a)
+recognizable public brands/services the classifier's small vocabulary
+simply never learned, and (b) person-name-only E-Transfers being served a
+fabricated-looking category guess because a residual identity token existed
+even though it carried no purpose signal. Neither step retrains, tunes, or
+touches models/categorizer_v3.pkl, min_margin, or the training corpus --
+both are pre-model, deterministic policy layers, exactly like step 1.
 
 HITL SEMANTICS, PRESERVED EXACTLY
 ---------------------------------
@@ -41,6 +78,8 @@ from dataclasses import dataclass
 
 from backend.services.ambiguity import is_structurally_ambiguous
 from backend.services.categorization_service import CategorizationService
+from backend.services.e_transfer_policy import is_purposeless_e_transfer
+from backend.services.gazetteer import match_gazetteer
 from backend.services.merchant_identity import stable_merchant_key
 
 SYSTEM_OTHER = "Other"
@@ -50,6 +89,21 @@ SYSTEM_OTHER = "Other"
 SOURCE_MODEL = "model"
 SOURCE_STRUCTURAL_OTHER = "structural_other"
 SOURCE_LOW_CONFIDENCE_OTHER = "low_confidence_other"
+# A public-brand gazetteer hit (backend.services.gazetteer) -- a
+# deterministic, non-ML decision, same family as SOURCE_STRUCTURAL_OTHER but
+# distinguishable because it names a real category, not "Other".
+SOURCE_GAZETTEER = "gazetteer"
+# A purposeless-E-Transfer decision (backend.services.e_transfer_policy):
+# `predicted_category` is "Other", same as SOURCE_STRUCTURAL_OTHER, but the
+# REASON is different and worth telling apart -- SOURCE_STRUCTURAL_OTHER
+# means "this text names nothing at all" (an ATM withdrawal, a bare
+# transfer), while this means "a recipient identity survives, but a
+# person's name is not spending-purpose evidence". A customer-facing
+# distinction ("genuine miscellaneous Other" vs "purposeless E-Transfer
+# served as Other") needs this told apart in stored data, not just derived
+# in memory at decide-time -- see backend/schemas/transaction.py and
+# frontend/src/pages/transactions/CategoryBadge.tsx.
+SOURCE_AMBIGUOUS_E_TRANSFER = "ambiguous_e_transfer"
 
 
 @dataclass(frozen=True)
@@ -127,6 +181,33 @@ def decide(
             merchant_key=key,
         )
 
+    # 1b. E-Transfer, no purpose evidence (backend.services.e_transfer_policy).
+    #     Unlike step 1 above, a residual identity DOES exist here (a
+    #     recipient's name), so `key` is very often non-None -- correction
+    #     memory is deliberately consulted, so a human's prior explicit
+    #     correction for this exact recipient identity still wins over this
+    #     system default.
+    if is_purposeless_e_transfer(merchant):
+        return CategoryDecision(
+            predicted_category=SYSTEM_OTHER,
+            confirmed_category=memory.lookup(key) if memory is not None else None,
+            source=SOURCE_AMBIGUOUS_E_TRANSFER,
+            merchant_key=key,
+        )
+
+    # 1c. Public-brand gazetteer (backend.services.gazetteer). Deterministic,
+    #     pre-model, never a fabricated guess -- and, same as 1b, correction
+    #     memory is still consulted so a human correction remains
+    #     authoritative over the gazetteer too.
+    gazetteer_match = match_gazetteer(merchant)
+    if gazetteer_match is not None:
+        return CategoryDecision(
+            predicted_category=gazetteer_match.category,
+            confirmed_category=memory.lookup(key) if memory is not None else None,
+            source=SOURCE_GAZETTEER,
+            merchant_key=key,
+        )
+
     # 2. Model, plus the abstention policy frozen into the artifact.
     result = categorization.classify(merchant)
     predicted = result["category"]
@@ -174,8 +255,28 @@ def decide_batch(
                 source=SOURCE_STRUCTURAL_OTHER,
                 merchant_key=key,
             )
-        else:
-            to_classify.append(i)
+            continue
+
+        if is_purposeless_e_transfer(merchant):
+            decisions[i] = CategoryDecision(
+                predicted_category=SYSTEM_OTHER,
+                confirmed_category=memory.lookup(key) if memory is not None else None,
+                source=SOURCE_AMBIGUOUS_E_TRANSFER,
+                merchant_key=key,
+            )
+            continue
+
+        gazetteer_match = match_gazetteer(merchant)
+        if gazetteer_match is not None:
+            decisions[i] = CategoryDecision(
+                predicted_category=gazetteer_match.category,
+                confirmed_category=memory.lookup(key) if memory is not None else None,
+                source=SOURCE_GAZETTEER,
+                merchant_key=key,
+            )
+            continue
+
+        to_classify.append(i)
 
     if to_classify:
         results = categorization.classify_batch([rows[i][0] for i in to_classify])

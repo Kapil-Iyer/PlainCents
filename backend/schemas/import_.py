@@ -23,6 +23,13 @@ class ImportSampleRow(BaseModel):
                            COALESCE(remembered, predicted), the same rule the
                            v_transactions_effective view applies
       decision_source      'model' | 'structural_other' | 'low_confidence_other'
+                           | 'gazetteer' (a deterministic public-brand/service
+                           match, backend.services.gazetteer) |
+                           'ambiguous_e_transfer' (an E-Transfer with no
+                           purpose evidence in its description,
+                           backend.services.e_transfer_policy -- distinct
+                           from 'structural_other', which names nothing at
+                           all) -- see backend.services.category_decision
     """
 
     date: str

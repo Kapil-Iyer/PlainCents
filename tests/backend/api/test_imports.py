@@ -15,7 +15,9 @@ from backend.services.categorization_service import CategorizationService
 
 from .conftest import MISSING_MODEL_PATH, TEST_MODEL_PATH
 
-TD_CSV_DIR = Path(__file__).resolve().parent.parent.parent / "fixtures" / "td_csv"
+FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent / "fixtures"
+TD_CSV_DIR = FIXTURES_DIR / "td_csv"
+RBC_CSV_DIR = FIXTURES_DIR / "rbc_csv"
 
 
 def _upload(client: TestClient, filename: str, bank: str = "TD"):
@@ -24,6 +26,15 @@ def _upload(client: TestClient, filename: str, bank: str = "TD"):
         "/api/imports",
         files={"file": (filename, content, "text/csv")},
         data={"bank": bank},
+    )
+
+
+def _upload_rbc(client: TestClient, filename: str):
+    content = (RBC_CSV_DIR / filename).read_bytes()
+    return client.post(
+        "/api/imports",
+        files={"file": (filename, content, "text/csv")},
+        data={"bank": "RBC"},
     )
 
 
@@ -150,6 +161,27 @@ def test_import_returns_409_when_mode_is_demo(client: TestClient, conn):
     response = _upload(client, "clean_valid.csv")
     assert response.status_code == 409
     assert response.json()["error"] == "demo_conflict"
+
+
+def test_second_import_from_a_different_bank_succeeds(client: TestClient):
+    """PlainCents supports multiple banks in the same REAL dataset -- a
+    second file from a DIFFERENT bank must succeed, not be rejected."""
+    first = _upload(client, "clean_valid.csv")  # TD
+    client.post(f"/api/imports/{first.json()['batch_id']}/confirm")
+
+    response = _upload_rbc(client, "clean_valid.csv")
+
+    assert response.status_code == 200
+    assert response.json()["detected_bank"] == "RBC"
+
+
+def test_second_import_from_the_same_bank_succeeds(client: TestClient):
+    first = _upload(client, "clean_valid.csv")
+    client.post(f"/api/imports/{first.json()['batch_id']}/confirm")
+
+    response = _upload(client, "clean_valid.csv")  # same file/bank again, later "month"
+
+    assert response.status_code == 200
 
 
 def test_get_import_list_and_detail(client: TestClient):

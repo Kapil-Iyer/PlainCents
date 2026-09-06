@@ -7,6 +7,7 @@ import { useConfirmImport, useCreateImport } from "@/hooks/useImport";
 import { ApiError } from "@/types/common";
 import type { ImportPreview, ImportResult } from "@/types/import";
 
+import { ClearRealDataCard } from "@/pages/import/ClearRealDataCard";
 import { DemoConflictDialog } from "@/pages/import/DemoConflictDialog";
 import { FileUploadCard } from "@/pages/import/FileUploadCard";
 import { ImportPreviewCard } from "@/pages/import/ImportPreviewCard";
@@ -97,6 +98,8 @@ export function ImportPage() {
       )}
 
       {stage.step === "result" && <ImportResultCard result={stage.result} onImportAnother={reset} />}
+
+      {stage.step === "upload" && <ClearRealDataCard />}
 
       <DemoConflictDialog
         open={demoConflictOpen}

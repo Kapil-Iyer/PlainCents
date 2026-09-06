@@ -77,6 +77,37 @@ def test_12_crud_round_trip(conn):
     assert repo.get(tid) is None
 
 
+def test_12b_decision_source_persists_and_survives_a_correction(conn):
+    """Migration 005: decision_source is stored, comes back on read, and is
+    NEVER touched by a later human correction (TransactionRepository.update's
+    `allowed` set does not include it) -- it explains the SYSTEM's original
+    reasoning, not something a correction should overwrite."""
+    repo = TransactionRepository(conn)
+    tid = repo.create({**SAMPLE, "dedup_key": "dk-decision-source", "decision_source": "gazetteer"})
+    conn.commit()
+
+    fetched = repo.get(tid)
+    assert fetched["decision_source"] == "gazetteer"
+
+    repo.update(tid, {"confirmed_category": "Shopping"})
+    conn.commit()
+    fetched = repo.get(tid)
+    assert fetched["decision_source"] == "gazetteer"  # unchanged by the correction
+    assert fetched["confirmed_category"] == "Shopping"
+
+
+def test_12c_decision_source_defaults_to_none_for_manual_entries(conn):
+    """A caller that doesn't supply decision_source (e.g. TransactionService.
+    create_manual(), which never runs decide()/decide_batch()) gets NULL, not
+    a fabricated reason."""
+    repo = TransactionRepository(conn)
+    tid = repo.create({**SAMPLE, "dedup_key": "dk-no-decision-source"})
+    conn.commit()
+
+    fetched = repo.get(tid)
+    assert fetched["decision_source"] is None
+
+
 def test_13_empty_demo_real_read_mapping(conn):
     repo = TransactionRepository(conn)
     demo_row = dict(SAMPLE, data_mode="demo", dedup_key="demo-key-1")

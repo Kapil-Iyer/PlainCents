@@ -43,3 +43,17 @@ class DemoClearResponse(BaseModel):
     mode: Literal["EMPTY", "REAL"]
     cleared: bool
     summary: dict[str, int]
+
+
+class RealDataClearResponse(BaseModel):
+    """DELETE /api/demo/clear-real-data: the mirror image of
+    DemoClearResponse -- in-app equivalent of scripts/reset_real_data.py,
+    for a user who doesn't have shell access to the running instance (e.g.
+    a deployed environment). 200 on success, idempotent even if there was no
+    real data. `mode` reflects the mode after clearing -- 'EMPTY' in the
+    documented/expected case; see DemoService.clear_real_data()'s DEMO-mode
+    defense-in-depth note for the one case it can differ."""
+
+    mode: Literal["EMPTY", "DEMO"]
+    cleared: bool
+    summary: dict[str, int]

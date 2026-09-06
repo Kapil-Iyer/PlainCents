@@ -205,3 +205,64 @@ def test_real_to_load_demo_rejected_without_deleting_real_data(client: TestClien
     assert len(holdings) == 1
     assert holdings[0]["ticker"] == "AAPL"
     assert AppStateRepository(conn).get_mode() == "REAL"
+
+
+# -- clear-real-data (mirror image of clear) --------------------------------
+
+
+def test_clear_real_data_removes_real_rows_and_returns_to_empty(client: TestClient, conn: sqlite3.Connection):
+    client.post("/api/transactions", json={"date": "2026-01-15", "merchant": "TIM HORTONS", "amount": 4.5})
+    assert AppStateRepository(conn).get_mode() == "REAL"
+
+    response = client.delete("/api/demo/clear-real-data")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["mode"] == "EMPTY"
+    assert body["cleared"] is True
+    assert body["summary"]["transactions"] == 1
+
+    status = client.get("/api/demo/status").json()
+    assert status == {"mode": "EMPTY", "can_load_demo": True}
+    assert client.get("/api/transactions").json()["items"] == []
+
+
+def test_clear_real_data_is_idempotent_when_no_real_data(client: TestClient):
+    response = client.delete("/api/demo/clear-real-data")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["mode"] == "EMPTY"
+    assert body["cleared"] is True
+
+
+def test_full_real_to_demo_sequence(client: TestClient, conn: sqlite3.Connection):
+    """The mirror image of test_full_demo_to_real_sequence -- this is the
+    exact flow the user asked about: import real data, then clear it
+    in-app to unblock Load Demo Data, without shell access."""
+    # EMPTY -> import real data -> REAL
+    upload_response = _upload(client)
+    assert upload_response.status_code == 200
+    preview = upload_response.json()
+    confirm_response = client.post(f"/api/imports/{preview['batch_id']}/confirm")
+    assert confirm_response.status_code == 200
+    assert AppStateRepository(conn).get_mode() == "REAL"
+
+    # Attempt Load Demo while REAL -> 409 demo_conflict, real data untouched
+    conflict_response = client.post("/api/demo/load")
+    assert conflict_response.status_code == 409
+    assert conflict_response.json()["error"] == "demo_conflict"
+    assert len(client.get("/api/transactions").json()["items"]) > 0
+
+    # User clears real data in-app -> EMPTY
+    clear_response = client.delete("/api/demo/clear-real-data")
+    assert clear_response.status_code == 200
+    assert clear_response.json()["mode"] == "EMPTY"
+    assert AppStateRepository(conn).get_mode() == "EMPTY"
+    assert client.get("/api/transactions").json()["items"] == []
+
+    # Retry Load Demo -> succeeds
+    retry_response = client.post("/api/demo/load")
+    assert retry_response.status_code == 200
+    assert retry_response.json()["mode"] == "DEMO"
+    assert AppStateRepository(conn).get_mode() == "DEMO"

@@ -274,6 +274,7 @@ class IngestionService:
                     predicted_category = decision.predicted_category
                     merchant_key = decision.merchant_key
                     confirmed_category = decision.confirmed_category
+                    decision_source = decision.source
                 else:
                     predicted_category = row["predicted_category"]
                     merchant_key = row["merchant_key"]
@@ -286,6 +287,12 @@ class IngestionService:
                     confirmed_category = (
                         memory.lookup(merchant_key) or row["remembered_category"]
                     )
+                    # decision_source is RE-VALIDATED, not re-decided (same
+                    # principle as predicted_category above): it was already
+                    # computed once by the shared decision path at Preview
+                    # and staged whole (migration 004), so Confirm persists
+                    # exactly what Preview showed, never a second opinion.
+                    decision_source = row["decision_source"]
 
                 self._txn_repo.create(
                     {
@@ -297,6 +304,7 @@ class IngestionService:
                         "predicted_category": predicted_category,
                         "confirmed_category": confirmed_category,
                         "merchant_key": merchant_key,
+                        "decision_source": decision_source,
                         "import_batch_id": batch_id,
                         "data_mode": "real",
                         "dedup_key": row["dedup_key"],

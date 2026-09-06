@@ -11,3 +11,10 @@ export interface DemoClearResponse {
   cleared: boolean;
   summary: Record<string, number>;
 }
+
+/** DELETE /api/demo/clear-real-data -- mirror image of DemoClearResponse. */
+export interface RealDataClearResponse {
+  mode: "EMPTY" | "DEMO";
+  cleared: boolean;
+  summary: Record<string, number>;
+}

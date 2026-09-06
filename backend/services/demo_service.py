@@ -105,6 +105,64 @@ class DemoService:
             },
         }
 
+    def clear_real_data(self) -> dict:
+        """Mirror image of clear_demo(): deletes every data_mode='real' row
+        (transactions, holdings, forecast runs) and, symmetrically, any
+        price_cache row exclusively used by a real holding (a ticker also
+        held for demo is left alone), then flips the mode back to 'EMPTY' so
+        Load Demo Data becomes available again (DemoService.load_demo()
+        rejects with 409 while mode == 'REAL').
+
+        This is the in-app, user-facing equivalent of the developer-only
+        scripts/reset_real_data.py maintenance script (same deletion scope),
+        now reachable without shell/terminal access -- e.g. once deployed,
+        where a developer may not have a shell on the running instance. The
+        script itself is untouched and still works identically for local
+        development.
+
+        Idempotent (TRD §5.2's clear_demo() convention, mirrored): calling
+        this while there is no real data yet is a no-op, not an error --
+        deletion is scoped entirely by data_mode='real', so nothing to
+        delete just means zero rows removed.
+        """
+        mode = self._app_state_repo.get_mode()
+
+        # Defense in depth, mirroring clear_demo()'s own note: real-creation
+        # paths only ever run while mode != 'DEMO', so data_mode='real' rows
+        # should never coexist with mode == 'DEMO'. If this is ever reached
+        # in that state anyway, the deletion below is still safe (it only
+        # ever touches data_mode='real' rows, and there should be none) --
+        # but the mode flip to 'EMPTY' is skipped, since forcing 'EMPTY'
+        # while demo data is active would misrepresent demo data as absent.
+        target_mode = "EMPTY" if mode != "DEMO" else "DEMO"
+
+        real_holdings = self._holding_repo.list(data_mode="real")
+        demo_holdings = self._holding_repo.list(data_mode="demo")
+        demo_tickers = {h["ticker"] for h in demo_holdings}
+        real_only_tickers = {h["ticker"] for h in real_holdings} - demo_tickers
+
+        with db_transaction(self._conn):
+            transactions_deleted = self._txn_repo.delete_by_data_mode("real")
+            holdings_deleted = self._holding_repo.delete_by_data_mode("real")
+            forecast_runs_deleted = self._forecast_repo.delete_runs_by_data_mode("real")
+            for ticker in real_only_tickers:
+                self._price_cache_repo.delete(ticker)
+
+            self._app_state_repo.set_mode(target_mode)
+        # Commits here: every real-flagged deletion plus the mode flip
+        # succeed together, or none of them do.
+
+        return {
+            "mode": target_mode,
+            "cleared": True,
+            "summary": {
+                "transactions": transactions_deleted,
+                "holdings": holdings_deleted,
+                "forecast_runs": forecast_runs_deleted,
+                "price_cache": len(real_only_tickers),
+            },
+        }
+
     def clear_demo(self) -> dict:
         # TRD §5.2: "200 on success (idempotent: 200 even if already
         # empty)". No mode check gates entry — deletion is scoped entirely by

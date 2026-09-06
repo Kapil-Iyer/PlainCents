@@ -207,6 +207,85 @@ def test_repeated_load_clear_cycle_reaches_identical_clean_state(service, conn):
     assert first_state == second_state == {"transactions": 0, "holdings": 0, "forecast_runs": 0, "price_cache": 0}
 
 
+# -- clear_real_data (mirror image of clear_demo) ---------------------------
+
+
+def _create_real_transaction(conn, merchant="REAL MERCHANT", dedup="dk-real-1"):
+    return TransactionRepository(conn).create(
+        {
+            "date": "2026-01-15", "merchant": merchant, "amount": 10.0,
+            "predicted_category": "Other", "data_mode": "real",
+            "dedup_key": dedup,
+        }
+    )
+
+
+def test_clear_real_data_removes_all_and_only_real_rows(service, conn, app_state):
+    _create_real_transaction(conn)
+    HoldingRepository(conn).create({"ticker": "VOO", "shares": 1, "avg_cost": 1.0, "data_mode": "real"})
+    app_state.set_mode("REAL")
+    conn.commit()
+
+    result = service.clear_real_data()
+
+    assert result["mode"] == "EMPTY"
+    assert result["cleared"] is True
+    assert app_state.get_mode() == "EMPTY"
+    assert len(TransactionRepository(conn).list(data_mode="real")) == 0
+    assert len(HoldingRepository(conn).list(data_mode="real")) == 0
+    row = conn.execute("SELECT COUNT(*) AS n FROM price_cache").fetchone()
+    assert row["n"] == 0
+
+
+def test_clear_real_data_unblocks_load_demo(service, conn, app_state):
+    """This is the whole point: DemoService.load_demo() rejects with 409
+    while mode == 'REAL' -- clearing real data must actually unblock it."""
+    _create_real_transaction(conn)
+    app_state.set_mode("REAL")
+    conn.commit()
+
+    with pytest.raises(DemoConflictError):
+        service.load_demo()
+
+    service.clear_real_data()
+
+    result = service.load_demo()  # must not raise anymore
+    assert result["mode"] == "DEMO"
+
+
+def test_clear_real_data_preserves_demo_rows(service, conn):
+    # Row-level isolation, mirroring test_clear_demo_preserves_real_rows:
+    # clear_real_data() deletes strictly WHERE data_mode='real'.
+    service.load_demo()
+    demo_txns_before = len(TransactionRepository(conn).list(data_mode="demo"))
+    assert demo_txns_before > 0
+
+    service.clear_real_data()
+
+    assert len(TransactionRepository(conn).list(data_mode="demo")) == demo_txns_before
+
+
+def test_clear_real_data_preserves_price_cache_shared_with_demo_holding(service, conn):
+    service.load_demo()
+    demo_holdings = HoldingRepository(conn).list(data_mode="demo")
+    shared_ticker = demo_holdings[0]["ticker"]
+    HoldingRepository(conn).create({"ticker": shared_ticker, "shares": 1, "avg_cost": 1.0, "data_mode": "real"})
+    conn.commit()
+
+    service.clear_real_data()
+
+    cached = PriceCacheRepository(conn).get_last_known(shared_ticker)
+    assert cached is not None  # not deleted -- still needed by the demo holding
+
+
+def test_clear_real_data_is_idempotent_when_no_real_data(service, app_state):
+    result = service.clear_real_data()
+
+    assert result["mode"] == "EMPTY"
+    assert result["cleared"] is True
+    assert app_state.get_mode() == "EMPTY"
+
+
 # -- deterministic seed -----------------------------------------------------
 
 

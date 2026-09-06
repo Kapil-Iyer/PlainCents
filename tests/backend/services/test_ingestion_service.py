@@ -9,6 +9,7 @@ import pytest
 
 from backend.api.errors import CategorizationUnavailableError, ConflictError, DemoConflictError
 from backend.repositories.app_state_repository import AppStateRepository
+from backend.repositories.staged_transaction_repository import StagedTransactionRepository
 from backend.repositories.transaction_repository import TransactionRepository
 from backend.services.app_state_service import AppStateService
 from backend.services.categorization_service import CategorizationService
@@ -16,11 +17,21 @@ from backend.services.ingestion_service import IngestionService
 
 FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent / "fixtures"
 TD_CSV_DIR = FIXTURES_DIR / "td_csv"
+RBC_CSV_DIR = FIXTURES_DIR / "rbc_csv"
+SCOTIA_CSV_DIR = FIXTURES_DIR / "scotia_csv"
 TEST_MODEL_PATH = FIXTURES_DIR / "categorizer_model_test.pkl"
 
 
 def _read(name: str) -> bytes:
     return (TD_CSV_DIR / name).read_bytes()
+
+
+def _read_rbc(name: str) -> bytes:
+    return (RBC_CSV_DIR / name).read_bytes()
+
+
+def _read_scotia(name: str) -> bytes:
+    return (SCOTIA_CSV_DIR / name).read_bytes()
 
 
 class FakeForecastService:
@@ -156,6 +167,56 @@ def test_preview_raises_demo_conflict_when_mode_is_demo(service, conn):
         service.parse_and_stage(_read("clean_valid.csv"), bank="TD")
 
 
+# -- multi-bank real imports -------------------------------------------------
+#
+# Product decision: PlainCents supports multiple banks in the same REAL
+# dataset (RBC, Scotiabank, TD, CIBC, in any combination, subject to the
+# usual per-file parser/dedup rules). There is no "real data is locked to
+# one bank" restriction -- see backend/api/errors.py (no BankMismatchError)
+# and IngestionService.parse_and_stage() (no established-bank gate).
+
+
+def test_preview_allows_a_second_file_from_the_same_bank(service, conn):
+    """Incremental import: a second file from the SAME bank (e.g. next
+    month's statement) succeeds."""
+    first = service.parse_and_stage(_read("clean_valid.csv"), bank="TD")
+    service.commit_import(first["batch_id"])
+
+    second = service.parse_and_stage(_read("clean_valid.csv"), bank="TD")
+    assert second["status"] == "previewing"
+
+
+def test_preview_allows_rbc_then_scotiabank(service, conn):
+    first = service.parse_and_stage(_read_rbc("clean_valid.csv"), bank="RBC")
+    service.commit_import(first["batch_id"])
+
+    second = service.parse_and_stage(_read_scotia("clean_valid.csv"), bank="Scotiabank")
+    assert second["status"] == "previewing"
+    assert second["detected_bank"] == "Scotiabank"
+
+    service.commit_import(second["batch_id"])
+    bank_sources = {r["bank_source"] for r in TransactionRepository(conn).list(data_mode="real")}
+    assert bank_sources == {"RBC", "Scotiabank"}
+
+
+def test_preview_allows_scotiabank_then_td(service, conn):
+    first = service.parse_and_stage(_read_scotia("clean_valid.csv"), bank="Scotiabank")
+    service.commit_import(first["batch_id"])
+
+    second = service.parse_and_stage(_read("clean_valid.csv"), bank="TD")
+    assert second["status"] == "previewing"
+    assert second["detected_bank"] == "TD"
+
+    service.commit_import(second["batch_id"])
+    bank_sources = {r["bank_source"] for r in TransactionRepository(conn).list(data_mode="real")}
+    assert bank_sources == {"Scotiabank", "TD"}
+
+
+def test_preview_allows_first_import_of_any_bank(service, conn):
+    preview = service.parse_and_stage(_read_scotia("clean_valid.csv"), bank="Scotiabank")
+    assert preview["detected_bank"] == "Scotiabank"
+
+
 # -- confirm / commit_import -------------------------------------------------
 
 
@@ -169,6 +230,32 @@ def test_confirm_persists_transactions_with_predicted_category(service, conn):
     assert len(rows) == 12
     assert all(r["predicted_category"] for r in rows)
     assert all(r["import_batch_id"] == preview["batch_id"] for r in rows)
+
+
+def test_confirm_persists_decision_source_matching_preview(service, conn):
+    """decision_source (migration 005) must survive Confirm exactly as
+    Preview staged it -- it was only ever transient (staged_transactions)
+    before this migration, so a confirmed transaction had no way to explain
+    its own predicted_category after reload. This is the Preview/Confirm/
+    reload consistency this feature needs."""
+    preview = service.parse_and_stage(_read("clean_valid.csv"), bank="TD")
+    staged = StagedTransactionRepository(conn).list_for_batch(preview["batch_id"])
+    staged_sources = {row["merchant"]: row["decision_source"] for row in staged}
+
+    service.commit_import(preview["batch_id"])
+
+    rows = TransactionRepository(conn).list(data_mode="real")
+    assert len(rows) == 12
+    # Never None/blank -- every row here was decided by the shared path.
+    assert all(r["decision_source"] for r in rows)
+    for row in rows:
+        assert row["decision_source"] == staged_sources[row["merchant"]]
+    # At least one row should be gazetteer-served (this fixture's brand
+    # names -- TIM HORTONS, SHELL, NETFLIX, SPOTIFY, etc. -- were chosen for
+    # an older model-only test, but several now also match
+    # backend.services.gazetteer, which is exactly the kind of row this
+    # persistence exists to explain later).
+    assert any(r["decision_source"] == "gazetteer" for r in rows)
 
 
 def test_confirm_transitions_empty_to_real(service, conn):

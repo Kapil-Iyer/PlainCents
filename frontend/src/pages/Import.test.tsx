@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/test/utils";
+import { AppStateProvider } from "@/context/AppStateContext";
 import type { ImportPreview, ImportResult } from "@/types/import";
 
 import { ImportPage } from "@/pages/Import";
@@ -14,7 +15,22 @@ vi.mock("@/api/imports", () => ({
 vi.mock("@/api/demo", () => ({
   loadDemo: vi.fn(),
   clearDemo: vi.fn(),
+  clearRealData: vi.fn(),
 }));
+// ImportPage renders ClearRealDataCard (mode === "REAL" only), which reads
+// app state via useAppState -- mock "EMPTY" here so it stays hidden and
+// these tests keep exercising the upload/preview/result flow in isolation.
+vi.mock("@/api/health", () => ({
+  getDemoStatus: vi.fn().mockResolvedValue({ mode: "EMPTY", can_load_demo: true }),
+}));
+
+function renderImportPage() {
+  return renderWithProviders(
+    <AppStateProvider>
+      <ImportPage />
+    </AppStateProvider>,
+  );
+}
 
 const preview: ImportPreview = {
   batch_id: 42,
@@ -52,8 +68,13 @@ const result: ImportResult = {
 };
 
 describe("ImportPage", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetAllMocks();
+    // resetAllMocks() clears the resolved-value implementation set in the
+    // factory above too -- reinstate it so every test's app-state query
+    // still resolves to EMPTY rather than undefined.
+    const { getDemoStatus } = await import("@/api/health");
+    vi.mocked(getDemoStatus).mockResolvedValue({ mode: "EMPTY", can_load_demo: true });
   });
 
   it("shows the preview after upload, then the result after confirm", async () => {
@@ -62,7 +83,7 @@ describe("ImportPage", () => {
     vi.mocked(createImport).mockResolvedValue(preview);
     vi.mocked(confirmImport).mockResolvedValue(result);
 
-    renderWithProviders(<ImportPage />);
+    renderImportPage();
 
     const file = new File(["date,merchant,amount\n"], "td_export.csv", { type: "text/csv" });
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -90,7 +111,7 @@ describe("ImportPage", () => {
       new ApiError(503, { error: "categorization_unavailable", message: "unavailable", details: {} }),
     );
 
-    renderWithProviders(<ImportPage />);
+    renderImportPage();
     const file = new File(["x"], "td_export.csv", { type: "text/csv" });
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     await user.upload(input, file);

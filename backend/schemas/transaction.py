@@ -66,6 +66,16 @@ class TransactionResponse(BaseModel):
     confirmed_category: str | None
     effective_category: str
     is_manual_override: bool
+    # Additive (migration 005): WHY predicted_category is what it is --
+    # 'model' | 'structural_other' | 'low_confidence_other' | 'gazetteer' |
+    # 'ambiguous_e_transfer', or None for a pre-migration row or a manual
+    # entry (TransactionService.create_manual() never runs the decide()/
+    # decide_batch() path, so there is no decision-path reason to record).
+    # This is a SYSTEM fact about how predicted_category was originally
+    # reached; it is never touched by a later human correction, so
+    # confirmed_category/effective_category remain the sole source of truth
+    # for what the transaction actually is.
+    decision_source: str | None = None
     created_at: datetime
     updated_at: datetime
 

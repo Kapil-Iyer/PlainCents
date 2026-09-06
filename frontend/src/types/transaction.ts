@@ -11,6 +11,18 @@ export interface TransactionResponse {
   confirmed_category: string | null;
   effective_category: string;
   is_manual_override: boolean;
+  /** Why `predicted_category` is what it is (backend/services/
+   * category_decision.py's SOURCE_* constants). Null for a pre-migration row
+   * or a manually-created transaction (no decision path ran). Never
+   * overwritten by a later human correction -- see CategoryBadge.tsx for how
+   * this and `is_manual_override` combine. */
+  decision_source?:
+    | "model"
+    | "structural_other"
+    | "low_confidence_other"
+    | "gazetteer"
+    | "ambiguous_e_transfer"
+    | null;
   created_at: string;
   updated_at: string;
 }

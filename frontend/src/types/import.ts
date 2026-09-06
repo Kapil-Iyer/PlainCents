@@ -12,8 +12,19 @@ export interface ImportSampleRow {
   /** What the row will actually count as — COALESCE(remembered, predicted),
    * the same rule the rest of the app uses. */
   effective_category: string | null;
-  /** Why `predicted_category` is what it is. */
-  decision_source: "model" | "structural_other" | "low_confidence_other" | null;
+  /** Why `predicted_category` is what it is. "gazetteer" is a deterministic
+   * public-brand/service match (backend/services/gazetteer.py), not a model
+   * guess. "ambiguous_e_transfer" is an E-Transfer with no purpose evidence
+   * in its description (backend/services/e_transfer_policy.py) -- distinct
+   * from "structural_other" (a transfer/withdrawal that names nothing at
+   * all). */
+  decision_source:
+    | "model"
+    | "structural_other"
+    | "low_confidence_other"
+    | "gazetteer"
+    | "ambiguous_e_transfer"
+    | null;
   is_duplicate: boolean;
 }
 

@@ -81,17 +81,21 @@ def test_recurring_merchant_reuses_prior_confirmed_category(service, conn):
 
 
 def test_different_bank_source_does_not_reuse_correction(service, conn, categorization_service):
+    """Correction memory is bank-scoped (merchant_identity.py) -- a
+    correction made on one bank's transaction must NOT be reused for the
+    "same" merchant text imported from a DIFFERENT bank. Exercised through
+    the full import pipeline for both banks (PlainCents supports multiple
+    banks in one REAL dataset; a second bank's import is not restricted)."""
     repo = TransactionRepository(conn)
 
+    # Import + confirm a TD transaction, then correct it.
     _import(service, [("1/5/2026", "ACME SUB SERVICE", "9.99")])
     first = repo.list(data_mode="real")[0]
     assert first["bank_source"] == "TD"
     repo.update(first["id"], {"confirmed_category": "Subscriptions"})
     conn.commit()
 
-    # A different bank's import of the "same" merchant text must not collide.
-    from backend.services.ingestion_service import IngestionService as _IS
-
+    # Import the "same" merchant text from a DIFFERENT bank (Scotiabank).
     scotia_csv = (
         "Filter,Date,Description,Sub-description,Type of Transaction,Amount,Balance\n"
         '"","2026-02-05","ACME SUB SERVICE"," ","Debit","-9.99","100.00"\n'
@@ -101,6 +105,7 @@ def test_different_bank_source_does_not_reuse_correction(service, conn, categori
 
     scotia_rows = [r for r in repo.list(data_mode="real") if r["bank_source"] == "Scotiabank"]
     assert len(scotia_rows) == 1
+    # TD's correction must not have leaked onto the Scotiabank row.
     assert scotia_rows[0]["confirmed_category"] is None
 
 
@@ -194,6 +199,39 @@ def test_etransfer_carrying_a_name_is_not_structurally_ambiguous():
 def test_generic_abm_atm_routes_to_other():
     assert is_structurally_ambiguous("ABM WITHDRAWAL") is True
     assert is_structurally_ambiguous("ATM WITHDRAWAL") is True
+
+
+def test_etransfer_completion_boilerplate_with_no_name_routes_to_other():
+    """Product-semantics fix. "REQUEST"/"FULFILLED"/"RECEIVED"/"AUTODEPOSIT"
+    are e-transfer STATUS/mechanism words, never a merchant identity — a row
+    that is PURELY this boilerplate plus a reference code (no actual
+    recipient name) must route to Other exactly like "ETRANSFER SENT" does,
+    not slip past the ambiguity check because those status words looked like
+    identity tokens."""
+    assert is_structurally_ambiguous("E-TRANSFER REQUEST FULFILLED REF88213") is True
+    assert is_structurally_ambiguous("E-TRANSFER - AUTODEPOSIT REF88213") is True
+    # A genuine name alongside that same boilerplate must still stay
+    # ML-eligible -- unchanged from test_etransfer_carrying_a_name_is_not_
+    # structurally_ambiguous above; this is the disclosed limitation, not a
+    # regression.
+    assert is_structurally_ambiguous("E-TRANSFER REQUEST FULFILLED JOHN DOE REF88213") is False
+
+
+def test_investment_or_brokerage_language_routes_to_other():
+    """Product-semantics fix. Investment/brokerage/registered-account
+    vocabulary names a genuine financial event, but not a purchase in any of
+    the eight spending categories -- routing it to Other (rather than
+    letting the classifier force a confident but meaningless spending-
+    category guess) is a disclosed policy choice, not a claim the model
+    itself learned this distinction."""
+    assert is_structurally_ambiguous("INVESTMENT SAMPLE BROKERAGE INVESTMENTS") is True
+    assert is_structurally_ambiguous("RRSP CONTRIBUTION SAMPLE BROKERAGE") is True
+    assert is_structurally_ambiguous("TFSA CONTRIBUTION") is True
+    # A merchant name that merely CONTAINS "investment"-adjacent words as
+    # part of a normal business name is rare enough, and the vocabulary
+    # closed/specific enough (INVESTMENT(S), BROKERAGE, SECURITIES, MUTUAL
+    # FUND, RRSP, RESP, TFSA), that this is a deliberate, narrow trade-off --
+    # not attempting to also catch every possible brokerage provider name.
 
 
 def test_normal_merchant_is_not_ambiguous():

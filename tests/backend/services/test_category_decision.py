@@ -15,6 +15,8 @@ from backend.repositories.transaction_repository import TransactionRepository
 from backend.services.ambiguity import is_structurally_ambiguous
 from backend.services.categorization_service import CategorizationService
 from backend.services.category_decision import (
+    SOURCE_AMBIGUOUS_E_TRANSFER,
+    SOURCE_GAZETTEER,
     SOURCE_LOW_CONFIDENCE_OTHER,
     SOURCE_MODEL,
     SOURCE_STRUCTURAL_OTHER,
@@ -67,7 +69,6 @@ def test_text_that_names_nothing_routes_to_other(merchant, categorization):
 
 
 @pytest.mark.parametrize("merchant", [
-    "E-TRANSFER SENT MAPLEWOOD DINER REF44120",
     "E-TRANSFER SENT TO SUMMIT PROPERTY MGMT RENT",
     "WIRE TRANSFER SERVICE FEE",
     "INTERAC ACCESS FEE",
@@ -88,6 +89,41 @@ def test_payment_boilerplate_with_a_real_identity_stays_ml_eligible(merchant, ca
     decision = decide(merchant, "RBC", categorization)
     assert decision.source != SOURCE_STRUCTURAL_OTHER
     assert decision.merchant_key is not None
+
+
+def test_e_transfer_naming_only_a_business_with_no_purpose_word_is_now_other(categorization):
+    """DISCLOSED BEHAVIOR CHANGE (post real-bank-baseline E-Transfer policy,
+    backend.services.e_transfer_policy): "E-TRANSFER SENT MAPLEWOOD DINER
+    REF44120" used to be the flagship example of the ML-G over-routing fix
+    above -- a residual identity survives ("MAPLEWOOD DINER"), so the
+    GENERAL structural-ambiguity rule correctly leaves it ML-eligible
+    (asserted below, unchanged).
+
+    The new, narrower e-transfer-purpose-evidence policy now ALSO routes it
+    to Other, because "DINER" is not in the small, generic, public purpose-
+    evidence vocabulary (rent/utility/bill-like words) and is not a
+    recognized gazetteer brand. This is an accepted, disclosed trade-off,
+    not a regression: distinguishing "this residual text is a business
+    name" from "this residual text is a person's name" would need either a
+    private business-name list (out of scope) or a semantic judgment this
+    pass deliberately avoids. Compare against
+    test_e_transfer_with_purpose_evidence_still_ml_eligible below, where a
+    generic purpose word (RENT) correctly keeps an E-Transfer ML-eligible.
+
+    Uses SOURCE_AMBIGUOUS_E_TRANSFER, not SOURCE_STRUCTURAL_OTHER: the
+    GENERAL rule (step 1) still says this text is NOT ambiguous (asserted
+    below) -- it's specifically the NARROWER e-transfer-purpose-evidence
+    policy (step 1b) that routes this one to Other, and that distinction is
+    exactly what lets a customer-facing UI tell "genuine miscellaneous
+    Other" apart from "purposeless E-Transfer" later (see
+    backend/schemas/transaction.py, frontend CategoryBadge.tsx).
+    """
+    merchant = "E-TRANSFER SENT MAPLEWOOD DINER REF44120"
+    assert is_structurally_ambiguous(merchant) is False  # general rule: unchanged
+
+    decision = decide(merchant, "RBC", categorization)
+    assert decision.source == SOURCE_AMBIGUOUS_E_TRANSFER
+    assert decision.predicted_category == SYSTEM_OTHER
 
 
 def test_recognizable_merchant_is_served_by_the_model(categorization):
@@ -198,6 +234,72 @@ def test_distinct_merchants_get_distinct_keys():
     assert a is not None and b is not None and a != b
 
 
+# -- gazetteer + E-Transfer policy integration through decide() -------------
+
+
+def test_gazetteer_hit_is_served_with_gazetteer_source_and_skips_the_model(categorization):
+    decision = decide("SPOTIFY PREMIUM", "RBC", categorization)
+    assert decision.source == SOURCE_GAZETTEER
+    assert decision.predicted_category == "Subscriptions"
+    # No model call was made for this row -- model_category stays unset,
+    # same convention structurally-ambiguous rows already use.
+    assert decision.model_category is None
+
+
+def test_purposeless_e_transfer_is_served_with_its_own_source_via_decide(categorization):
+    """Uses SOURCE_AMBIGUOUS_E_TRANSFER, distinct from SOURCE_STRUCTURAL_OTHER
+    -- this is precisely what lets stored data later tell "genuine
+    miscellaneous Other" apart from "purposeless E-Transfer served as
+    Other"."""
+    decision = decide("E-TRANSFER SENT JANE SMITH", "RBC", categorization)
+    assert decision.source == SOURCE_AMBIGUOUS_E_TRANSFER
+    assert decision.source != SOURCE_STRUCTURAL_OTHER
+    assert decision.predicted_category == SYSTEM_OTHER
+
+
+def test_e_transfer_with_purpose_evidence_still_reaches_gazetteer_or_model(categorization):
+    """RENT is purpose evidence, so this must NOT be suppressed -- it falls
+    through to the gazetteer (no match) and then the model, same as any
+    other ordinary merchant text."""
+    decision = decide("E-TRANSFER SENT JANE SMITH RENT PAYMENT", "RBC", categorization)
+    assert decision.source not in (SOURCE_STRUCTURAL_OTHER, SOURCE_AMBIGUOUS_E_TRANSFER)
+
+
+def test_correction_memory_overrides_a_gazetteer_decision(conn, categorization):
+    """A human's explicit correction must remain authoritative over the
+    gazetteer, exactly as it already is over the model."""
+    _insert(conn, "SPOTIFY PREMIUM", "RBC", "Subscriptions", confirmed="Entertainment", dedup="a")
+    conn.commit()
+    memory = CorrectionMemory(TransactionRepository(conn))
+
+    decision = decide("SPOTIFY PREMIUM", "RBC", categorization, memory)
+    assert decision.source == SOURCE_GAZETTEER
+    assert decision.predicted_category == "Subscriptions"  # the system's own answer, preserved
+    assert decision.confirmed_category == "Entertainment"  # the human's answer wins
+    assert decision.effective_category == "Entertainment"
+
+
+def test_correction_memory_overrides_a_purposeless_e_transfer_decision(conn, categorization):
+    _insert(conn, "E-TRANSFER SENT JANE SMITH", "RBC", "Other", confirmed="Food & Dining", dedup="a")
+    conn.commit()
+    memory = CorrectionMemory(TransactionRepository(conn))
+
+    decision = decide("E-TRANSFER SENT JANE SMITH", "RBC", categorization, memory)
+    assert decision.source == SOURCE_AMBIGUOUS_E_TRANSFER
+    assert decision.predicted_category == SYSTEM_OTHER  # the system's own answer, preserved
+    assert decision.confirmed_category == "Food & Dining"  # the human's answer wins
+    assert decision.effective_category == "Food & Dining"
+
+
+def test_unrecognized_merchant_still_falls_back_to_the_model(categorization):
+    """A merchant matching neither the gazetteer nor any structural rule
+    must still reach the classifier exactly as before -- the new policy
+    layers are additive, not a replacement for the ML fallback."""
+    decision = decide("VISA DEBIT PURCHASE - 4821 CAREWELL PHARMACY", "RBC", categorization)
+    assert decision.source == SOURCE_MODEL
+    assert decision.predicted_category == "Healthcare"
+
+
 # -- batch vs single ----------------------------------------------------------
 
 
@@ -216,6 +318,9 @@ def test_decide_batch_matches_decide_row_by_row(conn, categorization):
         "ABM WITHDRAWAL",
         "BRIGHTWAVE INTERNET PREAUTH PYMT 858490",
         "E-TRANSFER SENT MAPLEWOOD DINER REF44120",
+        "SPOTIFY PREMIUM",
+        "E-TRANSFER SENT JANE SMITH",
+        "E-TRANSFER SENT JANE SMITH RENT",
     ]
     rows = [(m, "RBC") for m in merchants]
 

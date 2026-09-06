@@ -39,8 +39,8 @@ class TransactionRepository:
             INSERT INTO transactions
                 (date, raw_description, merchant, amount, bank_source,
                  predicted_category, confirmed_category, import_batch_id,
-                 data_mode, dedup_key, merchant_key)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 data_mode, dedup_key, merchant_key, decision_source)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["date"],
@@ -54,6 +54,12 @@ class TransactionRepository:
                 data["data_mode"],
                 data["dedup_key"],
                 self._resolve_merchant_key(data),
+                # NULL for manual entries (TransactionService.create_manual()
+                # never calls decide()/decide_batch() -- there is no
+                # decision-path "reason" to record) and for any caller that
+                # doesn't supply one. Import always supplies it (see
+                # IngestionService.commit_import()).
+                data.get("decision_source"),
             ),
         )
         return cur.lastrowid

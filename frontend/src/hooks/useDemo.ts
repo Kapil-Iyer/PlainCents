@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { clearDemo, loadDemo } from "@/api/demo";
+import { clearDemo, clearRealData, loadDemo } from "@/api/demo";
 import { APP_STATE_QUERY_KEY } from "@/context/AppStateContext";
 import { ANALYTICS_QUERY_KEY } from "@/hooks/useAnalytics";
 import { DASHBOARD_QUERY_KEY } from "@/hooks/useDashboard";
@@ -37,6 +37,17 @@ export function useClearDemo() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => clearDemo(),
+    onSuccess: () => invalidateModeScopedQueries(queryClient),
+  });
+}
+
+/** Mirror image of useClearDemo: the real→demo sequence's clear step,
+ * called from ClearRealDataCard after the user confirms. In-app equivalent
+ * of scripts/reset_real_data.py for anywhere without shell access. */
+export function useClearRealData() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => clearRealData(),
     onSuccess: () => invalidateModeScopedQueries(queryClient),
   });
 }

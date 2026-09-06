@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { describeDecisionSource } from "@/lib/decisionSource";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import type { ImportSampleRow, ImportPreview } from "@/types/import";
 
@@ -198,19 +199,14 @@ function CategoryCell({ row }: { row: ImportSampleRow }) {
     );
   }
 
-  const systemNote =
-    row.decision_source === "structural_other"
-      ? "No merchant name in this description, so there's nothing to categorize"
-      : row.decision_source === "low_confidence_other"
-        ? "Not confident enough to guess — you can set this yourself"
-        : null;
+  const note = describeDecisionSource(row.decision_source);
 
   return (
     <span className="flex flex-wrap items-center gap-1.5">
       <span>{row.effective_category}</span>
-      {systemNote && (
-        <span className="text-xs text-muted-foreground" title={systemNote}>
-          ({row.decision_source === "structural_other" ? "no merchant name" : "low confidence"})
+      {note && (
+        <span className="text-xs text-muted-foreground" title={note.explanation}>
+          ({note.label})
         </span>
       )}
     </span>

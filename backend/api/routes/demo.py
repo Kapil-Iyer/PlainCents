@@ -13,7 +13,12 @@ import sqlite3
 from fastapi import APIRouter, Depends
 
 from backend.api.deps import get_db
-from backend.schemas.common import DemoClearResponse, DemoLoadResponse, DemoStatusResponse
+from backend.schemas.common import (
+    DemoClearResponse,
+    DemoLoadResponse,
+    DemoStatusResponse,
+    RealDataClearResponse,
+)
 from backend.services.app_state_service import AppStateService
 from backend.services.demo_service import DemoService
 
@@ -39,3 +44,16 @@ def clear_demo(conn: sqlite3.Connection = Depends(get_db)) -> DemoClearResponse:
     service = DemoService(conn)
     result = service.clear_demo()
     return DemoClearResponse(**result)
+
+
+@router.delete("/api/demo/clear-real-data", response_model=RealDataClearResponse)
+def clear_real_data(conn: sqlite3.Connection = Depends(get_db)) -> RealDataClearResponse:
+    """In-app, user-facing equivalent of scripts/reset_real_data.py: deletes
+    every data_mode='real' row and flips app_state.mode back to 'EMPTY', so
+    Load Demo Data becomes available -- without needing shell access to the
+    running instance (e.g. once deployed). Namespaced under /api/demo/
+    because it exists to unblock the demo/real mutual-exclusion state
+    machine DemoService already owns, the mirror image of /api/demo/clear."""
+    service = DemoService(conn)
+    result = service.clear_real_data()
+    return RealDataClearResponse(**result)
