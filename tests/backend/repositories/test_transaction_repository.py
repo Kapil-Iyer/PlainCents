@@ -108,6 +108,43 @@ def test_12c_decision_source_defaults_to_none_for_manual_entries(conn):
     assert fetched["decision_source"] is None
 
 
+def test_12h_model_category_persists_and_survives_a_correction(conn):
+    """Migration 006: model_category is stored, comes back on read, and is
+    NEVER touched by a later human correction -- same "frozen at decide-time,
+    advisory only" rule as decision_source. Accepting the suggestion happens
+    through confirmed_category (the normal correction path), never by this
+    column changing."""
+    repo = TransactionRepository(conn)
+    tid = repo.create({
+        **SAMPLE, "dedup_key": "dk-model-category",
+        "decision_source": "low_confidence_other", "model_category": "Subscriptions",
+    })
+    conn.commit()
+
+    fetched = repo.get(tid)
+    assert fetched["model_category"] == "Subscriptions"
+    assert fetched["predicted_category"] == "Food & Dining"  # SAMPLE's own predicted_category, unaffected
+
+    repo.update(tid, {"confirmed_category": "Subscriptions"})
+    conn.commit()
+    fetched = repo.get(tid)
+    assert fetched["model_category"] == "Subscriptions"  # unchanged by the correction
+    assert fetched["confirmed_category"] == "Subscriptions"
+    assert fetched["effective_category"] == "Subscriptions"
+
+
+def test_12i_model_category_defaults_to_none_for_manual_entries(conn):
+    """A caller that doesn't supply model_category (e.g. a manual entry, or
+    a structural/ambiguous-e-transfer row where the model is never called)
+    gets NULL, not a fabricated opinion."""
+    repo = TransactionRepository(conn)
+    tid = repo.create({**SAMPLE, "dedup_key": "dk-no-model-category"})
+    conn.commit()
+
+    fetched = repo.get(tid)
+    assert fetched["model_category"] is None
+
+
 def test_13_empty_demo_real_read_mapping(conn):
     repo = TransactionRepository(conn)
     demo_row = dict(SAMPLE, data_mode="demo", dedup_key="demo-key-1")

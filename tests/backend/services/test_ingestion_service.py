@@ -258,6 +258,61 @@ def test_confirm_persists_decision_source_matching_preview(service, conn):
     assert any(r["decision_source"] == "gazetteer" for r in rows)
 
 
+def test_confirm_persists_model_category_for_a_low_confidence_abstention(
+    conn, categorization_service, forecast_service
+):
+    """model_category (migration 006) must survive Confirm for a
+    low-confidence abstention row -- it's the advisory "Suggested:
+    {model_category}" chip's data source, and it has to outlive Preview the
+    same way decision_source does."""
+    # Force abstention deterministically (same technique
+    # test_category_decision.py uses) rather than relying on a particular
+    # string staying below threshold as the fixture model evolves.
+    categorization_service.min_margin = 1.1  # no margin can ever reach this
+    service = IngestionService(
+        conn, categorization_service,
+        app_state_service=AppStateService(conn), forecast_service=forecast_service,
+    )
+    csv = b"Date,Description,Amount\n01/05/2026,SOME UNSEEN BRAND,12.34\n"
+
+    preview = service.parse_and_stage(csv, bank="TD")
+    assert preview["sample_rows"][0]["decision_source"] == "low_confidence_other"
+    assert preview["sample_rows"][0]["predicted_category"] == "Other"
+    staged_model_category = preview["sample_rows"][0]["model_category"]
+    assert staged_model_category is not None  # the model still has AN opinion
+
+    service.commit_import(preview["batch_id"])
+
+    row = TransactionRepository(conn).list(data_mode="real")[0]
+    assert row["decision_source"] == "low_confidence_other"
+    assert row["predicted_category"] == "Other"  # served decision unaffected
+    assert row["model_category"] == staged_model_category  # advisory opinion persisted
+    assert row["confirmed_category"] is None  # never auto-accepted
+
+
+def test_confirm_leaves_model_category_null_on_structural_and_e_transfer_rows(service, conn):
+    """The model is never called on structural/ambiguous-e-transfer rows
+    (CategoryDecision.model_category is already None on those paths) -- that
+    must survive Confirm as NULL, not a fabricated value, so the frontend
+    correctly never shows a suggestion for them."""
+    csv = (
+        b"Date,Description,Amount\n"
+        b"01/05/2026,ABM WITHDRAWAL,40.00\n"
+        b"01/06/2026,E-TRANSFER SENT JANE SMITH,25.00\n"
+    )
+    preview = service.parse_and_stage(csv, bank="TD")
+    sources = {r["decision_source"] for r in preview["sample_rows"]}
+    assert sources == {"structural_other", "ambiguous_e_transfer"}
+    assert all(r["model_category"] is None for r in preview["sample_rows"])
+
+    service.commit_import(preview["batch_id"])
+
+    rows = TransactionRepository(conn).list(data_mode="real")
+    assert len(rows) == 2
+    assert all(r["model_category"] is None for r in rows)
+    assert {r["decision_source"] for r in rows} == {"structural_other", "ambiguous_e_transfer"}
+
+
 def test_confirm_transitions_empty_to_real(service, conn):
     preview = service.parse_and_stage(_read("clean_valid.csv"), bank="TD")
     assert AppStateRepository(conn).get_mode() == "EMPTY"

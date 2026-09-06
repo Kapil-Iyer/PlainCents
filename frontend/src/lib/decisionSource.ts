@@ -55,3 +55,43 @@ export function describeDecisionSource(source: DecisionSource): DecisionSourceNo
       return null;
   }
 }
+
+/**
+ * The model's best non-abstained guess, shown as ADVISORY information only
+ * when the system abstained to "Other" for lack of confidence -- never a
+ * calibrated confidence percentage (decision margin is an abstention-policy
+ * threshold, not a 0-100% probability claim; see backend/services/
+ * categorization_service.py). One source of truth for "should a suggestion
+ * chip appear at all", shared by ImportPreviewCard (display-only -- no
+ * transaction id exists yet to act on) and CategoryBadge (display + a
+ * one-click "Use" that becomes a normal human correction via the existing
+ * PATCH confirmed_category path -- never a second write path).
+ *
+ * Gating, in order:
+ *   - only for decision_source === "low_confidence_other" -- structural_other
+ *     and ambiguous_e_transfer never call the model at all (CategoryDecision
+ *     .model_category is already None on those paths), so there is nothing
+ *     to suggest; a plain "model"/"gazetteer" decision, or any row a human
+ *     has already corrected (is_manual_override), isn't a suggestion
+ *     candidate either -- callers gate is_manual_override themselves, the
+ *     same way they already do for describeDecisionSource's caption.
+ *   - model_category must be present (a pre-migration row, or a caller that
+ *     hasn't loaded it, has nothing to suggest)
+ *   - model_category !== "Other" -- suggesting the same category the row is
+ *     already showing is not a suggestion
+ *   - model_category !== the served predicted_category -- guards the same
+ *     no-op case defensively even though a low_confidence_other row's
+ *     predicted_category is always "Other" today
+ */
+export function getCategorySuggestion(params: {
+  decisionSource: DecisionSource;
+  modelCategory?: string | null;
+  predictedCategory?: string | null;
+}): string | null {
+  const { decisionSource, modelCategory, predictedCategory } = params;
+  if (decisionSource !== "low_confidence_other") return null;
+  if (!modelCategory) return null;
+  if (modelCategory === "Other") return null;
+  if (modelCategory === predictedCategory) return null;
+  return modelCategory;
+}

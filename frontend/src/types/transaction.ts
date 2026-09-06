@@ -23,6 +23,14 @@ export interface TransactionResponse {
     | "gazetteer"
     | "ambiguous_e_transfer"
     | null;
+  /** Advisory only: what the classifier alone said, even when a
+   * low-confidence abstention overrode it to "Other" (predicted_category).
+   * Never affects predicted_category/confirmed_category/effective_category,
+   * and is never touched by a later human correction. Null on structural/
+   * ambiguous-e-transfer/manual rows, or a pre-migration row. Drives
+   * CategoryBadge.tsx's "Suggested: {model_category}" advisory chip and its
+   * one-click "Use" accept. */
+  model_category?: string | null;
   created_at: string;
   updated_at: string;
 }

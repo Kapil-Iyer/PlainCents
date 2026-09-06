@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { describeDecisionSource } from "@/lib/decisionSource";
+import { describeDecisionSource, getCategorySuggestion } from "@/lib/decisionSource";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import type { ImportSampleRow, ImportPreview } from "@/types/import";
 
@@ -200,6 +200,11 @@ function CategoryCell({ row }: { row: ImportSampleRow }) {
   }
 
   const note = describeDecisionSource(row.decision_source);
+  const suggestion = getCategorySuggestion({
+    decisionSource: row.decision_source,
+    modelCategory: row.model_category,
+    predictedCategory: row.predicted_category,
+  });
 
   return (
     <span className="flex flex-wrap items-center gap-1.5">
@@ -209,6 +214,10 @@ function CategoryCell({ row }: { row: ImportSampleRow }) {
           ({note.label})
         </span>
       )}
+      {/* Display-only here -- no transaction id exists yet to act on until
+       * Confirm. The same one-click "Use" accept appears post-Confirm on
+       * CategoryBadge.tsx. */}
+      {suggestion && <span className="text-xs text-muted-foreground">Suggested: {suggestion}</span>}
     </span>
   );
 }

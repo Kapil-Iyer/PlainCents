@@ -30,6 +30,13 @@ class ImportSampleRow(BaseModel):
                            backend.services.e_transfer_policy -- distinct
                            from 'structural_other', which names nothing at
                            all) -- see backend.services.category_decision
+      model_category       advisory only: what the classifier alone said,
+                           even when a low-confidence abstention overrode it
+                           to "Other". None on structural/ambiguous-e-transfer
+                           rows (the model is never called on those paths).
+                           Never affects predicted_category/effective_category
+                           -- display-only in Preview (no "Use" action here;
+                           see CategoryBadge.tsx for the post-Confirm one).
     """
 
     date: str
@@ -39,6 +46,7 @@ class ImportSampleRow(BaseModel):
     remembered_category: str | None = None
     effective_category: str | None = None
     decision_source: str | None = None
+    model_category: str | None = None
     is_duplicate: bool
 
 

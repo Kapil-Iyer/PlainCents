@@ -39,8 +39,10 @@ def test_1_fresh_db_migration_succeeds(db_path):
     # ML-G's stable merchant identity and the staged decision columns that
     # let Preview persist the same decision Confirm stores; 005 carries
     # decision_source onto `transactions` itself, so the reason survives
-    # Confirm/reload, not just Preview.
-    assert applied == [1, 2, 3, 4, 5]
+    # Confirm/reload, not just Preview; 006 does the same for model_category
+    # (the advisory raw-classifier opinion behind a low-confidence
+    # abstention's "Suggested: {category}" chip).
+    assert applied == [1, 2, 3, 4, 5, 6]
     conn.close()
 
 
@@ -48,14 +50,14 @@ def test_2_migrations_run_twice_no_duplicate_application(db_path):
     conn = _fresh_conn(db_path)
     first = apply_migrations(conn, migrations_dir=MIGRATIONS_DIR)
     second = apply_migrations(conn, migrations_dir=MIGRATIONS_DIR)
-    assert first == [1, 2, 3, 4, 5]
+    assert first == [1, 2, 3, 4, 5, 6]
     assert second == []  # nothing new applied the second time
     conn.close()
 
 
 def test_3_schema_migrations_tracks_versions(conn):
     rows = conn.execute("SELECT version FROM schema_migrations").fetchall()
-    assert [r["version"] for r in rows] == [1, 2, 3, 4, 5]
+    assert [r["version"] for r in rows] == [1, 2, 3, 4, 5, 6]
 
 
 def test_4_all_required_tables_views_indexes_exist(conn):

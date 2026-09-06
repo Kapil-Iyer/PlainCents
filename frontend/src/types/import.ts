@@ -25,6 +25,13 @@ export interface ImportSampleRow {
     | "gazetteer"
     | "ambiguous_e_transfer"
     | null;
+  /** Advisory only: what the classifier alone said, even when a
+   * low-confidence abstention overrode it to "Other". Null on structural/
+   * ambiguous-e-transfer rows (the model is never called on those paths).
+   * Never affects predicted_category/effective_category. Display-only here
+   * (no "Use" action in Preview — no transaction id exists yet); see
+   * CategoryBadge.tsx for the post-Confirm one-click accept. */
+  model_category?: string | null;
   is_duplicate: boolean;
 }
 

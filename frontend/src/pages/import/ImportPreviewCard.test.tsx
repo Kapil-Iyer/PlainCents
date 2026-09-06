@@ -76,4 +76,60 @@ describe("ImportPreviewCard", () => {
     expect(screen.getByText("(no merchant name)")).toBeInTheDocument();
     expect(screen.queryByText("(E-Transfer)")).toBeNull();
   });
+
+  it("shows a display-only Suggested label for a low-confidence abstention, with no Use action", () => {
+    renderWithProviders(
+      <ImportPreviewCard
+        preview={preview({
+          sample_rows: [
+            {
+              date: "2026-01-05",
+              merchant: "SOME UNSEEN BRAND",
+              amount: -12.34,
+              predicted_category: "Other",
+              remembered_category: null,
+              effective_category: "Other",
+              decision_source: "low_confidence_other",
+              model_category: "Subscriptions",
+              is_duplicate: false,
+            },
+          ],
+        })}
+        onConfirm={noop}
+        onCancel={noop}
+        pending={false}
+      />,
+    );
+
+    expect(screen.getByText("Suggested: Subscriptions")).toBeInTheDocument();
+    // Preview has no transaction id yet -- display-only, no accept action.
+    expect(screen.queryByRole("button", { name: /Use Subscriptions/ })).toBeNull();
+  });
+
+  it("does not show a Suggested label for structural/ambiguous-e-transfer rows", () => {
+    renderWithProviders(
+      <ImportPreviewCard
+        preview={preview({
+          sample_rows: [
+            {
+              date: "2026-01-05",
+              merchant: "ABM WITHDRAWAL",
+              amount: -40,
+              predicted_category: "Other",
+              remembered_category: null,
+              effective_category: "Other",
+              decision_source: "structural_other",
+              model_category: null,
+              is_duplicate: false,
+            },
+          ],
+        })}
+        onConfirm={noop}
+        onCancel={noop}
+        pending={false}
+      />,
+    );
+
+    expect(screen.queryByText(/Suggested:/)).toBeNull();
+  });
 });

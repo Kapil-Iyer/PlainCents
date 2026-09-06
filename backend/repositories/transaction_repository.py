@@ -39,8 +39,8 @@ class TransactionRepository:
             INSERT INTO transactions
                 (date, raw_description, merchant, amount, bank_source,
                  predicted_category, confirmed_category, import_batch_id,
-                 data_mode, dedup_key, merchant_key, decision_source)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 data_mode, dedup_key, merchant_key, decision_source, model_category)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["date"],
@@ -60,6 +60,11 @@ class TransactionRepository:
                 # doesn't supply one. Import always supplies it (see
                 # IngestionService.commit_import()).
                 data.get("decision_source"),
+                # Advisory model metadata only (migration 006) -- NULL on
+                # structural/ambiguous-e-transfer/manual rows, same as
+                # decision_source's own "nothing to record" cases. Never
+                # read by effective_category; see that migration's docstring.
+                data.get("model_category"),
             ),
         )
         return cur.lastrowid

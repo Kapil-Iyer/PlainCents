@@ -275,6 +275,7 @@ class IngestionService:
                     merchant_key = decision.merchant_key
                     confirmed_category = decision.confirmed_category
                     decision_source = decision.source
+                    model_category = decision.model_category
                 else:
                     predicted_category = row["predicted_category"]
                     merchant_key = row["merchant_key"]
@@ -293,6 +294,11 @@ class IngestionService:
                     # and staged whole (migration 004), so Confirm persists
                     # exactly what Preview showed, never a second opinion.
                     decision_source = row["decision_source"]
+                    # model_category (migration 006): same "persist exactly
+                    # what Preview showed" principle. Advisory-only -- never
+                    # re-derived, never affects predicted_category/
+                    # confirmed_category/effective_category.
+                    model_category = row["model_category"]
 
                 self._txn_repo.create(
                     {
@@ -305,6 +311,7 @@ class IngestionService:
                         "confirmed_category": confirmed_category,
                         "merchant_key": merchant_key,
                         "decision_source": decision_source,
+                        "model_category": model_category,
                         "import_batch_id": batch_id,
                         "data_mode": "real",
                         "dedup_key": row["dedup_key"],

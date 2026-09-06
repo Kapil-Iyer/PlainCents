@@ -76,6 +76,16 @@ class TransactionResponse(BaseModel):
     # confirmed_category/effective_category remain the sole source of truth
     # for what the transaction actually is.
     decision_source: str | None = None
+    # Additive (migration 006): the classifier's raw opinion, even when a
+    # low-confidence abstention overrode it to "Other" (predicted_category).
+    # Advisory model metadata ONLY -- never affects predicted_category/
+    # confirmed_category/effective_category, and it is never touched by a
+    # later human correction (same "frozen at decide-time" rule as
+    # decision_source). None on structural/ambiguous-e-transfer/manual rows,
+    # or a pre-migration row. The frontend uses this to show a "Suggested:
+    # {model_category}" advisory chip with a one-click accept for a
+    # low_confidence_other row -- see CategoryBadge.tsx.
+    model_category: str | None = None
     created_at: datetime
     updated_at: datetime
 
