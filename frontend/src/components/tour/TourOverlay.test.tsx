@@ -1,7 +1,7 @@
 import { act } from "react";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, useLocation } from "react-router-dom";
 
 import { GuidedTourProvider, useGuidedTour } from "@/context/GuidedTourContext";
@@ -187,6 +187,50 @@ describe("TourOverlay", () => {
     expect(screen.getByTestId("location").textContent).toBe(TOUR_STEPS[holdingsIndex + 1].route);
   });
 
+  it("re-locates the spotlight target on consecutive steps that reuse the same data-tour value", async () => {
+    // Regression test for a real bug found via manual verification:
+    // "dashboard" and "forecast" are back-to-back steps that BOTH target
+    // "page-header" (Dashboard and Forecast each have their own distinct
+    // element carrying it). A naive `useEffect(..., [selector])` does NOT
+    // re-run between two such steps, since React sees the identical string
+    // both times -- the OLD (now-unmounted) element's stale rect then
+    // persists, and the spotlight renders as a plain dark overlay with
+    // nothing actually highlighted. This must reproduce with DIRECTLY
+    // consecutive steps (no different-selector step between them) --
+    // otherwise an intervening step's own selector change would mask the
+    // bug by re-running the effect for an unrelated reason.
+    const user = userEvent.setup();
+    const addSpy = vi.spyOn(window, "addEventListener");
+    renderRouteAwareHarness();
+
+    const dashboardIndex = TOUR_STEPS.findIndex((s) => s.id === "dashboard");
+    const forecastIndex = TOUR_STEPS.findIndex((s) => s.id === "forecast");
+    expect(forecastIndex).toBe(dashboardIndex + 1); // directly consecutive
+    expect(TOUR_STEPS[dashboardIndex].target).toBe("page-header");
+    expect(TOUR_STEPS[forecastIndex].target).toBe("page-header"); // same target, different page
+
+    await user.click(screen.getByText("start-tour"));
+    for (let i = 0; i < dashboardIndex; i++) {
+      await screen.findByText(TOUR_STEPS[i].title);
+      await user.click(screen.getByRole("button", { name: "Next" }));
+    }
+    await screen.findByText(TOUR_STEPS[dashboardIndex].title);
+    const resizeListenersAtDashboard = addSpy.mock.calls.filter((c) => c[0] === "resize").length;
+    expect(resizeListenersAtDashboard).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole("button", { name: "Next" }));
+    await screen.findByText(TOUR_STEPS[forecastIndex].title);
+    const resizeListenersAtForecast = addSpy.mock.calls.filter((c) => c[0] === "resize").length;
+
+    // A fresh `addEventListener("resize", ...)` call on arriving at the
+    // Forecast step proves the locate effect actually re-ran -- without
+    // the fix, this count stays flat, since the dependency array looks
+    // unchanged to React ("page-header" === "page-header").
+    expect(resizeListenersAtForecast).toBeGreaterThan(resizeListenersAtDashboard);
+
+    addSpy.mockRestore();
+  });
+
   it("falls back to a centered card when the target element cannot be found", async () => {
     const user = userEvent.setup();
     render(
@@ -213,5 +257,37 @@ function TourOverlayOnlyHarness() {
       <button onClick={tour.start}>start-tour</button>
       <TourOverlay />
     </>
+  );
+}
+
+/** Mimics the real app: only the CURRENT route's own `data-tour` elements
+ * are mounted at any time (unlike `Harness` above, which keeps every
+ * target mounted simultaneously for simplicity). This is what actually
+ * exposes the stale-rect bug -- several steps legitimately reuse the same
+ * `data-tour` value (e.g. "page-header" on Dashboard, Forecast, and How
+ * It Works) for a DIFFERENT real element each time. */
+function RouteAwareHarness() {
+  const tour = useGuidedTour();
+  const location = useLocation();
+  return (
+    <>
+      <button onClick={tour.start}>start-tour</button>
+      {TOUR_STEPS.filter((s) => s.route === location.pathname).map((s) => (
+        <div key={s.id} data-tour={s.target} data-page={location.pathname}>
+          {s.target} on {location.pathname}
+        </div>
+      ))}
+      <TourOverlay />
+    </>
+  );
+}
+
+function renderRouteAwareHarness() {
+  return render(
+    <MemoryRouter initialEntries={["/dashboard"]}>
+      <GuidedTourProvider>
+        <RouteAwareHarness />
+      </GuidedTourProvider>
+    </MemoryRouter>,
   );
 }

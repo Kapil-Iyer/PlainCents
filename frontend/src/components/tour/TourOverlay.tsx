@@ -29,14 +29,25 @@ function rectFromElement(el: Element): Rect {
 /** Locates the current step's target element in the live DOM, retrying
  * (route transitions and lazy-loaded pages mean the element may not exist
  * on the first paint) until found or LOCATE_TIMEOUT_MS elapses, then keeps
- * its position in sync with scroll/resize while it stays mounted. */
-function useSpotlightRect(selector: string | null): Rect | null {
+ * its position in sync with scroll/resize while it stays mounted.
+ *
+ * `stepKey` (the step index) is a second, independent dependency alongside
+ * `selector` -- several steps reuse the same `data-tour` value (e.g.
+ * "page-header" appears on Dashboard, Forecast, and How It Works), and a
+ * dependency array of `[selector]` alone would NOT re-run this effect
+ * between two such steps, since React sees the same string both times. The
+ * OLD element's stale rect (or one from an already-unmounted page, whose
+ * getBoundingClientRect collapses to zero) would then persist, making the
+ * spotlight look like a plain dark overlay with nothing highlighted at all.
+ * Keying on the step index guarantees a fresh lookup every single step,
+ * repeated target or not. */
+function useSpotlightRect(selector: string | null, stepKey: number): Rect | null {
   const [rect, setRect] = React.useState<Rect | null>(null);
 
   React.useEffect(() => {
     if (!selector) return;
     let cancelled = false;
-    let rafId: number;
+    let timerId: ReturnType<typeof setTimeout>;
     const startedAt = performance.now();
 
     const locate = () => {
@@ -47,13 +58,22 @@ function useSpotlightRect(selector: string | null): Rect | null {
         return;
       }
       if (performance.now() - startedAt < LOCATE_TIMEOUT_MS) {
-        rafId = requestAnimationFrame(locate);
+        timerId = setTimeout(locate, 50);
       } else {
         setRect(null);
       }
     };
     setRect(null);
-    locate();
+    // Deferred (not called synchronously) so a same-step route change (see
+    // the navigation effect above) has a chance to actually swap the DOM
+    // first -- checking synchronously here could otherwise match a
+    // same-named `data-tour` element on the PAGE BEING NAVIGATED AWAY FROM,
+    // a moment before it unmounts. A plain setTimeout is used instead of
+    // requestAnimationFrame because rAF callbacks are suspended entirely
+    // while the tab is backgrounded (e.g. the user alt-tabs away right as a
+    // step changes) -- a suspended rAF would leave the spotlight stuck on
+    // the dark fallback overlay indefinitely instead of just resuming late.
+    timerId = setTimeout(locate, 0);
 
     const reposition = () => {
       const el = document.querySelector(`[data-tour="${selector}"]`);
@@ -64,11 +84,13 @@ function useSpotlightRect(selector: string | null): Rect | null {
 
     return () => {
       cancelled = true;
-      cancelAnimationFrame(rafId);
+      clearTimeout(timerId);
       window.removeEventListener("scroll", reposition, true);
       window.removeEventListener("resize", reposition);
     };
-  }, [selector]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stepKey is
+    // intentionally an extra re-run trigger, not itself used in the body.
+  }, [selector, stepKey]);
 
   return rect;
 }
@@ -105,7 +127,7 @@ export function TourOverlay() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, step]);
 
-  const rect = useSpotlightRect(isActive ? (step?.target ?? null) : null);
+  const rect = useSpotlightRect(isActive ? (step?.target ?? null) : null, stepIndex);
 
   React.useEffect(() => {
     if (!isActive) return;
