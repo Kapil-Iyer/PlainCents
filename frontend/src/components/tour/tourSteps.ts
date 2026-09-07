@@ -97,7 +97,7 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/portfolio",
     target: "portfolio-add-holding",
     title: "Holdings, refreshed on request",
-    body: "Track a ticker and how many shares you hold. Average cost is optional. Prices only ever update when you click Refresh Prices.",
+    body: "Track a ticker and how many shares you hold. Average cost is optional. Prices come from Yahoo Finance, cached for up to an hour, and only ever update when you click Refresh Prices.",
   },
   {
     id: "portfolio-analytics",
@@ -111,7 +111,7 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/portfolio",
     target: "portfolio-how-it-works",
     title: "How your portfolio works",
-    body: "The exact math behind value, cost basis, and P&L, including what happens when cost basis is unknown. Portfolio tracking never touches your spending totals or forecasts.",
+    body: "The exact math behind value, cost basis, and P&L, plus the price source, cache freshness, and what Refresh Prices actually changes. Portfolio tracking never touches your spending totals or forecasts.",
   },
   {
     id: "powerbi",

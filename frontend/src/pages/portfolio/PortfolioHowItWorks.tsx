@@ -21,7 +21,7 @@ const ITEMS: { icon: typeof Wallet; title: string; body: string }[] = [
   {
     icon: RefreshCw,
     title: "Price freshness",
-    body: "Refreshing prices updates current price, value, and P&L (when cost is known) -- it never changes shares or average cost. A demo holding's price is labeled \"Demo snapshot\" until you refresh it with a real quote; a real holding always shows the timestamp of its last genuine fetch.",
+    body: "PlainCents requests market quotes from Yahoo Finance, and caches the latest quote per ticker for up to an hour -- a repeat request inside that hour reuses the cached price instead of calling out again, which keeps Portfolio fast and doesn't lean on an external provider more than it needs to. Refresh prices requests a newer quote once the cache has actually gone stale, and updates current price, value, and P&L (when cost is known) -- it never changes shares or average cost. A demo holding starts on a fixed sample snapshot (so Demo mode works even with no network at all) and switches to a real timestamp the first time a genuine quote is fetched for it.",
   },
 ];
 

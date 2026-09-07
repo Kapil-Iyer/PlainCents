@@ -15,6 +15,11 @@ vi.mock("@/api/holdings", () => ({
   refreshPrices: vi.fn(),
 }));
 
+vi.mock("@/api/health", () => ({
+  getHealth: vi.fn(),
+  getDemoStatus: vi.fn().mockResolvedValue({ mode: "EMPTY", can_load_demo: true }),
+}));
+
 const neverRefreshed: HoldingResponse = {
   id: 1,
   ticker: "AAPL",
@@ -62,8 +67,13 @@ const demoSnapshot: HoldingResponse = {
 };
 
 describe("PortfolioPage", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetAllMocks();
+    window.localStorage.clear();
+    // Safe default for every test that doesn't care about app-state mode --
+    // tests that do (the Demo price notice) override this explicitly.
+    const { getDemoStatus } = await import("@/api/health");
+    vi.mocked(getDemoStatus).mockResolvedValue({ mode: "EMPTY", can_load_demo: true });
   });
 
   it("renders an empty state when there are no holdings", async () => {
@@ -107,6 +117,57 @@ describe("PortfolioPage", () => {
     expect(within(table).getByText("VTI")).toBeInTheDocument();
     expect(within(table).getByText(/Demo snapshot/)).toBeInTheDocument();
     expect(within(table).queryByText(/^as of/)).not.toBeInTheDocument();
+  });
+
+  it("shows the Demo price notice when a holding is still on its seeded snapshot in DEMO mode", async () => {
+    const { listHoldings } = await import("@/api/holdings");
+    const { getDemoStatus } = await import("@/api/health");
+    vi.mocked(listHoldings).mockResolvedValue([demoSnapshot]);
+    vi.mocked(getDemoStatus).mockResolvedValue({ mode: "DEMO", can_load_demo: false });
+
+    renderWithProviders(<PortfolioPage />);
+
+    expect(await screen.findByText(/Demo holdings start on a fixed sample/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Yahoo Finance/).length).toBeGreaterThan(0);
+  });
+
+  it("never shows the Demo price notice outside DEMO mode, even with a demo-labeled price", async () => {
+    const { listHoldings } = await import("@/api/holdings");
+    const { getDemoStatus } = await import("@/api/health");
+    vi.mocked(listHoldings).mockResolvedValue([demoSnapshot]);
+    vi.mocked(getDemoStatus).mockResolvedValue({ mode: "REAL", can_load_demo: false });
+
+    renderWithProviders(<PortfolioPage />);
+
+    await screen.findByRole("table");
+    expect(screen.queryByText(/Demo holdings start on a fixed sample/)).not.toBeInTheDocument();
+  });
+
+  it("never shows the Demo price notice once every holding has a genuine cached price", async () => {
+    const { listHoldings } = await import("@/api/holdings");
+    const { getDemoStatus } = await import("@/api/health");
+    vi.mocked(listHoldings).mockResolvedValue([cached]);
+    vi.mocked(getDemoStatus).mockResolvedValue({ mode: "DEMO", can_load_demo: false });
+
+    renderWithProviders(<PortfolioPage />);
+
+    await screen.findByRole("table");
+    expect(screen.queryByText(/Demo holdings start on a fixed sample/)).not.toBeInTheDocument();
+  });
+
+  it("dismissing the Demo price notice hides it and remembers the dismissal", async () => {
+    const user = userEvent.setup();
+    const { listHoldings } = await import("@/api/holdings");
+    const { getDemoStatus } = await import("@/api/health");
+    vi.mocked(listHoldings).mockResolvedValue([demoSnapshot]);
+    vi.mocked(getDemoStatus).mockResolvedValue({ mode: "DEMO", can_load_demo: false });
+
+    renderWithProviders(<PortfolioPage />);
+    await screen.findByText(/Demo holdings start on a fixed sample/);
+    await user.click(screen.getByRole("button", { name: "Dismiss" }));
+
+    expect(screen.queryByText(/Demo holdings start on a fixed sample/)).not.toBeInTheDocument();
+    expect(window.localStorage.getItem("plaincents:demoPriceNoticeDismissed")).toBe("true");
   });
 
   it("labels a genuinely cached price as a real fetch, not a demo snapshot", async () => {

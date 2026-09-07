@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { TableSkeleton } from "@/components/shared/LoadingState";
 import { useToast } from "@/components/shared/Toast";
+import { useAppState } from "@/context/AppStateContext";
 import { useHoldingsQuery, useRefreshPrices } from "@/hooks/useHoldings";
 import { ApiError } from "@/types/common";
 
+import { DemoPriceNotice } from "@/pages/portfolio/DemoPriceNotice";
 import { HoldingFormDialog } from "@/pages/portfolio/HoldingFormDialog";
 import { HoldingsTable } from "@/pages/portfolio/HoldingsTable";
 import { PortfolioAnalytics } from "@/pages/portfolio/PortfolioAnalytics";
@@ -19,6 +21,8 @@ export function PortfolioPage() {
   const { data: holdings, isLoading, isError } = useHoldingsQuery();
   const refreshMutation = useRefreshPrices();
   const { toast } = useToast();
+  const { mode } = useAppState();
+  const hasDemoSnapshotPrice = mode === "DEMO" && (holdings ?? []).some((h) => h.price_is_demo_snapshot);
 
   const handleRefresh = () => {
     refreshMutation.mutate(undefined, {
@@ -68,6 +72,8 @@ export function PortfolioPage() {
           </Button>
         </div>
       </div>
+
+      {hasDemoSnapshotPrice && <DemoPriceNotice />}
 
       {isLoading ? (
         <TableSkeleton rows={5} columns={7} />
