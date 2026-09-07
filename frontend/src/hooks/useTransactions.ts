@@ -57,6 +57,12 @@ export function useDeleteTransaction() {
     mutationFn: (id: number) => deleteTransaction(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TRANSACTIONS_KEY] });
+      // Deleting the last real transaction can flip the backend's data_mode
+      // back to EMPTY (see AppStateService.maybe_transition_to_empty) --
+      // without this, the cached "REAL" mode from before the delete lingers
+      // and "Load demo data" stays hidden until something else happens to
+      // refetch it. useCreateTransaction already invalidates this same key.
+      queryClient.invalidateQueries({ queryKey: APP_STATE_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ANALYTICS_QUERY_KEY });
     },
