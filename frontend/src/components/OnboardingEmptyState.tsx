@@ -109,8 +109,8 @@ export function OnboardingEmptyState({
             </div>
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Lock className="h-3 w-3" />
-              Runs locally on your machine — no signup, no account, no data leaves your computer
-              unless a Portfolio price refresh is requested.
+              No signup or account required. Your data is processed by the PlainCents app, and
+              portfolio price refreshes request market data from Yahoo Finance.
             </p>
           </div>
         }
