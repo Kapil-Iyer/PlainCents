@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Compass } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAppState } from "@/context/AppStateContext";
+import { useGuidedTour } from "@/context/GuidedTourContext";
 import { cn } from "@/lib/utils";
 
 interface Step {
@@ -45,7 +47,16 @@ const STEPS: Step[] = [
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col gap-3">
-          <Bar w="w-24" />
+          <div className="flex flex-wrap gap-1.5">
+            {["RBC", "Scotiabank", "TD", "CIBC"].map((bank) => (
+              <span
+                key={bank}
+                className="rounded-full border border-border-strong/60 bg-muted/60 px-2 py-0.5 text-[9px] font-medium text-muted-foreground"
+              >
+                {bank}
+              </span>
+            ))}
+          </div>
           <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border-strong">
             <Bar w="w-32" muted />
             <Bar w="w-20" muted />
@@ -96,17 +107,29 @@ const STEPS: Step[] = [
   },
   {
     id: "review",
-    title: "Review what it decided",
+    title: "When it's not confident enough, it says so",
     page: "Transactions",
-    body: "Every transaction is listed with its category. A category PlainCents chose itself is shown differently from one you set, so you can always tell the machine's opinion from your own.",
+    body: "Some merchant text just doesn't give the model enough to go on. Rather than guess, PlainCents serves that row as Other and shows its best advisory guess alongside it — one click applies the suggestion, through the exact same correction path as any other fix.",
     visual: () => (
       <Screen>
-        <div className="flex h-full flex-col gap-2">
-          <div className="flex gap-1.5">
-            <Pill label="Transactions" active />
-            <Pill label="Insights" />
+        <div className="flex h-full flex-col justify-center gap-3">
+          <Bar w="w-32" />
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-medium text-muted-foreground">
+              Other (low confidence)
+            </span>
           </div>
-          <Rows n={5} />
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[9px] text-muted-foreground">Suggested:</span>
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-medium text-primary">
+              Transport
+            </span>
+          </div>
+          <div>
+            <span className="inline-flex items-center rounded-md bg-primary px-2.5 py-1 text-[9px] font-semibold text-primary-foreground">
+              Use Transport
+            </span>
+          </div>
         </div>
       </Screen>
     ),
@@ -160,14 +183,30 @@ const STEPS: Step[] = [
             <Tile label="$1,102" caption="last month" />
             <Tile label="+16%" caption="change" />
           </div>
-          <div className="flex flex-1 items-end gap-1.5">
+          {/* Spending Pace: two series (this month vs. last), not one --
+           * the single bar chart this used to be didn't read as "pace",
+           * it read as a generic chart. */}
+          <div className="flex flex-1 items-end gap-1">
             {[40, 62, 48, 75, 58, 88].map((h, i) => (
-              <div
-                key={i}
-                className="flex-1 rounded-sm bg-primary/35"
-                style={{ height: `${h}%` }}
-              />
+              <div key={i} className="flex flex-1 items-end gap-[3px]">
+                <div className="flex-1 rounded-sm bg-primary/70" style={{ height: `${h}%` }} />
+                <div
+                  className="flex-1 rounded-sm bg-muted-foreground/25"
+                  style={{ height: `${Math.max(20, h - 18)}%` }}
+                />
+              </div>
             ))}
+          </div>
+          {/* What Changed: a zero-centered diverging bar, the same shape
+           * the real card uses -- one glance and it reads as "diverging",
+           * not "generic mini chart". */}
+          <div className="flex items-center gap-1.5">
+            <span className="w-10 text-right text-[8px] text-destructive">−12%</span>
+            <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+              <div className="absolute inset-y-0 left-1/2 w-[22%] rounded-l-full bg-destructive/60" style={{ transform: "translateX(-100%)" }} />
+              <div className="absolute inset-y-0 left-1/2 w-[34%] rounded-r-full bg-primary/60" />
+            </div>
+            <span className="w-10 text-[8px] text-primary">+18%</span>
           </div>
         </div>
       </Screen>
@@ -181,9 +220,17 @@ const STEPS: Step[] = [
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-border-strong">
-            ↓
+          <div className="flex flex-wrap justify-center gap-1.5">
+            {["transactions.csv", "categories.csv", "portfolio.csv", "forecast.csv"].map((f) => (
+              <span
+                key={f}
+                className="rounded border border-border-strong/60 bg-muted/60 px-1.5 py-0.5 font-mono text-[8px] text-muted-foreground"
+              >
+                {f}
+              </span>
+            ))}
           </div>
+          <span className="text-muted-foreground">↓</span>
           <Bar w="w-36" />
           <Bar w="w-24" muted />
           <Pill label="Export for Power BI" active />
@@ -253,9 +300,20 @@ const STEPS: Step[] = [
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col gap-2">
-          <div className="grid grid-cols-2 gap-1.5">
-            <Tile label="$4,997" caption="MSFT value" accent />
-            <Tile label="+$2,197" caption="MSFT P&L" />
+          <div className="flex flex-col gap-1">
+            {[
+              { ticker: "MSFT", value: "$4,997", pnl: "+$2,197", pnlUp: true },
+              { ticker: "VTI", value: "$5,375", pnl: "—", pnlUp: null },
+            ].map((row) => (
+              <div
+                key={row.ticker}
+                className="flex items-center gap-2 rounded border border-border/60 px-2 py-1 text-[9px]"
+              >
+                <span className="font-mono font-semibold">{row.ticker}</span>
+                <span className="ml-auto text-muted-foreground">{row.value}</span>
+                <span className={row.pnlUp ? "text-success" : "text-muted-foreground"}>{row.pnl}</span>
+              </div>
+            ))}
           </div>
           <div className="flex flex-1 items-end gap-1.5">
             {[70, 40, 55, 30].map((h, i) => (
@@ -283,6 +341,26 @@ export function AppWalkthroughSection() {
   const [index, setIndex] = useState(0);
   const reduceMotion = useReducedMotion();
   const step = STEPS[index];
+  const { start: startTour } = useGuidedTour();
+  const { mode, loadDemo } = useAppState();
+
+  // This conceptual stepper explains "what happens to my data"; the real
+  // guided tour (TopNav's Replay tour / OnboardingEmptyState's Load-demo-
+  // and-start-tour button) is where a recruiter sees the ACTUAL product.
+  // It spotlights real charts that don't exist yet in EMPTY mode, so this
+  // CTA loads Demo data first when there's nothing loaded, exactly like
+  // those other entry points -- never starting the live tour against an
+  // empty app.
+  const handleStartTour = async () => {
+    if (mode === "EMPTY") {
+      try {
+        await loadDemo();
+      } catch {
+        // Best-effort -- still start the tour rather than a dead button.
+      }
+    }
+    startTour();
+  };
 
   const go = (next: number) => setIndex((next + STEPS.length) % STEPS.length);
 
@@ -298,11 +376,18 @@ export function AppWalkthroughSection() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h2 className="text-lg font-semibold">Using PlainCents, step by step</h2>
-        <p className="text-sm text-muted-foreground">
-          The whole workflow, from an empty install to a forecast.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">Using PlainCents, step by step</h2>
+          <p className="text-sm text-muted-foreground">
+            What happens to your data, conceptually — from an empty install to a forecast. To
+            see the actual app instead, use the guided tour below.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleStartTour}>
+          <Compass className="h-4 w-4" />
+          Start guided tour
+        </Button>
       </div>
 
       <div

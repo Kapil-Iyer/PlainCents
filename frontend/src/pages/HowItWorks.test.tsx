@@ -1,9 +1,18 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
+import { AppStateProvider } from "@/context/AppStateContext";
+import { GuidedTourProvider } from "@/context/GuidedTourContext";
 import { HowItWorksPage } from "@/pages/HowItWorks";
+
+vi.mock("@/api/demo", () => ({
+  loadDemo: vi.fn(),
+  clearDemo: vi.fn(),
+  clearRealData: vi.fn(),
+}));
 
 beforeAll(() => {
   // jsdom implements neither, and the page uses both: an IntersectionObserver
@@ -25,10 +34,25 @@ beforeAll(() => {
 });
 
 function renderAt(path = "/how-it-works") {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <HowItWorksPage />
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[path]}>
+        {/* Real AppStateProvider/GuidedTourProvider, not mocks -- the app
+         * walkthrough's "Start guided tour" CTA reads useAppState() and
+         * useGuidedTour() directly, same as it does mounted under AppShell
+         * in the real app. /api/demo/status is unmocked here (fetch is
+         * globally stubbed to `ok: false` above), which is fine: mode falls
+         * back to its documented "EMPTY" default rather than throwing. */}
+        <AppStateProvider>
+          <GuidedTourProvider>
+            <HowItWorksPage />
+          </GuidedTourProvider>
+        </AppStateProvider>
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -152,6 +176,38 @@ describe("HowItWorksPage", () => {
 
       expect(await walkthrough.findByText("Read the dashboard")).toBeInTheDocument();
       expect(walkthrough.getByText(/day-aligned/)).toBeInTheDocument();
+    });
+
+    it("explains low-confidence abstention with the actual Suggested/Use pattern, no confidence percentage", async () => {
+      const user = userEvent.setup();
+      renderAt();
+
+      const walkthrough = within(document.getElementById("walkthrough")!);
+      // Step 5 is "When it's not confident enough, it says so" -- Next x4.
+      for (let i = 0; i < 4; i++) {
+        await user.click(walkthrough.getByRole("button", { name: /Next/ }));
+      }
+
+      expect(
+        await walkthrough.findByText("When it's not confident enough, it says so"),
+      ).toBeInTheDocument();
+      expect(walkthrough.getByText("Other (low confidence)")).toBeInTheDocument();
+      expect(walkthrough.getByText("Transport")).toBeInTheDocument();
+      expect(walkthrough.getByText("Use Transport")).toBeInTheDocument();
+      // Real semantics: no fabricated confidence percentage anywhere.
+      expect(walkthrough.queryByText(/%/)).not.toBeInTheDocument();
+    });
+
+    it("start guided tour loads Demo data first when nothing is loaded, then starts the tour", async () => {
+      const user = userEvent.setup();
+      const { loadDemo } = await import("@/api/demo");
+      vi.mocked(loadDemo).mockResolvedValue({ mode: "DEMO", summary: { transactions: 1 } });
+
+      renderAt();
+      const walkthrough = within(document.getElementById("walkthrough")!);
+      await user.click(walkthrough.getByRole("button", { name: /Start guided tour/ }));
+
+      await waitFor(() => expect(loadDemo).toHaveBeenCalled());
     });
   });
 

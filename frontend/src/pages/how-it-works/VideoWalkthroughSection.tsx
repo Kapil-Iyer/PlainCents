@@ -70,7 +70,8 @@ export function VideoWalkthroughSection() {
       <div>
         <h2 className="text-lg font-semibold">Video walkthrough</h2>
         <p className="text-sm text-muted-foreground">
-          A short recorded tour of the real interface, end to end.
+          A short recorded tour of the real interface, end to end — for when you'd rather
+          watch than click through it yourself.
         </p>
       </div>
 
