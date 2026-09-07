@@ -120,7 +120,13 @@ def test_create_manual_returns_503_when_model_missing(conn: sqlite3.Connection):
     app.dependency_overrides[get_categorization_service] = lambda: missing_service
     try:
         test_client = TestClient(app)
-        response = test_client.post("/api/transactions", json=_sample())
+        # "TIM HORTONS" (the default _sample() merchant) is gazetteer-matched
+        # -- the shared decision path resolves it deterministically without
+        # ever touching the model, so this needs a merchant that genuinely
+        # requires it to exercise the missing-model 503.
+        response = test_client.post(
+            "/api/transactions", json=_sample(merchant="GENERIC RETAILER 4471")
+        )
     finally:
         app.dependency_overrides.pop(get_db, None)
         app.dependency_overrides.pop(get_categorization_service, None)

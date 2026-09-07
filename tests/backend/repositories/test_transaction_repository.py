@@ -97,9 +97,10 @@ def test_12b_decision_source_persists_and_survives_a_correction(conn):
 
 
 def test_12c_decision_source_defaults_to_none_for_manual_entries(conn):
-    """A caller that doesn't supply decision_source (e.g. TransactionService.
-    create_manual(), which never runs decide()/decide_batch()) gets NULL, not
-    a fabricated reason."""
+    """A caller that doesn't supply decision_source (any caller bypassing the
+    shared decision path entirely -- both TransactionService.create_manual()
+    and IngestionService.commit_import() now always supply one) gets NULL,
+    not a fabricated reason."""
     repo = TransactionRepository(conn)
     tid = repo.create({**SAMPLE, "dedup_key": "dk-no-decision-source"})
     conn.commit()
@@ -134,9 +135,9 @@ def test_12h_model_category_persists_and_survives_a_correction(conn):
 
 
 def test_12i_model_category_defaults_to_none_for_manual_entries(conn):
-    """A caller that doesn't supply model_category (e.g. a manual entry, or
-    a structural/ambiguous-e-transfer row where the model is never called)
-    gets NULL, not a fabricated opinion."""
+    """A caller that doesn't supply model_category (e.g. a structural/
+    gazetteer/ambiguous-e-transfer row, where the model is never called even
+    through the shared decision path) gets NULL, not a fabricated opinion."""
     repo = TransactionRepository(conn)
     tid = repo.create({**SAMPLE, "dedup_key": "dk-no-model-category"})
     conn.commit()

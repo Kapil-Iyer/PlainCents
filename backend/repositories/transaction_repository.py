@@ -54,14 +54,15 @@ class TransactionRepository:
                 data["data_mode"],
                 data["dedup_key"],
                 self._resolve_merchant_key(data),
-                # NULL for manual entries (TransactionService.create_manual()
-                # never calls decide()/decide_batch() -- there is no
-                # decision-path "reason" to record) and for any caller that
-                # doesn't supply one. Import always supplies it (see
-                # IngestionService.commit_import()).
+                # Both Import (IngestionService.commit_import()) and manual
+                # creation (TransactionService.create_manual()) now supply
+                # this from the same shared decision path
+                # (backend.services.category_decision.decide[_batch]) --
+                # NULL only for a pre-migration row or any other caller that
+                # doesn't supply one.
                 data.get("decision_source"),
                 # Advisory model metadata only (migration 006) -- NULL on
-                # structural/ambiguous-e-transfer/manual rows, same as
+                # structural/ambiguous-e-transfer rows, same as
                 # decision_source's own "nothing to record" cases. Never
                 # read by effective_category; see that migration's docstring.
                 data.get("model_category"),

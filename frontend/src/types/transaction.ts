@@ -12,10 +12,11 @@ export interface TransactionResponse {
   effective_category: string;
   is_manual_override: boolean;
   /** Why `predicted_category` is what it is (backend/services/
-   * category_decision.py's SOURCE_* constants). Null for a pre-migration row
-   * or a manually-created transaction (no decision path ran). Never
-   * overwritten by a later human correction -- see CategoryBadge.tsx for how
-   * this and `is_manual_override` combine. */
+   * category_decision.py's SOURCE_* constants). Set by the same shared
+   * decision path for both Import and manually-created transactions; null
+   * only for a pre-migration row. Never overwritten by a later human
+   * correction -- see CategoryBadge.tsx for how this and
+   * `is_manual_override` combine. */
   decision_source?:
     | "model"
     | "structural_other"
@@ -27,7 +28,7 @@ export interface TransactionResponse {
    * low-confidence abstention overrode it to "Other" (predicted_category).
    * Never affects predicted_category/confirmed_category/effective_category,
    * and is never touched by a later human correction. Null on structural/
-   * ambiguous-e-transfer/manual rows, or a pre-migration row. Drives
+   * ambiguous-e-transfer rows, or a pre-migration row. Drives
    * CategoryBadge.tsx's "Suggested: {model_category}" advisory chip and its
    * one-click "Use" accept. */
   model_category?: string | null;

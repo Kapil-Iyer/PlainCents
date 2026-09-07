@@ -32,6 +32,22 @@ class FakeForecastService:
         self.calls.append(reason)
 
 
+class FakeCategorizationService:
+    """Deterministic stand-in for CategorizationService's classify() surface
+    -- category_decision.decide() only ever calls .classify(merchant), never
+    .status/.predict()/.classify_batch() directly, so this is a complete
+    fake for decide()'s purposes. Used so manual-add decision-layer tests
+    assert against a CONTROLLED result rather than the real model's actual
+    output, which the North Star explicitly says not to special-case
+    merchants to chase."""
+
+    def __init__(self, result: dict):
+        self._result = result
+
+    def classify(self, merchant):
+        return self._result
+
+
 @pytest.fixture
 def categorization_service():
     return CategorizationService(TEST_MODEL_PATH)
@@ -89,8 +105,14 @@ def test_create_manual_aborts_and_leaves_mode_empty_when_model_missing(conn, for
     txn_service = TransactionService(
         conn, missing_service, app_state_service=AppStateService(conn), forecast_service=forecast_service
     )
+    # "TIM HORTONS" (the default _sample() merchant) is gazetteer-matched, so
+    # the shared decision path (backend.services.category_decision.decide)
+    # would resolve it deterministically without ever touching the model --
+    # correct behavior (a broken ML model shouldn't 503 an obviously-known
+    # merchant), but it means this test needs a merchant that genuinely
+    # requires the model, to actually exercise the missing-model abort path.
     with pytest.raises(CategorizationUnavailableError):
-        txn_service.create_manual(_sample())
+        txn_service.create_manual(_sample(merchant="GENERIC RETAILER 4471"))
 
     assert AppStateRepository(conn).get_mode() == "EMPTY"
     assert forecast_service.calls == []
@@ -273,3 +295,131 @@ def test_correcting_category_does_not_overwrite_predicted_category(service):
     assert updated["predicted_category"] == original_predicted
     assert updated["confirmed_category"] == "Healthcare"
     assert updated["effective_category"] == "Healthcare"
+
+
+# -- Manual add / Import decision-path parity ---------------------------
+#
+# create_manual() previously called CategorizationService.predict(), a
+# backward-compatible surface that drops model_category/decision_source and
+# never consults correction memory -- these tests cover the fix: manual add
+# now runs through the exact same shared decision path
+# (backend.services.category_decision.decide) that Import Preview/Confirm
+# use. "GENERIC RETAILER 4471" is a merchant confirmed (via the checkpoint
+# audit) to be neither structurally ambiguous nor gazetteer-matched, so it
+# always reaches decide()'s model step -- a FakeCategorizationService then
+# controls exactly what that step returns, rather than asserting against
+# the real model's actual (and reasonably could drift) output.
+
+
+def test_create_manual_auto_categorize_low_confidence_gets_advisory_suggestion(conn, forecast_service):
+    fake = FakeCategorizationService(
+        {
+            "category": "Other",
+            "model_category": "Subscriptions",
+            "n_active_features": 3,
+            "margin": 0.01,
+            "abstained": True,
+            "abstain_reason": "low_margin",
+        }
+    )
+    service = TransactionService(
+        conn, fake, app_state_service=AppStateService(conn), forecast_service=forecast_service
+    )
+
+    row = service.create_manual(_sample(merchant="GENERIC RETAILER 4471"))
+
+    assert row["predicted_category"] == "Other"
+    assert row["model_category"] == "Subscriptions"
+    assert row["decision_source"] == "low_confidence_other"
+    assert row["confirmed_category"] is None
+    assert row["effective_category"] == "Other"
+
+
+def test_create_manual_auto_categorize_high_confidence_no_suggestion_fields(conn, forecast_service):
+    fake = FakeCategorizationService(
+        {
+            "category": "Shopping",
+            "model_category": "Shopping",
+            "n_active_features": 8,
+            "margin": 0.5,
+            "abstained": False,
+            "abstain_reason": None,
+        }
+    )
+    service = TransactionService(
+        conn, fake, app_state_service=AppStateService(conn), forecast_service=forecast_service
+    )
+
+    row = service.create_manual(_sample(merchant="GENERIC RETAILER 4471"))
+
+    assert row["predicted_category"] == "Shopping"
+    assert row["decision_source"] == "model"
+    # model_category equals the served category here -- getCategorySuggestion
+    # (frontend) additionally guards against suggesting a no-op, but this
+    # confirms the backend records the real model output regardless.
+    assert row["model_category"] == "Shopping"
+
+
+def test_create_manual_structural_other_never_gets_a_model_category(service):
+    # A bare reference/ATM-style string names no merchant at all -- routed to
+    # Other by structural-ambiguity checking, BEFORE the model ever runs.
+    row = service.create_manual(_sample(merchant="ATM WITHDRAWAL 000123"))
+
+    assert row["predicted_category"] == "Other"
+    assert row["decision_source"] == "structural_other"
+    assert row["model_category"] is None
+
+
+def test_create_manual_explicit_category_is_authoritative_over_auto_result(conn, forecast_service):
+    fake = FakeCategorizationService(
+        {
+            "category": "Shopping",
+            "model_category": "Shopping",
+            "n_active_features": 8,
+            "margin": 0.5,
+            "abstained": False,
+            "abstain_reason": None,
+        }
+    )
+    service = TransactionService(
+        conn, fake, app_state_service=AppStateService(conn), forecast_service=forecast_service
+    )
+
+    row = service.create_manual(
+        _sample(merchant="GENERIC RETAILER 4471", confirmed_category="Healthcare")
+    )
+
+    # The human's explicit form choice wins -- never silently overwritten by
+    # what the model would have said.
+    assert row["confirmed_category"] == "Healthcare"
+    assert row["effective_category"] == "Healthcare"
+    assert row["is_manual_override"]
+    # The system's own opinion is still honestly recorded, just not
+    # authoritative -- same principle as any other human correction.
+    assert row["predicted_category"] == "Shopping"
+    assert row["model_category"] == "Shopping"
+
+
+def test_create_manual_auto_categorize_reuses_existing_correction_memory(service):
+    # A genuine prior human correction for this merchant identity should
+    # surface immediately on a later manual add for the SAME merchant,
+    # without the user having to correct it a second time.
+    first = service.create_manual(_sample(merchant="ACME WIDGETS CO"))
+    service.update(first["id"], {"confirmed_category": "Shopping"})
+
+    second = service.create_manual(_sample(merchant="ACME WIDGETS CO"))
+
+    assert second["confirmed_category"] == "Shopping"
+    assert second["effective_category"] == "Shopping"
+    assert second["is_manual_override"]
+
+
+def test_create_manual_never_invents_a_bank_for_correction_memory_scope(service, conn):
+    # Manual entries have bank_source=None -- stable_merchant_key's existing
+    # "UNKNOWN" fallback bucket (backend/services/merchant_identity.py) scopes
+    # them consistently with each other, never fabricating a real bank name.
+    row = service.create_manual(_sample(merchant="ACME WIDGETS CO"))
+    stored = conn.execute(
+        "SELECT merchant_key FROM transactions WHERE id = ?", (row["id"],)
+    ).fetchone()
+    assert stored["merchant_key"].startswith("UNKNOWN|")

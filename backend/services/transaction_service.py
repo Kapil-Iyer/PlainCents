@@ -13,6 +13,7 @@ from backend.api.errors import BadRequestError, NotFoundError
 from backend.db.unit_of_work import transaction as db_transaction
 from backend.repositories.transaction_repository import TransactionRepository
 from backend.services.app_state_service import AppStateService
+from backend.services.category_decision import CorrectionMemory, decide
 from backend.services.categorization_service import CategorizationService
 from backend.services.dedup import compute_dedup_key
 from backend.services.forecast_service import ForecastService
@@ -55,15 +56,41 @@ class TransactionService:
             occurrence_index += 1
 
     def create_manual(self, data: dict) -> dict:
-        # Constraint #6 / TRD §11.3: categorization must succeed before any
-        # row is written. CategorizationService.predict() raises
-        # CategorizationUnavailableError (-> 503) if the model is
-        # missing/errored; that propagates and aborts here, before persist.
-        prediction = self._categorization.predict(
-            {"merchant": data["merchant"], "amount": data["amount"], "date": data["date"]}
+        bank_source = None  # manual creation has no bank source (TRD §4.1)
+
+        # ML-G parity fix: manual creation now runs through the SAME shared
+        # decision path Import Preview/Confirm use (category_decision.decide)
+        # instead of CategorizationService.predict()'s bare surface. predict()
+        # only ever returns the served category -- it silently drops
+        # model_category/decision_source, so a manually-added row could never
+        # carry a low-confidence advisory suggestion, a gazetteer hit, or
+        # structural-ambiguity routing; it also never consulted correction
+        # memory. decide() raises CategorizationUnavailableError (-> 503) on
+        # its own, exactly like predict() did, but only when a row actually
+        # needs the model (structural-ambiguous/gazetteer/e-transfer rows
+        # never call it, same as Import Preview) -- not a new precondition,
+        # just no longer a blanket one either.
+        #
+        # bank_source=None here resolves to the same "UNKNOWN" bank bucket
+        # stable_merchant_key already falls back to for any bank-less row
+        # (backend/services/merchant_identity.py) -- manual entries get their
+        # own consistent correction-memory scope, never a fabricated bank.
+        memory = CorrectionMemory(self._repo)
+        decision = decide(data["merchant"], bank_source, self._categorization, memory)
+
+        # The form's "Category (optional override)" field is the human's
+        # explicit choice, made in the same request as creation -- it wins
+        # over whatever correction memory decide() may have found, the same
+        # way a later PATCH correction would win over it. Left as None
+        # (Auto-categorize, the default), decide()'s own confirmed_category
+        # applies instead, so a genuine remembered correction for this
+        # merchant still surfaces immediately rather than only after this
+        # row is corrected once more.
+        explicit_category = data.get("confirmed_category")
+        confirmed_category = (
+            explicit_category if explicit_category is not None else decision.confirmed_category
         )
 
-        bank_source = None  # manual creation has no bank source (TRD §4.1)
         dedup_key = self._compute_dedup_key(data["date"], data["merchant"], data["amount"], bank_source)
 
         # TRD §4.5.1: "the transaction-insert step and the mode-transition
@@ -82,8 +109,11 @@ class TransactionService:
                     "amount": data["amount"],
                     "raw_description": data.get("raw_description"),
                     "bank_source": bank_source,
-                    "predicted_category": prediction["predicted_category"],
-                    "confirmed_category": data.get("confirmed_category"),
+                    "predicted_category": decision.predicted_category,
+                    "confirmed_category": confirmed_category,
+                    "merchant_key": decision.merchant_key,
+                    "decision_source": decision.source,
+                    "model_category": decision.model_category,
                     "import_batch_id": None,
                     "data_mode": "real",
                     "dedup_key": dedup_key,
