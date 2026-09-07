@@ -61,7 +61,7 @@ const STEPS: Step[] = [
     id: "preview",
     title: "Check the preview before anything is saved",
     page: "Import",
-    body: "You see exactly what will be imported: how many purchases, how many rows are already in your account, and which were skipped because they were credits rather than spending. Every row shows the category it will be filed under — not a guess that changes later.",
+    body: "You see exactly what will be imported: how many purchases, how many rows are already in your account, and which were skipped because they were credits rather than spending. Every row shows the category PlainCents will save if you confirm — you can always correct it afterward, and a genuine correction is remembered for that merchant.",
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col gap-2">
