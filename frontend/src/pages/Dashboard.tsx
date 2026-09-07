@@ -57,24 +57,37 @@ export function DashboardPage() {
         <OnboardingEmptyState />
       ) : (
         <div className="flex flex-col gap-5">
-          <SpendingOverview summary={data} />
+          <div data-tour="dashboard-summary">
+            <SpendingOverview summary={data} />
+          </div>
 
           {/* Dashboard answers "how am I doing right now?". The two cards
            * below are the pair that actually answer it: am I on pace, and
            * what moved. Deeper category and merchant analysis lives on
            * Transactions, where the underlying rows are. Both share the
-           * same analysisMonth clock as the KPIs above, via the selector. */}
+           * same analysisMonth clock as the KPIs above, via the selector.
+           * Each card also carries its own `data-tour` target -- the
+           * guided tour spotlights one visualization per step instead of
+           * gesturing at the whole Dashboard at once. */}
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <SpendPaceCard month={analysisMonth} />
-            <CategoryMoversCard month={analysisMonth} />
+            <div data-tour="spending-pace">
+              <SpendPaceCard month={analysisMonth} />
+            </div>
+            <div data-tour="category-movers">
+              <CategoryMoversCard month={analysisMonth} />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <CategoryBreakdown
-              items={data.category_breakdown}
-              monthLabel={formatMonthLabel(data.period.current)}
-            />
-            <SpendingTrend points={data.spending_trend} />
+            <div data-tour="category-breakdown">
+              <CategoryBreakdown
+                items={data.category_breakdown}
+                monthLabel={formatMonthLabel(data.period.current)}
+              />
+            </div>
+            <div data-tour="spending-trend">
+              <SpendingTrend points={data.spending_trend} />
+            </div>
           </div>
 
           <RecentTransactions transactions={data.recent_transactions} />

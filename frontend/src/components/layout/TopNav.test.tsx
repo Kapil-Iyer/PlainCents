@@ -41,7 +41,7 @@ describe("TopNav", () => {
   });
 
   it("Replay tour is always available and starts the guided tour without crashing", async () => {
-    useAppState.mockReturnValue({ mode: "REAL" });
+    useAppState.mockReturnValue({ mode: "REAL", loadDemo: vi.fn(), isLoadingDemo: false });
     const user = userEvent.setup();
 
     renderTopNav();
@@ -50,5 +50,29 @@ describe("TopNav", () => {
     // No TourOverlay is mounted here (that's TourOverlay.test.tsx's job) --
     // this only guards the entry point itself against a crash.
     await waitFor(() => expect(screen.getByRole("button", { name: /Replay tour/ })).toBeInTheDocument());
+  });
+
+  it("Replay tour loads Demo data first when there's nothing loaded yet, before starting", async () => {
+    const loadDemo = vi.fn().mockResolvedValue({ mode: "DEMO", summary: { transactions: 1 } });
+    useAppState.mockReturnValue({ mode: "EMPTY", loadDemo, isLoadingDemo: false });
+    const user = userEvent.setup();
+
+    renderTopNav();
+    await user.click(screen.getByRole("button", { name: /Replay tour/ }));
+
+    // The tour spotlights real charts that don't exist yet in EMPTY mode --
+    // Replay tour must not start against an empty app.
+    await waitFor(() => expect(loadDemo).toHaveBeenCalled());
+  });
+
+  it("Replay tour does not attempt to load Demo data when Demo or Real data already exists", async () => {
+    const loadDemo = vi.fn();
+    useAppState.mockReturnValue({ mode: "DEMO", loadDemo, isLoadingDemo: false });
+    const user = userEvent.setup();
+
+    renderTopNav();
+    await user.click(screen.getByRole("button", { name: /Replay tour/ }));
+
+    expect(loadDemo).not.toHaveBeenCalled();
   });
 });

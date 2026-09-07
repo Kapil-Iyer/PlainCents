@@ -8,7 +8,15 @@ import { TOUR_STEPS } from "@/components/tour/tourSteps";
 
 const CARD_WIDTH = 320;
 const CARD_MARGIN = 12;
-const SPOTLIGHT_PADDING = 8;
+// Generous enough that a card/chart's own overhanging bits (axis labels,
+// legends, a Recharts tooltip) aren't clipped by the dark backdrop right at
+// the target's measured edge -- a tight cutout made the spotlighted visual
+// itself look partly "crushed" against the darkness.
+const SPOTLIGHT_PADDING = 14;
+// The backdrop needs to read as "clearly dimmed", not "everything but the
+// target is nearly black" -- 0.88 made the cutout/backdrop contrast so
+// stark that the spotlighted visual's own edges looked crushed against it.
+const BACKDROP_OPACITY = 0.6;
 // How long to keep retrying to find the target element after navigating to
 // its route before giving up and showing the card un-anchored (centered) --
 // covers a lazy-loaded route's Suspense fallback swapping in the real page.
@@ -28,8 +36,9 @@ function rectFromElement(el: Element): Rect {
 
 /** Locates the current step's target element in the live DOM, retrying
  * (route transitions and lazy-loaded pages mean the element may not exist
- * on the first paint) until found or LOCATE_TIMEOUT_MS elapses, then keeps
- * its position in sync with scroll/resize while it stays mounted.
+ * on the first paint) until found or LOCATE_TIMEOUT_MS elapses, scrolls it
+ * into view, then keeps its position in sync with scroll/resize while it
+ * stays mounted.
  *
  * `stepKey` (the step index) is a second, independent dependency alongside
  * `selector` -- several steps reuse the same `data-tour` value (e.g.
@@ -41,7 +50,11 @@ function rectFromElement(el: Element): Rect {
  * spotlight look like a plain dark overlay with nothing highlighted at all.
  * Keying on the step index guarantees a fresh lookup every single step,
  * repeated target or not. */
-function useSpotlightRect(selector: string | null, stepKey: number): Rect | null {
+function useSpotlightRect(
+  selector: string | null,
+  stepKey: number,
+  reduceMotion: boolean,
+): Rect | null {
   const [rect, setRect] = React.useState<Rect | null>(null);
 
   React.useEffect(() => {
@@ -54,6 +67,18 @@ function useSpotlightRect(selector: string | null, stepKey: number): Rect | null
       if (cancelled) return;
       const el = document.querySelector(`[data-tour="${selector}"]`);
       if (el) {
+        // Many targets (e.g. Portfolio's "How your portfolio works", or any
+        // Dashboard chart on a short viewport) sit below the fold, and the
+        // overlay blocks the user's own scroll wheel while active -- so the
+        // tour must bring the target into view itself. The scroll/resize
+        // listener below re-measures on every frame of this scroll, so the
+        // spotlight tracks smoothly into its final position rather than
+        // jumping once scrolling settles.
+        el.scrollIntoView({
+          block: "center",
+          inline: "nearest",
+          behavior: reduceMotion ? "auto" : "smooth",
+        });
         setRect(rectFromElement(el));
         return;
       }
@@ -90,7 +115,7 @@ function useSpotlightRect(selector: string | null, stepKey: number): Rect | null
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- stepKey is
     // intentionally an extra re-run trigger, not itself used in the body.
-  }, [selector, stepKey]);
+  }, [selector, stepKey, reduceMotion]);
 
   return rect;
 }
@@ -127,7 +152,7 @@ export function TourOverlay() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, step]);
 
-  const rect = useSpotlightRect(isActive ? (step?.target ?? null) : null, stepIndex);
+  const rect = useSpotlightRect(isActive ? (step?.target ?? null) : null, stepIndex, !!reduceMotion);
 
   React.useEffect(() => {
     if (!isActive) return;
@@ -176,7 +201,9 @@ export function TourOverlay() {
         {/* The spotlight itself: a transparent rectangle whose oversized
          * box-shadow paints the dark backdrop everywhere EXCEPT this rect --
          * spatial cutout, not a color overlay, so the real element under it
-         * stays fully visible and readable. */}
+         * stays fully visible and readable, at its normal brightness. The
+         * backdrop is dimmed, not blacked out (BACKDROP_OPACITY), so the
+         * rest of the page still reads as part of the same product. */}
         {rect ? (
           <div
             aria-hidden
@@ -186,11 +213,15 @@ export function TourOverlay() {
               left: rect.left - SPOTLIGHT_PADDING,
               width: rect.width + SPOTLIGHT_PADDING * 2,
               height: rect.height + SPOTLIGHT_PADDING * 2,
-              boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.88)",
+              boxShadow: `0 0 0 9999px rgba(0, 0, 0, ${BACKDROP_OPACITY})`,
             }}
           />
         ) : (
-          <div aria-hidden className="absolute inset-0 bg-black/80" />
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-black"
+            style={{ opacity: BACKDROP_OPACITY }}
+          />
         )}
 
         <motion.div

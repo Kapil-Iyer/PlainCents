@@ -94,7 +94,7 @@ describe("DashboardPage", () => {
 
     expect(await screen.findByText("Welcome to PlainCents")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Import real data/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Load demo data/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Load demo data" })).toBeInTheDocument();
   });
 
   it("renders an error state when the API call fails", async () => {

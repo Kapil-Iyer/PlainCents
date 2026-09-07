@@ -97,7 +97,9 @@ export function ForecastPage() {
           ) : (
             <>
               <ForecastMetadata generatedAt={latest.generated_at} monthsAvailable={latest.months_available} />
-              <ForecastChart predictions={latest.predictions} />
+              <div data-tour="forecast-chart">
+                <ForecastChart predictions={latest.predictions} />
+              </div>
               <CategoryForecastList predictions={latest.predictions} />
               {/* Deliberately rendered even before any forecast history
                * exists: its empty state explains WHY there is nothing to

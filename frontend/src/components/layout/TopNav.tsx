@@ -16,13 +16,31 @@ const MODE_LABEL: Record<string, string> = {
 };
 
 export function TopNav() {
-  const { mode } = useAppState();
+  const { mode, loadDemo, isLoadingDemo } = useAppState();
   const { start: startTour } = useGuidedTour();
   const { data: health } = useQuery({
     queryKey: ["health"],
     queryFn: getHealth,
     refetchInterval: 60_000,
   });
+
+  // The tour spotlights real charts (Spending Pace, What Changed, ...) that
+  // don't exist yet in EMPTY mode -- so Replay tour loads Demo data first
+  // when there's nothing loaded at all, exactly like the onboarding
+  // screen's "Load demo data & start tour". In DEMO or REAL mode there's
+  // already real data to spotlight, so it starts immediately.
+  const handleReplayTour = async () => {
+    if (mode === "EMPTY") {
+      try {
+        await loadDemo();
+      } catch {
+        // Best-effort -- still start the tour rather than leaving this
+        // button silently doing nothing; most steps still have a target
+        // (page headers, nav items) even without Demo data loaded.
+      }
+    }
+    startTour();
+  };
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-4 sm:px-5">
@@ -55,7 +73,8 @@ export function TopNav() {
           type="button"
           variant="ghost"
           size="sm"
-          onClick={startTour}
+          onClick={handleReplayTour}
+          disabled={isLoadingDemo}
           className="hidden items-center gap-1.5 text-muted-foreground sm:flex"
         >
           <Compass className="h-3.5 w-3.5" />

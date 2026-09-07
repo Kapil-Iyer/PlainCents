@@ -52,10 +52,14 @@ function renderHarness() {
 describe("TourOverlay", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    // jsdom doesn't implement scrollIntoView -- the tour's auto-scroll
+    // (see useSpotlightRect) calls it on every located target.
+    Element.prototype.scrollIntoView = vi.fn();
   });
 
   afterEach(() => {
     window.localStorage.clear();
+    vi.restoreAllMocks();
   });
 
   it("renders nothing until the tour is started", () => {
@@ -148,16 +152,36 @@ describe("TourOverlay", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 
-  it("covers portfolio holdings/analytics/how-it-works and Power BI as distinct steps", () => {
+  it("covers every Dashboard chart, Forecast, and Portfolio/Power BI section as distinct steps", () => {
     const ids = TOUR_STEPS.map((s) => s.id);
     expect(ids).toEqual(
       expect.arrayContaining([
+        "dashboard-summary",
+        "spending-pace",
+        "category-movers",
+        "category-breakdown",
+        "spending-trend",
+        "forecast",
         "portfolio-holdings",
         "portfolio-analytics",
         "portfolio-how-it-works",
         "powerbi",
       ]),
     );
+  });
+
+  it("one step = one visual: no two consecutive steps spotlight the same target", () => {
+    // Guards the "Dashboard tries to explain 5 charts from one heading"
+    // and "Forecast spotlights the page title instead of the chart" bugs
+    // from recurring -- each visual gets its own step and its own target.
+    for (let i = 1; i < TOUR_STEPS.length; i++) {
+      expect(TOUR_STEPS[i].target).not.toBe(TOUR_STEPS[i - 1].target);
+    }
+  });
+
+  it("the Forecast step spotlights the actual forecast chart, not the page heading", () => {
+    const step = TOUR_STEPS.find((s) => s.id === "forecast")!;
+    expect(step.target).toBe("forecast-chart");
   });
 
   it("the Power BI step is honest about being a snapshot, not a live connection", () => {
@@ -187,48 +211,46 @@ describe("TourOverlay", () => {
     expect(screen.getByTestId("location").textContent).toBe(TOUR_STEPS[holdingsIndex + 1].route);
   });
 
-  it("re-locates the spotlight target on consecutive steps that reuse the same data-tour value", async () => {
-    // Regression test for a real bug found via manual verification:
-    // "dashboard" and "forecast" are back-to-back steps that BOTH target
-    // "page-header" (Dashboard and Forecast each have their own distinct
-    // element carrying it). A naive `useEffect(..., [selector])` does NOT
-    // re-run between two such steps, since React sees the identical string
-    // both times -- the OLD (now-unmounted) element's stale rect then
-    // persists, and the spotlight renders as a plain dark overlay with
-    // nothing actually highlighted. This must reproduce with DIRECTLY
-    // consecutive steps (no different-selector step between them) --
-    // otherwise an intervening step's own selector change would mask the
-    // bug by re-running the effect for an unrelated reason.
+  it("re-locates the spotlight target on every step transition, same route or not", async () => {
+    // Regression coverage for a real bug found via manual verification: a
+    // `useEffect` keyed only on the target selector string does NOT re-run
+    // between two steps that happen to reuse the same data-tour value for
+    // a DIFFERENT real element -- the OLD element's stale rect (or a
+    // zeroed rect from an unmounted page) then persists, and the spotlight
+    // renders as a plain dark overlay with nothing highlighted. Keying the
+    // locate effect on the step index (not just the selector) fixes this
+    // universally -- proven here by asserting a fresh `resize` listener
+    // registration (i.e. the locate effect re-running) on EVERY one of the
+    // tour's real transitions, not just a specific same-selector pair.
     const user = userEvent.setup();
     const addSpy = vi.spyOn(window, "addEventListener");
     renderRouteAwareHarness();
 
-    const dashboardIndex = TOUR_STEPS.findIndex((s) => s.id === "dashboard");
-    const forecastIndex = TOUR_STEPS.findIndex((s) => s.id === "forecast");
-    expect(forecastIndex).toBe(dashboardIndex + 1); // directly consecutive
-    expect(TOUR_STEPS[dashboardIndex].target).toBe("page-header");
-    expect(TOUR_STEPS[forecastIndex].target).toBe("page-header"); // same target, different page
+    await user.click(screen.getByText("start-tour"));
+    await screen.findByText(TOUR_STEPS[0].title);
+    let previousCount = addSpy.mock.calls.filter((c) => c[0] === "resize").length;
+    expect(previousCount).toBeGreaterThan(0);
+
+    for (let i = 1; i < TOUR_STEPS.length; i++) {
+      await user.click(screen.getByRole("button", { name: "Next" }));
+      await screen.findByText(TOUR_STEPS[i].title);
+      const count = addSpy.mock.calls.filter((c) => c[0] === "resize").length;
+      expect(count).toBeGreaterThan(previousCount);
+      previousCount = count;
+    }
+  });
+
+  it("scrolls the target into view once located (auto-scroll)", async () => {
+    const user = userEvent.setup();
+    renderHarness();
 
     await user.click(screen.getByText("start-tour"));
-    for (let i = 0; i < dashboardIndex; i++) {
-      await screen.findByText(TOUR_STEPS[i].title);
-      await user.click(screen.getByRole("button", { name: "Next" }));
-    }
-    await screen.findByText(TOUR_STEPS[dashboardIndex].title);
-    const resizeListenersAtDashboard = addSpy.mock.calls.filter((c) => c[0] === "resize").length;
-    expect(resizeListenersAtDashboard).toBeGreaterThan(0);
+    await screen.findByText(TOUR_STEPS[0].title);
 
-    await user.click(screen.getByRole("button", { name: "Next" }));
-    await screen.findByText(TOUR_STEPS[forecastIndex].title);
-    const resizeListenersAtForecast = addSpy.mock.calls.filter((c) => c[0] === "resize").length;
-
-    // A fresh `addEventListener("resize", ...)` call on arriving at the
-    // Forecast step proves the locate effect actually re-ran -- without
-    // the fix, this count stays flat, since the dependency array looks
-    // unchanged to React ("page-header" === "page-header").
-    expect(resizeListenersAtForecast).toBeGreaterThan(resizeListenersAtDashboard);
-
-    addSpy.mockRestore();
+    await waitFor(() => expect(Element.prototype.scrollIntoView).toHaveBeenCalled());
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith(
+      expect.objectContaining({ block: "center" }),
+    );
   });
 
   it("falls back to a centered card when the target element cannot be found", async () => {
@@ -264,8 +286,7 @@ function TourOverlayOnlyHarness() {
  * are mounted at any time (unlike `Harness` above, which keeps every
  * target mounted simultaneously for simplicity). This is what actually
  * exposes the stale-rect bug -- several steps legitimately reuse the same
- * `data-tour` value (e.g. "page-header" on Dashboard, Forecast, and How
- * It Works) for a DIFFERENT real element each time. */
+ * `data-tour` value (e.g. "page-header") for a DIFFERENT real element. */
 function RouteAwareHarness() {
   const tour = useGuidedTour();
   const location = useLocation();
