@@ -33,7 +33,8 @@ import sqlite3
 from datetime import date
 
 from backend.repositories.money import round_money
-from backend.services.date_windows import analysis_window
+from backend.repositories.transaction_repository import TransactionRepository
+from backend.services.date_windows import analysis_window, resolve_default_analysis_month
 
 # Trailing window defaults. Not spec values -- product choices, kept here so
 # the routes and tests share one definition.
@@ -66,9 +67,33 @@ def _mode_clause(data_mode: str | None, params: list) -> str:
     return " AND data_mode = ?"
 
 
+# Every query in this module answers a spending question -- a same-owner
+# account transfer (backend.services.transfer_eligibility) is not spending
+# and must never appear in a chart alongside real purchases. Appended after
+# a `WHERE date >= ?` (every method here starts that way), same as
+# _mode_clause.
+_NOT_INTERNAL_TRANSFER_CLAUSE = " AND transaction_type != 'internal_transfer'"
+
+
 class AnalyticsService:
     def __init__(self, conn: sqlite3.Connection):
         self._conn = conn
+        self._txn_repo = TransactionRepository(conn)
+
+    def _resolve_analysis_month(
+        self, data_mode: str | None, today: date, analysis_month: str | None
+    ) -> str | None:
+        """Same current-month-default rule as DashboardService.get_summary
+        (see its docstring), shared via date_windows.resolve_default_analysis_month
+        so the "one shared clock" this module's own docstrings describe
+        cannot silently disagree with what the Dashboard shows for the same
+        month. Only applies when `analysis_month` is None -- an EXPLICIT
+        selection (including a user deliberately picking today's own empty
+        month) always wins outright."""
+        if analysis_month is not None or data_mode is None:
+            return analysis_month
+        available_months = self._txn_repo.list_distinct_months(data_mode=data_mode)
+        return resolve_default_analysis_month(today, available_months)
 
     # -- 1. Category trend over time -------------------------------------
 
@@ -97,6 +122,7 @@ class AnalyticsService:
             "FROM v_transactions_effective WHERE date >= ?"
         )
         sql += _mode_clause(data_mode, params)
+        sql += _NOT_INTERNAL_TRANSFER_CLAUSE
         sql += " GROUP BY month, category ORDER BY month, category"
         rows = [dict(r) for r in self._conn.execute(sql, params).fetchall()]
 
@@ -156,12 +182,14 @@ class AnalyticsService:
             "FROM v_transactions_effective WHERE date >= ?"
         )
         sql += _mode_clause(data_mode, params)
+        sql += _NOT_INTERNAL_TRANSFER_CLAUSE
         sql += " GROUP BY group_key ORDER BY total_spend DESC, label ASC"
         rows = [dict(r) for r in self._conn.execute(sql, params).fetchall()]
 
         total_params: list = [start]
         total_sql = "SELECT SUM(amount) FROM v_transactions_effective WHERE date >= ?"
         total_sql += _mode_clause(data_mode, total_params)
+        total_sql += _NOT_INTERNAL_TRANSFER_CLAUSE
         total_row = self._conn.execute(total_sql, total_params).fetchone()
         total_spend = round_money(total_row[0] or 0.0)
 
@@ -209,6 +237,7 @@ class AnalyticsService:
                    "WHERE date >= ? AND merchant_key = ?")
             params.append(group_key)
         sql += _mode_clause(data_mode, params)
+        sql += _NOT_INTERNAL_TRANSFER_CLAUSE
         sql += " GROUP BY effective_category ORDER BY s DESC, effective_category ASC LIMIT 1"
         row = self._conn.execute(sql, params).fetchone()
         return row[0] if row else None
@@ -242,6 +271,7 @@ class AnalyticsService:
             calendar month on both sides, uncapped.
         """
         today = reference_date or date.today()
+        analysis_month = self._resolve_analysis_month(data_mode, today, analysis_month)
         window = analysis_window(today, analysis_month)
         current = window.selected_month
         previous = window.previous_month
@@ -253,6 +283,7 @@ class AnalyticsService:
                 "FROM v_transactions_effective WHERE date >= ? AND date <= ?"
             )
             sql += _mode_clause(data_mode, params)
+            sql += _NOT_INTERNAL_TRANSFER_CLAUSE
             sql += " GROUP BY category"
             return {r["category"]: r["total_spend"] for r in self._conn.execute(sql, params).fetchall()}
 
@@ -314,6 +345,7 @@ class AnalyticsService:
             figures -- run to their own full real length.
         """
         today = reference_date or date.today()
+        analysis_month = self._resolve_analysis_month(data_mode, today, analysis_month)
         window = analysis_window(today, analysis_month)
         current = window.selected_month
         previous = window.previous_month
@@ -324,6 +356,7 @@ class AnalyticsService:
             "SUM(amount) AS total_spend FROM v_transactions_effective WHERE date >= ?"
         )
         sql += _mode_clause(data_mode, params)
+        sql += _NOT_INTERNAL_TRANSFER_CLAUSE
         sql += " GROUP BY month, day ORDER BY month, day"
         rows = [dict(r) for r in self._conn.execute(sql, params).fetchall()]
 
@@ -448,7 +481,8 @@ class AnalyticsService:
         actual_rows = self._conn.execute(
             "SELECT substr(date, 1, 7) AS month, effective_category AS category, "
             "SUM(amount) AS actual FROM v_transactions_effective "
-            "WHERE data_mode = ? GROUP BY month, category",
+            "WHERE data_mode = ? AND transaction_type != 'internal_transfer' "
+            "GROUP BY month, category",
             params,
         ).fetchall()
         actuals = {(r["month"], r["category"]): r["actual"] for r in actual_rows}

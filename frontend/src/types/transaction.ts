@@ -23,6 +23,7 @@ export interface TransactionResponse {
     | "low_confidence_other"
     | "gazetteer"
     | "ambiguous_e_transfer"
+    | "internal_transfer"
     | null;
   /** Advisory only: what the classifier alone said, even when a
    * low-confidence abstention overrode it to "Other" (predicted_category).
@@ -32,6 +33,15 @@ export interface TransactionResponse {
    * CategoryBadge.tsx's "Suggested: {model_category}" advisory chip and its
    * one-click "Use" accept. */
   model_category?: string | null;
+  /** Spending eligibility, ORTHOGONAL to category (backend/services/
+   * transfer_eligibility.py). "internal_transfer" means a structurally-
+   * detected same-owner account transfer: still visible here, but excluded
+   * from every spend total/forecast/category summary. CategoryBadge.tsx
+   * renders this as a plain "Internal transfer" label instead of a category
+   * badge -- it is never shown a "Suggested category" chip, since it was
+   * never run through categorization at all. Null only for a pre-migration
+   * row (treated the same as "spending"). */
+  transaction_type?: "spending" | "internal_transfer" | null;
   created_at: string;
   updated_at: string;
 }

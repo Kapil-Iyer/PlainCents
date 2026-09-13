@@ -22,6 +22,8 @@ One row per transaction.
 | `bank_source` | Text | Which bank format this came from; blank for manually-added rows. |
 | `category` | Text | The **effective** category — your confirmed correction if you made one, otherwise the model's prediction. Never the model's raw/advisory guess (see the app's How It Works page). |
 | `is_manual_override` | True/False | Whether you personally confirmed/corrected this row's category. |
+| `transaction_type` | Text | `spending` or `internal_transfer`. An `internal_transfer` is a same-owner account transfer, detected structurally (`backend/services/transfer_eligibility.py`) — real money movement, not consumption. Every row stays in this file (nothing is silently dropped), but `internal_transfer` rows are excluded from `category_summary.csv` and `forecast.csv` below, and from every total the app itself shows. |
+| `included_in_spending` | True/False | The same fact as `transaction_type` above, as a plain boolean — build a Power BI measure/filter on this directly rather than comparing the `transaction_type` string. |
 
 **Not included, deliberately:** the raw/untouched bank description (can
 carry masked account or reference numbers) and internal matching/advisory
@@ -32,13 +34,16 @@ not an oversight.
 ## `category_summary.csv`
 
 One row per (month, category) pair — the same monthly aggregation the
-Dashboard's own category-breakdown and trend cards use.
+Dashboard's own category-breakdown and trend cards use. Same as every spend
+total the app shows, this **excludes `internal_transfer` rows** — an
+account-to-account transfer was never spending, so it was never eligible to
+be summed into a category total in the first place.
 
 | Column | Type | Notes |
 |---|---|---|
 | `month` | Text (`YYYY-MM`) | |
 | `category` | Text | Effective category, same semantics as above. |
-| `total_spend` | Decimal | Sum of `amount` for that month/category. |
+| `total_spend` | Decimal | Sum of `amount` for that month/category, spending rows only. |
 
 ## `portfolio.csv`
 
@@ -64,7 +69,10 @@ in a calculated column, or the P&L totals become fabricated).
 
 One row per (category, forecast month) pair, from the most recently
 generated forecast run for the active mode — empty (headers only) if no
-forecast has been generated yet.
+forecast has been generated yet. Same as `category_summary.csv`, the
+3-month rolling-mean input this was generated from **excludes
+`internal_transfer` rows** — the forecast method itself is unchanged, only
+what counts as spend in its input.
 
 | Column | Type | Notes |
 |---|---|---|

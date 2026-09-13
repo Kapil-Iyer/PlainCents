@@ -1,4 +1,4 @@
-import { Loader2, Sparkles, UserCheck } from "lucide-react";
+import { ArrowLeftRight, Loader2, Sparkles, UserCheck } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,25 @@ import type { TransactionResponse } from "@/types/transaction";
  * retroactively change what the system itself predicted.
  */
 export function CategoryBadge({ transaction }: { transaction: TransactionResponse }) {
+  // Spending eligibility (transfer_eligibility.py) is orthogonal to category
+  // and is checked FIRST: an internal transfer was never run through
+  // categorization at all (no model call, no gazetteer, no correction
+  // memory), so it gets no category badge, no "Suggested category" chip,
+  // and no manual-override styling -- just a plain, honest label. This
+  // never counts toward any spend total, and this badge is how a user can
+  // tell why.
+  if (transaction.transaction_type === "internal_transfer") {
+    return (
+      <Badge
+        variant="outline"
+        title="A same-owner account transfer, detected structurally. Excluded from spend totals, forecast, and category summaries."
+      >
+        <ArrowLeftRight className="mr-1 h-3 w-3" />
+        Internal transfer
+      </Badge>
+    );
+  }
+
   if (transaction.is_manual_override) {
     return (
       <Badge variant="confirmed" title="Confirmed by you">

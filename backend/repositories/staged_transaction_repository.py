@@ -30,6 +30,10 @@ class StagedTransactionRepository:
                 r.get("remembered_category"),
                 r.get("decision_source"),
                 r.get("model_category"),
+                # Spending eligibility (migration 008): staged whole at
+                # Preview time, same "Confirm re-validates rather than
+                # re-decides" principle as every other decision field here.
+                r.get("transaction_type"),
             )
             for r in rows
         ]
@@ -38,8 +42,9 @@ class StagedTransactionRepository:
             INSERT INTO staged_transactions
                 (import_batch_id, date, raw_description, merchant, amount,
                  predicted_category, dedup_key, is_duplicate, is_valid, invalid_reason,
-                 merchant_key, remembered_category, decision_source, model_category)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 merchant_key, remembered_category, decision_source, model_category,
+                 transaction_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             payload,
         )

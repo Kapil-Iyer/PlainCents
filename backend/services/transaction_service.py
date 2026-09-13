@@ -114,6 +114,7 @@ class TransactionService:
                     "merchant_key": decision.merchant_key,
                     "decision_source": decision.source,
                     "model_category": decision.model_category,
+                    "transaction_type": decision.transaction_type,
                     "import_batch_id": None,
                     "data_mode": "real",
                     "dedup_key": dedup_key,

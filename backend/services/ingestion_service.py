@@ -116,6 +116,7 @@ class IngestionService:
         occurrence_counts: dict[tuple, int] = {}
         staged_rows = []
         rows_duplicate = 0
+        rows_internal_transfer = 0
 
         for i, row in enumerate(rows):
             # Phase 12B dedup fix: the parser no longer collapses intra-file
@@ -136,6 +137,8 @@ class IngestionService:
                 rows_duplicate += 1
 
             decision = decisions[i] if categorization_available else None
+            if decision is not None and decision.transaction_type == "internal_transfer":
+                rows_internal_transfer += 1
 
             staged_rows.append(
                 {
@@ -153,6 +156,7 @@ class IngestionService:
                     "decision_source": decision.source if decision else None,
                     "model_category": decision.model_category if decision else None,
                     "effective_category": decision.effective_category if decision else None,
+                    "transaction_type": decision.transaction_type if decision else None,
                     "dedup_key": dedup_key,
                     "is_duplicate": is_duplicate,
                     "is_valid": True,
@@ -178,6 +182,7 @@ class IngestionService:
                 "rows_duplicate": rows_duplicate,
                 "rows_skipped_credit": meta["rows_skipped_credit"],
                 "rows_skipped_currency": meta["rows_skipped_currency"],
+                "rows_internal_transfer": rows_internal_transfer,
             },
         )
         self._conn.commit()
@@ -195,6 +200,7 @@ class IngestionService:
             "rows_duplicate": rows_duplicate,
             "rows_skipped_credit": meta["rows_skipped_credit"],
             "rows_skipped_currency": meta["rows_skipped_currency"],
+            "rows_internal_transfer": rows_internal_transfer,
             "date_range": date_range,
             "sample_rows": staged_rows[:10],
             "status": "previewing",
@@ -218,6 +224,7 @@ class IngestionService:
                 "rows_skipped_duplicate": batch["rows_duplicate"],
                 "rows_skipped_credit": batch["rows_skipped_credit"],
                 "rows_skipped_currency": batch["rows_skipped_currency"],
+                "rows_internal_transfer": batch["rows_internal_transfer"],
                 "status": "confirmed",
             }
 
@@ -276,6 +283,7 @@ class IngestionService:
                     confirmed_category = decision.confirmed_category
                     decision_source = decision.source
                     model_category = decision.model_category
+                    transaction_type = decision.transaction_type
                 else:
                     predicted_category = row["predicted_category"]
                     merchant_key = row["merchant_key"]
@@ -299,6 +307,12 @@ class IngestionService:
                     # re-derived, never affects predicted_category/
                     # confirmed_category/effective_category.
                     model_category = row["model_category"]
+                    # transaction_type (migration 008): same "persist exactly
+                    # what Preview showed" principle -- never re-derived at
+                    # Confirm. Pre-existing staged rows from before this
+                    # column existed fall back to "spending", the safe
+                    # default (see TransactionRepository.create()).
+                    transaction_type = row["transaction_type"] or "spending"
 
                 self._txn_repo.create(
                     {
@@ -312,6 +326,7 @@ class IngestionService:
                         "merchant_key": merchant_key,
                         "decision_source": decision_source,
                         "model_category": model_category,
+                        "transaction_type": transaction_type,
                         "import_batch_id": batch_id,
                         "data_mode": "real",
                         "dedup_key": row["dedup_key"],
@@ -345,5 +360,6 @@ class IngestionService:
             "rows_skipped_duplicate": rows_skipped_duplicate,
             "rows_skipped_credit": batch["rows_skipped_credit"],
             "rows_skipped_currency": batch["rows_skipped_currency"],
+            "rows_internal_transfer": batch["rows_internal_transfer"],
             "status": "confirmed",
         }

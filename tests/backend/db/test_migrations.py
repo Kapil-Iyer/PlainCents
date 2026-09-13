@@ -43,8 +43,11 @@ def test_1_fresh_db_migration_succeeds(db_path):
     # (the advisory raw-classifier opinion behind a low-confidence
     # abstention's "Suggested: {category}" chip); 007 makes holdings.avg_cost
     # nullable (a holding's cost basis is optional -- see
-    # PortfolioService._to_response).
-    assert applied == [1, 2, 3, 4, 5, 6, 7]
+    # PortfolioService._to_response); 008 adds transaction_type (spending
+    # eligibility -- an internal/self account transfer must not count as
+    # spend, see backend.services.transfer_eligibility) and
+    # import_batches.rows_internal_transfer.
+    assert applied == [1, 2, 3, 4, 5, 6, 7, 8]
     conn.close()
 
 
@@ -52,14 +55,14 @@ def test_2_migrations_run_twice_no_duplicate_application(db_path):
     conn = _fresh_conn(db_path)
     first = apply_migrations(conn, migrations_dir=MIGRATIONS_DIR)
     second = apply_migrations(conn, migrations_dir=MIGRATIONS_DIR)
-    assert first == [1, 2, 3, 4, 5, 6, 7]
+    assert first == [1, 2, 3, 4, 5, 6, 7, 8]
     assert second == []  # nothing new applied the second time
     conn.close()
 
 
 def test_3_schema_migrations_tracks_versions(conn):
     rows = conn.execute("SELECT version FROM schema_migrations").fetchall()
-    assert [r["version"] for r in rows] == [1, 2, 3, 4, 5, 6, 7]
+    assert [r["version"] for r in rows] == [1, 2, 3, 4, 5, 6, 7, 8]
 
 
 def test_4_all_required_tables_views_indexes_exist(conn):

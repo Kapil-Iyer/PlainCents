@@ -37,6 +37,14 @@ class ImportSampleRow(BaseModel):
                            Never affects predicted_category/effective_category
                            -- display-only in Preview (no "Use" action here;
                            see CategoryBadge.tsx for the post-Confirm one).
+      transaction_type     'spending' | 'internal_transfer' -- spending
+                           eligibility (backend.services.transfer_eligibility),
+                           ORTHOGONAL to category: an internal_transfer row
+                           will not count toward any spend total/forecast/
+                           category summary even though predicted_category
+                           still reads "Other" for display. The frontend uses
+                           this (not decision_source) to decide whether to
+                           show the categorization UI at all for a row.
     """
 
     date: str
@@ -47,6 +55,7 @@ class ImportSampleRow(BaseModel):
     effective_category: str | None = None
     decision_source: str | None = None
     model_category: str | None = None
+    transaction_type: str | None = None
     is_duplicate: bool
 
 
@@ -72,6 +81,15 @@ class ImportPreview(BaseModel):
     rows_duplicate: int
     rows_skipped_credit: int
     rows_skipped_currency: int
+    # Spending-eligibility patch: count of staged rows structurally detected
+    # as an internal/self account transfer (backend.services.
+    # transfer_eligibility) -- a subset of rows_valid, not a separate
+    # exclusive bucket (same relationship rows_duplicate has to rows_valid).
+    # These rows ARE still staged/importable (they remain visible, labeled
+    # "Internal transfer" in Transactions after Confirm) -- this count exists
+    # so Preview can truthfully say how many will be excluded from spend
+    # totals, rather than silently changing the total with no explanation.
+    rows_internal_transfer: int = 0
     date_range: dict[str, str | None]
     sample_rows: list[ImportSampleRow]
     status: str
@@ -88,6 +106,7 @@ class ImportResult(BaseModel):
     rows_skipped_duplicate: int
     rows_skipped_credit: int
     rows_skipped_currency: int
+    rows_internal_transfer: int = 0
     status: str
 
 
@@ -105,5 +124,6 @@ class ImportBatchResponse(BaseModel):
     rows_imported: int
     rows_skipped_credit: int
     rows_skipped_currency: int
+    rows_internal_transfer: int = 0
     created_at: datetime
     confirmed_at: datetime | None

@@ -39,8 +39,9 @@ class TransactionRepository:
             INSERT INTO transactions
                 (date, raw_description, merchant, amount, bank_source,
                  predicted_category, confirmed_category, import_batch_id,
-                 data_mode, dedup_key, merchant_key, decision_source, model_category)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 data_mode, dedup_key, merchant_key, decision_source, model_category,
+                 transaction_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["date"],
@@ -66,6 +67,13 @@ class TransactionRepository:
                 # decision_source's own "nothing to record" cases. Never
                 # read by effective_category; see that migration's docstring.
                 data.get("model_category"),
+                # Spending eligibility (migration 008) -- 'spending' unless
+                # the shared decision path flagged this row as an internal
+                # account transfer. Defaults to 'spending' for any caller
+                # that doesn't supply one (e.g. a pre-transfer-eligibility
+                # code path or test fixture), which is always the safe,
+                # backward-compatible default.
+                data.get("transaction_type", "spending"),
             ),
         )
         return cur.lastrowid
@@ -86,7 +94,15 @@ class TransactionRepository:
         sort: str = "date",
         limit: int | None = None,
         offset: int = 0,
+        exclude_internal_transfers: bool = False,
     ) -> list[dict]:
+        """`exclude_internal_transfers=True` is for a caller that computes a
+        spend-only aggregate from raw rows (ForecastService.run_forecast()
+        is the only one today -- see its own comment). The Transactions UI
+        and Power BI's transactions.csv both want EVERY row, including
+        internal transfers (so a transfer stays visible, labeled, and
+        auditable rather than silently vanishing), so the default stays
+        False -- callers must opt in explicitly."""
         clauses: list[str] = []
         params: list = []
 
@@ -105,6 +121,8 @@ class TransactionRepository:
         if search is not None:
             clauses.append("merchant LIKE ?")
             params.append(f"%{search}%")
+        if exclude_internal_transfers:
+            clauses.append("transaction_type != 'internal_transfer'")
 
         sql = _SELECT_EFFECTIVE
         if clauses:
@@ -260,7 +278,13 @@ class TransactionRepository:
     def aggregate_by_month_category(
         self, data_mode: str | None = None, date_from: str | None = None, date_to: str | None = None
     ) -> list[dict]:
-        clauses = []
+        """Every existing caller of this method is a spend aggregate
+        (DashboardService, PowerBIExportService's category_summary.csv) --
+        there is no legitimate caller that wants internal transfers folded
+        into a spend total, so the exclusion is unconditional here rather
+        than an opt-in flag (contrast TransactionRepository.list(), which
+        genuinely has both kinds of caller)."""
+        clauses = ["transaction_type != 'internal_transfer'"]
         params: list = []
         if data_mode is not None:
             clauses.append("data_mode = ?")
@@ -277,8 +301,7 @@ class TransactionRepository:
             "SUM(amount) AS total_spend "
             "FROM v_transactions_effective"
         )
-        if clauses:
-            sql += " WHERE " + " AND ".join(clauses)
+        sql += " WHERE " + " AND ".join(clauses)
         sql += " GROUP BY month, category ORDER BY month, category"
 
         rows = self._conn.execute(sql, params).fetchall()

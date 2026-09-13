@@ -164,7 +164,13 @@ class ForecastService:
         # per-transaction rows to pipeline.forecast.aggregate_monthly() so
         # V1's month/category grouping logic is reused verbatim rather than
         # re-implemented as a second aggregation rule.
-        rows = self._txn_repo.list(data_mode=data_mode)
+        #
+        # exclude_internal_transfers=True: a same-owner account transfer is
+        # not spending (backend.services.transfer_eligibility) and must not
+        # feed the 3-month rolling-mean input any more than it feeds the
+        # Dashboard total -- the forecast METHOD itself is unchanged, only
+        # what counts as "spend" in its input rows.
+        rows = self._txn_repo.list(data_mode=data_mode, exclude_internal_transfers=True)
         raw_df = pd.DataFrame(
             [{"date": r["date"], "amount": r["amount"], "category": r["effective_category"]} for r in rows]
         )

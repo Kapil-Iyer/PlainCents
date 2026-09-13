@@ -15,6 +15,7 @@ function preview(overrides: Partial<ImportPreview> = {}): ImportPreview {
     rows_duplicate: 0,
     rows_skipped_credit: 0,
     rows_skipped_currency: 0,
+    rows_internal_transfer: 0,
     date_range: { from: "2026-01-01", to: "2026-01-31" },
     sample_rows: [
       {

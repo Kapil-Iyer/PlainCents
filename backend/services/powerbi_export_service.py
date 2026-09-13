@@ -43,7 +43,19 @@ from backend.services.portfolio_service import PortfolioService
 # not a database dump. Renaming `effective_category` to `category` here
 # specifically because that column IS the one and only category value a
 # Power BI report should ever group or filter by.
-_TRANSACTION_COLUMNS = ["date", "merchant", "amount", "bank_source", "category", "is_manual_override"]
+#
+# transaction_type / included_in_spending (spending-eligibility patch): an
+# internal/self account transfer (backend.services.transfer_eligibility)
+# still appears here -- every row does, so nothing silently vanishes from
+# the export -- but it is excluded from category_summary.csv and
+# forecast.csv. `included_in_spending` is the derived boolean a Power BI
+# filter/measure can use directly without knowing the string values;
+# `transaction_type` is the underlying source-of-truth value
+# ('spending' | 'internal_transfer').
+_TRANSACTION_COLUMNS = [
+    "date", "merchant", "amount", "bank_source", "category", "is_manual_override",
+    "transaction_type", "included_in_spending",
+]
 _CATEGORY_SUMMARY_COLUMNS = ["month", "category", "total_spend"]
 _PORTFOLIO_COLUMNS = [
     "ticker", "shares", "avg_cost", "current_price", "current_value", "pnl", "price_last_updated",
@@ -71,6 +83,10 @@ class PowerBIExportService:
         self._portfolio_service = PortfolioService(conn)
 
     def _transactions_csv(self, data_mode: str | None) -> bytes:
+        # Deliberately NOT exclude_internal_transfers=True: every transaction
+        # a user imported stays in this export, exactly like the Transactions
+        # UI -- an internal transfer is labeled, not hidden. Only the
+        # aggregates below (category_summary.csv, forecast.csv) exclude them.
         rows = self._txn_repo.list(data_mode=data_mode, sort="date")
         renamed = [
             {
@@ -80,6 +96,8 @@ class PowerBIExportService:
                 "bank_source": r["bank_source"],
                 "category": r["effective_category"],
                 "is_manual_override": bool(r["is_manual_override"]),
+                "transaction_type": r["transaction_type"],
+                "included_in_spending": r["transaction_type"] != "internal_transfer",
             }
             for r in rows
         ]

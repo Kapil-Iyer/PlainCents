@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, Loader2, UserCheck } from "lucide-react";
+import { AlertTriangle, ArrowLeftRight, ArrowRight, Loader2, UserCheck } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +34,7 @@ export function ImportPreviewCard({
         <CardTitle>Preview</CardTitle>
         <p className="text-sm text-muted-foreground">
           Detected format: <span className="font-medium text-foreground">{preview.detected_bank}</span>
-          {" · "}Nothing has been imported yet — this is what will happen if you confirm.
+          {" · "}Nothing has been imported yet. This is what will happen if you confirm.
         </p>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
@@ -55,7 +55,7 @@ export function ImportPreviewCard({
           />
         </div>
 
-        {hasExclusions && (
+        {(hasExclusions || preview.rows_internal_transfer > 0) && (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {preview.rows_skipped_credit > 0 && (
               <Stat label="Credits / inflows skipped" value={preview.rows_skipped_credit} />
@@ -63,13 +63,16 @@ export function ImportPreviewCard({
             {preview.rows_skipped_currency > 0 && (
               <Stat label="Unsupported currency" value={preview.rows_skipped_currency} />
             )}
+            {preview.rows_internal_transfer > 0 && (
+              <Stat label="Internal transfers excluded" value={preview.rows_internal_transfer} />
+            )}
           </div>
         )}
 
         {!preview.categorization_available && (
           <Notice tone="warning">
             The categorization model is unavailable right now. Rows can still be previewed, but
-            confirming this import will be blocked until the model is back — nothing will be
+            confirming this import will be blocked until the model is back. Nothing will be
             imported without a category.
           </Notice>
         )}
@@ -77,7 +80,7 @@ export function ImportPreviewCard({
         {preview.rows_unparseable > 0 && (
           <Notice>
             {preview.rows_unparseable} row{preview.rows_unparseable === 1 ? "" : "s"} couldn&apos;t
-            be read and will be skipped. Some export formats do this inconsistently — it
+            be read and will be skipped. Some export formats do this inconsistently, which
             doesn&apos;t necessarily mean the file itself is broken.
           </Notice>
         )}
@@ -92,9 +95,18 @@ export function ImportPreviewCard({
         {hasExclusions && (
           <Notice>
             {preview.rows_skipped_credit > 0 &&
-              `${preview.rows_skipped_credit} credit${preview.rows_skipped_credit === 1 ? "" : "s"} / inflow${preview.rows_skipped_credit === 1 ? "" : "s"} ${preview.rows_skipped_credit === 1 ? "was" : "were"} recognized and skipped — PlainCents tracks spending, not income. `}
+              `${preview.rows_skipped_credit} credit${preview.rows_skipped_credit === 1 ? "" : "s"} / inflow${preview.rows_skipped_credit === 1 ? "" : "s"} ${preview.rows_skipped_credit === 1 ? "was" : "were"} recognized and skipped. PlainCents tracks spending, not income. `}
             {preview.rows_skipped_currency > 0 &&
               `${preview.rows_skipped_currency} row${preview.rows_skipped_currency === 1 ? "" : "s"} in an unsupported currency ${preview.rows_skipped_currency === 1 ? "was" : "were"} skipped rather than converted at a made-up rate.`}
+          </Notice>
+        )}
+
+        {preview.rows_internal_transfer > 0 && (
+          <Notice icon={ArrowLeftRight}>
+            {preview.rows_internal_transfer} row{preview.rows_internal_transfer === 1 ? "" : "s"} below{" "}
+            {preview.rows_internal_transfer === 1 ? "looks" : "look"} like a transfer between your own
+            accounts, not spending. They will still be imported and stay visible, labeled
+            &quot;Internal transfer&quot;, but will not count toward your spend totals or forecast.
           </Notice>
         )}
 
@@ -181,6 +193,19 @@ export function ImportPreviewCard({
  * makes that decision legible instead of showing a bare label.
  */
 function CategoryCell({ row }: { row: ImportSampleRow }) {
+  // Spending eligibility is orthogonal to category and checked first -- an
+  // internal transfer was never run through categorization at all, so it
+  // gets no "Suggested category" chip, just a plain, honest label (same
+  // rule as CategoryBadge.tsx post-Confirm).
+  if (row.transaction_type === "internal_transfer") {
+    return (
+      <Badge variant="outline" title="Excluded from spend totals, forecast, and category summaries">
+        <ArrowLeftRight className="mr-1 h-3 w-3" />
+        Internal transfer
+      </Badge>
+    );
+  }
+
   if (row.effective_category === null) {
     return <span className="text-muted-foreground">—</span>;
   }

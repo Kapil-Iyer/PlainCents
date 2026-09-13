@@ -62,6 +62,7 @@ def test_empty_mode_produces_valid_csvs_with_headers_and_no_rows(service):
         transactions = _read_csv(zf, "transactions.csv")
         assert list(transactions.columns) == [
             "date", "merchant", "amount", "bank_source", "category", "is_manual_override",
+            "transaction_type", "included_in_spending",
         ]
         assert len(transactions) == 0
 
@@ -210,3 +211,52 @@ def test_export_filename_is_dated_and_zip():
     from datetime import date
 
     assert export_filename(date(2026, 6, 15)) == "plaincents_export_2026-06-15.zip"
+
+
+# -- spending eligibility (internal/self account transfers) ------------------
+
+
+def test_transactions_csv_includes_internal_transfers_with_explicit_field(service, conn):
+    """Every imported row stays in transactions.csv, including an internal
+    transfer -- it is labeled, never silently dropped from this file."""
+    repo = TransactionRepository(conn)
+    repo.create(_txn(dedup_key="k1", amount=20.0, transaction_type="spending"))
+    repo.create(_txn(
+        dedup_key="k2", merchant="ONLINE BANKING TRANSFER", amount=500.0,
+        predicted_category="Other", transaction_type="internal_transfer",
+    ))
+    conn.commit()
+
+    zip_bytes = service.build_export_zip(data_mode="real")
+    with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+        transactions = _read_csv(zf, "transactions.csv")
+
+    assert len(transactions) == 2
+    row = transactions[transactions["merchant"] == "ONLINE BANKING TRANSFER"].iloc[0]
+    assert row["transaction_type"] == "internal_transfer"
+    assert bool(row["included_in_spending"]) is False
+    spend_row = transactions[transactions["merchant"] == "TIM HORTONS"].iloc[0]
+    assert spend_row["transaction_type"] == "spending"
+    assert bool(spend_row["included_in_spending"]) is True
+
+
+def test_category_summary_csv_excludes_internal_transfers(service, conn):
+    """category_summary.csv is a spend aggregate -- an internal transfer
+    must never be folded into it, even though it stays visible in
+    transactions.csv."""
+    repo = TransactionRepository(conn)
+    repo.create(_txn(dedup_key="k1", amount=20.0, transaction_type="spending"))
+    repo.create(_txn(
+        dedup_key="k2", merchant="ONLINE BANKING TRANSFER", amount=500.0,
+        predicted_category="Other", transaction_type="internal_transfer",
+    ))
+    conn.commit()
+
+    zip_bytes = service.build_export_zip(data_mode="real")
+    with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+        summary = _read_csv(zf, "category_summary.csv")
+
+    assert summary["total_spend"].sum() == 20.0
+    assert "Other" not in set(summary["category"]) or summary.loc[
+        summary["category"] == "Other", "total_spend"
+    ].sum() == 0

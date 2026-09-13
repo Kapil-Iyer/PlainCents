@@ -13,6 +13,20 @@ Import -- for exactly the rows where the difference mattered most.
 Everything that decides a category now lives here, and both paths call it.
 There is one ordering, in one place:
 
+    0. internal/self account transfer -- NOT a category decision at all
+                                (backend.services.transfer_eligibility, new).
+                                Checked first, before anything below: this
+                                sets transaction_type=internal_transfer (see
+                                TRANSACTION_TYPE_* below) and predicted_category
+                                stays "Other" only as a display fallback --
+                                the row never reaches steps 1-3, so it can
+                                never seed correction memory or affect
+                                categorization diagnostics. Deliberately
+                                narrower than step 1: only the bank's own
+                                account-transfer MECHANISM vocabulary
+                                qualifies, never an E-Transfer marker (see
+                                that module for why a generic E-Transfer must
+                                never be treated as proof of self-ownership).
     1. structural ambiguity  -- text that names nothing gets "Other"
                                 (backend.services.ambiguity, unchanged)
     1b. E-Transfer, no purpose evidence -- a recipient's NAME survives, but
@@ -81,8 +95,16 @@ from backend.services.categorization_service import CategorizationService
 from backend.services.e_transfer_policy import is_purposeless_e_transfer
 from backend.services.gazetteer import match_gazetteer
 from backend.services.merchant_identity import stable_merchant_key
+from backend.services.transfer_eligibility import is_internal_account_transfer
 
 SYSTEM_OTHER = "Other"
+
+# Spending-eligibility values (transactions.transaction_type /
+# staged_transactions.transaction_type). Orthogonal to category: whether a
+# row counts toward spend totals/forecast/category summary at all, decided
+# BEFORE categorization ever runs -- see backend.services.transfer_eligibility.
+TRANSACTION_TYPE_SPENDING = "spending"
+TRANSACTION_TYPE_INTERNAL_TRANSFER = "internal_transfer"
 
 # How the system arrived at `predicted_category`. Surfaced through Preview so
 # the UI can explain a decision instead of just showing a label.
@@ -104,6 +126,14 @@ SOURCE_GAZETTEER = "gazetteer"
 # in memory at decide-time -- see backend/schemas/transaction.py and
 # frontend/src/pages/transactions/CategoryBadge.tsx.
 SOURCE_AMBIGUOUS_E_TRANSFER = "ambiguous_e_transfer"
+# A structurally-detected same-owner account transfer
+# (backend.services.transfer_eligibility.is_internal_account_transfer):
+# predicted_category is "Other" same as SOURCE_STRUCTURAL_OTHER, but the
+# ROW ITSELF is not spending at all -- transaction_type is
+# TRANSACTION_TYPE_INTERNAL_TRANSFER, not just the category. Checked FIRST,
+# before step 1, so a row this fires on never reaches the ambiguity check,
+# the e-transfer policy, the gazetteer, or the ML classifier.
+SOURCE_INTERNAL_TRANSFER = "internal_transfer"
 
 
 @dataclass(frozen=True)
@@ -111,8 +141,11 @@ class CategoryDecision:
     """One row's complete categorization decision.
 
     `predicted_category` and `confirmed_category` map 1:1 onto the columns of
-    the same name. Everything else is explanatory metadata: it is returned to
-    Preview so the UI can show why, and it is never persisted.
+    the same name. `transaction_type` maps 1:1 onto its own column and is
+    ORTHOGONAL to category -- see TRANSACTION_TYPE_* above and
+    backend.services.transfer_eligibility. Everything else is explanatory
+    metadata: it is returned to Preview so the UI can show why, and it is
+    never persisted.
     """
 
     predicted_category: str
@@ -122,6 +155,7 @@ class CategoryDecision:
     model_category: str | None = None
     n_active_features: int | None = None
     margin: float | None = None
+    transaction_type: str = TRANSACTION_TYPE_SPENDING
 
     @property
     def effective_category(self) -> str:
@@ -164,6 +198,20 @@ def decide(
     Preview calls this -- Preview passes memory precisely so that what it
     shows matches what Confirm will store.
     """
+    # 0. Internal/self account transfer (backend.services.transfer_eligibility).
+    #    Checked BEFORE merchant_key is even derived: this is not spending, so
+    #    it must never seed correction memory (merchant_key stays None) and
+    #    must never reach categorization at all -- not the ambiguity check,
+    #    not the e-transfer policy, not the gazetteer, not the ML classifier.
+    if is_internal_account_transfer(merchant):
+        return CategoryDecision(
+            predicted_category=SYSTEM_OTHER,
+            confirmed_category=None,
+            source=SOURCE_INTERNAL_TRANSFER,
+            merchant_key=None,
+            transaction_type=TRANSACTION_TYPE_INTERNAL_TRANSFER,
+        )
+
     key = stable_merchant_key(merchant, bank_source)
 
     # 1. Structural ambiguity. Text that names nothing cannot be classified,
@@ -247,6 +295,19 @@ def decide_batch(
     to_classify: list[int] = []
 
     for i, (merchant, bank_source) in enumerate(rows):
+        # 0. Internal/self account transfer -- see decide()'s own comment.
+        #    Checked first and `continue`s without ever computing a
+        #    merchant_key or reaching to_classify, same reasoning as decide().
+        if is_internal_account_transfer(merchant):
+            decisions[i] = CategoryDecision(
+                predicted_category=SYSTEM_OTHER,
+                confirmed_category=None,
+                source=SOURCE_INTERNAL_TRANSFER,
+                merchant_key=None,
+                transaction_type=TRANSACTION_TYPE_INTERNAL_TRANSFER,
+            )
+            continue
+
         key = stable_merchant_key(merchant, bank_source)
         if is_structurally_ambiguous(merchant):
             decisions[i] = CategoryDecision(

@@ -86,6 +86,14 @@ class TransactionResponse(BaseModel):
     # {model_category}" advisory chip with a one-click accept for a
     # low_confidence_other row -- see CategoryBadge.tsx.
     model_category: str | None = None
+    # Additive (migration 008): spending eligibility, ORTHOGONAL to category.
+    # 'spending' | 'internal_transfer' -- backend.services.transfer_eligibility.
+    # An 'internal_transfer' row's predicted_category still reads "Other" (a
+    # display fallback only, never a real category guess), but this field is
+    # what the frontend uses to render it as "Internal transfer" instead of
+    # a category badge, and it is what every spend/forecast/category-summary
+    # aggregate already excludes it by. None only for a pre-migration row.
+    transaction_type: str | None = None
     created_at: datetime
     updated_at: datetime
 

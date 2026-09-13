@@ -24,6 +24,7 @@ export interface ImportSampleRow {
     | "low_confidence_other"
     | "gazetteer"
     | "ambiguous_e_transfer"
+    | "internal_transfer"
     | null;
   /** Advisory only: what the classifier alone said, even when a
    * low-confidence abstention overrode it to "Other". Null on structural/
@@ -32,6 +33,11 @@ export interface ImportSampleRow {
    * (no "Use" action in Preview — no transaction id exists yet); see
    * CategoryBadge.tsx for the post-Confirm one-click accept. */
   model_category?: string | null;
+  /** Spending eligibility (backend/services/transfer_eligibility.py),
+   * ORTHOGONAL to category. "internal_transfer" rows will not count toward
+   * the imported total's spend/forecast/category-summary figures even
+   * though `effective_category` still reads "Other". */
+  transaction_type?: "spending" | "internal_transfer" | null;
   is_duplicate: boolean;
 }
 
@@ -49,6 +55,13 @@ export interface ImportPreview {
   /** RBC USD$-only rows excluded as an unsupported currency (no
    * conversion) — Phase 12A.5 §18. */
   rows_skipped_currency: number;
+  /** Rows structurally detected as an internal/self account transfer
+   * (backend/services/transfer_eligibility.py) — a SUBSET of rows_valid,
+   * not a separate exclusive bucket (same relationship rows_duplicate has).
+   * These rows ARE still imported and stay visible afterward, labeled
+   * "Internal transfer"; this count exists so Preview can say up front how
+   * many will be excluded from spend totals. */
+  rows_internal_transfer: number;
   date_range: { from: string | null; to: string | null };
   sample_rows: ImportSampleRow[];
   status: string;
@@ -62,6 +75,7 @@ export interface ImportResult {
   rows_skipped_duplicate: number;
   rows_skipped_credit: number;
   rows_skipped_currency: number;
+  rows_internal_transfer: number;
   status: string;
 }
 
@@ -76,6 +90,7 @@ export interface ImportBatchResponse {
   rows_imported: number;
   rows_skipped_credit: number;
   rows_skipped_currency: number;
+  rows_internal_transfer: number;
   created_at: string;
   confirmed_at: string | null;
 }

@@ -19,6 +19,7 @@ export type DecisionSource =
   | "low_confidence_other"
   | "gazetteer"
   | "ambiguous_e_transfer"
+  | "internal_transfer"
   | null
   | undefined;
 
@@ -44,7 +45,7 @@ export function describeDecisionSource(source: DecisionSource): DecisionSourceNo
     case "low_confidence_other":
       return {
         label: "low confidence",
-        explanation: "Not confident enough to guess — you can set this yourself",
+        explanation: "Not confident enough to guess; you can set this yourself",
       };
     case "gazetteer":
       return {

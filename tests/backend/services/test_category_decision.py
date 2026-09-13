@@ -17,10 +17,13 @@ from backend.services.categorization_service import CategorizationService
 from backend.services.category_decision import (
     SOURCE_AMBIGUOUS_E_TRANSFER,
     SOURCE_GAZETTEER,
+    SOURCE_INTERNAL_TRANSFER,
     SOURCE_LOW_CONFIDENCE_OTHER,
     SOURCE_MODEL,
     SOURCE_STRUCTURAL_OTHER,
     SYSTEM_OTHER,
+    TRANSACTION_TYPE_INTERNAL_TRANSFER,
+    TRANSACTION_TYPE_SPENDING,
     CorrectionMemory,
     decide,
     decide_batch,
@@ -49,9 +52,6 @@ def categorization():
     "ATM WITHDRAWAL",
     "ATM WITHDRAWAL 8821",
     "CASH WITHDRAWAL",
-    "ONLINE BANKING TRANSFER",
-    "ONLINE TRANSFER TO DEPOSIT ACCOUNT",
-    "TRANSFER TO SAVINGS ACCOUNT",
     "PREAUTH PYMT",
     "PREAUTH PYMT 774120",
     "MISC DEBIT TRANSACTION",
@@ -66,6 +66,50 @@ def test_text_that_names_nothing_routes_to_other(merchant, categorization):
     # And it yields no memory identity, so unrelated transfers can never
     # collapse into one shared correction-memory entry.
     assert decision.merchant_key is None
+    # Still spending (an ABM withdrawal or a bare preauth debit is money
+    # leaving the accounts this product tracks, just not identifiable by
+    # category) -- spending-eligibility patch, see test_internal_transfer_*
+    # below for the narrower "actual account transfer" case.
+    assert decision.transaction_type == TRANSACTION_TYPE_SPENDING
+
+
+@pytest.mark.parametrize("merchant", [
+    "ONLINE BANKING TRANSFER",
+    "ONLINE BANKING TRANSFER - 6346",
+    "ONLINE TRANSFER TO DEPOSIT ACCOUNT",
+    "ONLINE TRANSFER TO DEPOSIT ACCOUNT-1234",
+    "TRANSFER TO SAVINGS ACCOUNT",
+    "TRANSFER FROM CHEQUING",
+])
+def test_own_account_transfer_text_is_excluded_from_spending(merchant, categorization):
+    """Spending-eligibility patch: a same-owner account transfer is NOT
+    spending at all, which is a stronger claim than "names nothing" --
+    predicted_category still reads "Other" as a display fallback, but
+    transaction_type is what every analytics query now filters on."""
+    decision = decide(merchant, "RBC", categorization)
+
+    assert decision.predicted_category == SYSTEM_OTHER
+    assert decision.source == SOURCE_INTERNAL_TRANSFER
+    assert decision.confirmed_category is None
+    assert decision.merchant_key is None
+    assert decision.transaction_type == TRANSACTION_TYPE_INTERNAL_TRANSFER
+
+
+@pytest.mark.parametrize("merchant", [
+    "E-TRANSFER SENT JANE SMITH",
+    "E-TRANSFER SENT JANE SMITH REF00001",
+    "E-TRANSFER SENT JANE SMITH REF00002",
+])
+def test_generic_e_transfer_is_never_excluded_from_spending_even_if_repeated(merchant, categorization):
+    """Hard requirement: a generic E-Transfer, however often it repeats to
+    what looks like the same recipient, must never be blanket-excluded from
+    spending -- a name is not proof of self-ownership. It still resolves
+    through the existing E-Transfer/ambiguity/model path exactly as before;
+    this test only asserts transaction_type never becomes internal_transfer
+    for it."""
+    decision = decide(merchant, "RBC", categorization)
+    assert decision.transaction_type == TRANSACTION_TYPE_SPENDING
+    assert decision.source != SOURCE_INTERNAL_TRANSFER
 
 
 @pytest.mark.parametrize("merchant", [
@@ -330,3 +374,21 @@ def test_decide_batch_matches_decide_row_by_row(conn, categorization):
     assert len(batch) == len(singles)
     for b, s in zip(batch, singles):
         assert b == s
+
+
+def test_decide_batch_matches_decide_for_internal_transfers(categorization):
+    """Same parity guarantee as above, specifically for the new step 0
+    (internal/self account transfer) -- decide_batch's own early `continue`
+    must reach the identical decision decide() does."""
+    merchants = ["ONLINE BANKING TRANSFER - 6346", "E-TRANSFER SENT JANE SMITH", "STARBUCKS #4521"]
+    rows = [(m, "RBC") for m in merchants]
+
+    batch = decide_batch(rows, categorization)
+    singles = [decide(m, "RBC", categorization) for m in merchants]
+
+    assert len(batch) == len(singles)
+    for b, s in zip(batch, singles):
+        assert b == s
+    assert batch[0].transaction_type == TRANSACTION_TYPE_INTERNAL_TRANSFER
+    assert batch[1].transaction_type == TRANSACTION_TYPE_SPENDING
+    assert batch[2].transaction_type == TRANSACTION_TYPE_SPENDING

@@ -55,7 +55,7 @@ export function ExportPowerBIButton() {
             <DialogTitle>Export for Power BI</DialogTitle>
             <DialogDescription>
               PlainCents generates a Power BI-ready snapshot of your current data. Power BI itself
-              is never live-connected — refresh the file after downloading a new snapshot to update
+              is never live-connected, so refresh the file after downloading a new snapshot to update
               your dashboard there.
             </DialogDescription>
           </DialogHeader>
@@ -86,7 +86,7 @@ export function ExportPowerBIButton() {
           <Disclosure summary="View setup guide">
             <p>
               No PlainCents Power BI template exists yet, so this walks through building the report
-              once — it takes a few minutes, and future updates only need Refresh.
+              once. It takes a few minutes, and future updates only need Refresh.
             </p>
             <ol className="flex flex-col gap-1.5">
               <li>1. Extract the downloaded ZIP to a folder you'll remember.</li>
@@ -97,15 +97,21 @@ export function ExportPowerBIButton() {
               </li>
               <li>
                 3. A blank <code className="text-foreground">avg_cost</code> or{" "}
-                <code className="text-foreground">pnl</code> cell means "unknown," not zero — Power
+                <code className="text-foreground">pnl</code> cell means "unknown," not zero. Power
                 BI's SUM/AVERAGE already skip blanks correctly.
               </li>
               <li>
-                4. Optionally apply the downloaded theme: View → Themes → Browse for themes.
+                4. <code className="text-foreground">transactions.csv</code>'s{" "}
+                <code className="text-foreground">included_in_spending</code> column marks internal
+                account transfers, which are already excluded from category_summary.csv and
+                forecast.csv.
               </li>
               <li>
-                5. Next time: download a new data pack, extract it over the same folder, and click
-                Refresh in Power BI Desktop — no rebuilding needed.
+                5. Optionally apply the downloaded theme: View → Themes → Browse for themes.
+              </li>
+              <li>
+                6. Next time: download a new data pack, extract it over the same folder, and click
+                Refresh in Power BI Desktop. No rebuilding needed.
               </li>
             </ol>
             <p className="flex items-center gap-1.5 text-xs">

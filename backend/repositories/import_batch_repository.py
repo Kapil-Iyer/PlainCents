@@ -45,6 +45,7 @@ class ImportBatchRepository:
             "rows_imported",
             "rows_skipped_credit",
             "rows_skipped_currency",
+            "rows_internal_transfer",
         ):
             if key in counts:
                 set_parts.append(f"{key} = ?")

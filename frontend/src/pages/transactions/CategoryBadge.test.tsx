@@ -31,6 +31,46 @@ function txn(overrides: Partial<TransactionResponse>): TransactionResponse {
 }
 
 describe("CategoryBadge", () => {
+  // -- spending eligibility (internal/self account transfers) -------------
+
+  it("shows a plain 'Internal transfer' label for an internal_transfer row, never a category badge", () => {
+    renderWithProviders(
+      <CategoryBadge
+        transaction={txn({
+          decision_source: "internal_transfer",
+          transaction_type: "internal_transfer",
+          predicted_category: "Other",
+          effective_category: "Other",
+        })}
+      />,
+    );
+    expect(screen.getByText("Internal transfer")).toBeInTheDocument();
+    expect(screen.queryByTitle("Predicted by the categorization model")).toBeNull();
+    expect(screen.queryByTitle("Confirmed by you")).toBeNull();
+    expect(screen.queryByText(/Suggested:/)).toBeNull();
+  });
+
+  it("shows Internal transfer even if the row were somehow manually overridden", () => {
+    // Spending eligibility is checked FIRST, before is_manual_override --
+    // an internal transfer was never run through categorization, so there
+    // is nothing for a human correction to have overridden in the first
+    // place. Defensive: this should not happen in practice (the backend
+    // never sets confirmed_category on an internal_transfer row), but the
+    // badge must still read honestly if it somehow did.
+    renderWithProviders(
+      <CategoryBadge
+        transaction={txn({
+          transaction_type: "internal_transfer",
+          is_manual_override: true,
+          confirmed_category: "Shopping",
+          effective_category: "Shopping",
+        })}
+      />,
+    );
+    expect(screen.getByText("Internal transfer")).toBeInTheDocument();
+    expect(screen.queryByText("Shopping")).toBeNull();
+  });
+
   it("shows a genuine miscellaneous Other with no secondary caption", () => {
     renderWithProviders(
       <CategoryBadge transaction={txn({ decision_source: "structural_other" })} />,
