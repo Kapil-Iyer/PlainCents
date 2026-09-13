@@ -35,7 +35,7 @@ interface OnboardingEmptyStateProps {
  */
 export function OnboardingEmptyState({
   title = "Welcome to PlainCents",
-  description = "A local-first personal finance MVP: import your own bank transactions, or load sample demo data, to see spending, forecasts, and portfolio tracking populated right away.",
+  description = "A personal finance MVP: import your own bank transactions, or load sample demo data, to see spending, forecasts, and portfolio tracking populated right away.",
   showWalkthrough = true,
 }: OnboardingEmptyStateProps) {
   const loadDemoMutation = useLoadDemo();
