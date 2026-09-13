@@ -80,7 +80,7 @@ export function SpendPaceCard({ month }: { month?: string }) {
     <Card>
       <CardHeader>
         <CardTitle>
-          {data.is_current_incomplete ? "Spending pace" : `Spending pace — ${formatMonthLabel(data.current_month, "short")}`}
+          {data.is_current_incomplete ? "Spending pace" : `Spending pace: ${formatMonthLabel(data.current_month, "short")}`}
         </CardTitle>
         <CardDescription>
           {data.is_current_incomplete

@@ -49,7 +49,7 @@ export function MlgEvaluationSection() {
         <Metric
           value={`${MLG_FINAL_TEST.zeroFeatureRatePct}%`}
           label="of rows the model couldn't read at all"
-          detail="Previously, descriptions that produced no readable features were silently answered with one fixed category — the cause of everything looking like Food & Dining. That no longer happens on this benchmark."
+          detail="Previously, descriptions that produced no readable features were silently answered with one fixed category, which is why everything used to look like Food & Dining. That no longer happens on this benchmark."
           reduceMotion={reduceMotion}
           delay={0.12}
         />
@@ -60,7 +60,7 @@ export function MlgEvaluationSection() {
           <p className="text-sm leading-relaxed text-muted-foreground">
             Those numbers come from a corpus of{" "}
             <span className="font-medium text-foreground">fabricated</span> Canadian-bank-style
-            descriptions — every merchant in it was invented for the benchmark. They describe how
+            descriptions. Every merchant in it was invented for the benchmark. They describe how
             the model behaves on that corpus, and they are not a claim about how it performs on
             your statements. Your own exports carry no category labels, so no accuracy figure can
             be computed on them at all.
@@ -71,22 +71,22 @@ export function MlgEvaluationSection() {
               <p>
                 The corpus is split by <span className="text-foreground">merchant</span>, not by
                 row. Every transaction belonging to one merchant lands entirely in training,
-                entirely in validation, or entirely in the final test — so the test measures
+                entirely in validation, or entirely in the final test, so the test measures
                 whether the model can categorize a shop it has never encountered, rather than
                 whether it can recall one it has.
               </p>
               <ul className="flex flex-col gap-1.5">
                 <li>
-                  <strong className="text-foreground">Training</strong> — {MLG_DATASET.trainRows}{" "}
+                  <strong className="text-foreground">Training</strong>: {MLG_DATASET.trainRows}{" "}
                   rows, {MLG_DATASET.trainGroups} merchants. The only data the model ever sees.
                 </li>
                 <li>
-                  <strong className="text-foreground">Validation</strong> —{" "}
+                  <strong className="text-foreground">Validation</strong>:{" "}
                   {MLG_DATASET.validationRows} rows, {MLG_DATASET.validationGroups} merchants. Used
                   to choose between candidates, which is why its score is not quoted as the result.
                 </li>
                 <li>
-                  <strong className="text-foreground">Final test</strong> —{" "}
+                  <strong className="text-foreground">Final test</strong>:{" "}
                   {MLG_DATASET.finalTestRows} rows, {MLG_DATASET.finalTestGroups} merchants.
                   Evaluated once, after the model and its decision rules were frozen.
                 </li>
@@ -99,7 +99,7 @@ export function MlgEvaluationSection() {
                 / {MLG_DATASET.trainGroups + MLG_DATASET.validationGroups + MLG_DATASET.finalTestGroups}.
                 The old one gave each descriptive word to exactly one merchant, so a held-out
                 merchant shared nothing at all with training and generalization was impossible by
-                construction — no amount of model tuning could have fixed that.
+                construction. No amount of model tuning could have fixed that.
               </p>
             </div>
           </Disclosure>
@@ -172,7 +172,7 @@ export function MlgEvaluationSection() {
             </div>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
               The spread is the interesting part. Subscriptions and Entertainment have perfect
-              precision but poor recall — when the model does commit to them it is right, but it
+              precision but poor recall: when the model does commit to them it is right, but it
               often declines to. Other has the opposite shape, because every row the system
               declines to answer lands there, which is exactly the trade the abstention rule makes
               on purpose.

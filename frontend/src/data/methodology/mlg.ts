@@ -38,7 +38,7 @@ export const MLG_CANDIDATES: MlgCandidate[] = [
     validationAccuracyPct: 67.2,
     zeroFeatureRatePct: 0,
     selected: true,
-    outcome: "Selected — highest validation macro-F1, and no held-out row was left without features.",
+    outcome: "Selected: highest validation macro-F1, and no held-out row was left without features.",
   },
   {
     id: "G14",
@@ -93,13 +93,13 @@ export const MLG_CANDIDATES: MlgCandidate[] = [
     zeroFeatureRatePct: 40.5,
     selected: false,
     outcome:
-      "Rejected on a number accuracy alone would have hidden: 40.5% of held-out rows produced NO features at all. Every one of those gets whatever class the model's intercept favours — the exact failure this phase set out to fix.",
+      "Rejected on a number accuracy alone would have hidden: 40.5% of held-out rows produced NO features at all. Every one of those gets whatever class the model's intercept favours, which is exactly the failure this phase set out to fix.",
   },
   {
     id: "G11",
     label: "Multinomial Naive Bayes on the union",
     hypothesis:
-      "Control for ComplementNB — confirms any gain comes from the complement formulation, not from NB generally.",
+      "Control for ComplementNB: confirms any gain comes from the complement formulation, not from NB generally.",
     validationMacroF1: 0.6077,
     validationAccuracyPct: 60.0,
     zeroFeatureRatePct: 0,
@@ -115,7 +115,7 @@ export const MLG_CANDIDATES: MlgCandidate[] = [
     zeroFeatureRatePct: 0,
     selected: false,
     outcome:
-      "Behind logistic regression here, and it produces no probabilities — the abstention rule would have had to work off uncalibrated distances.",
+      "Behind logistic regression here, and it produces no probabilities, so the abstention rule would have had to work off uncalibrated distances.",
   },
   {
     id: "G4",
@@ -126,7 +126,7 @@ export const MLG_CANDIDATES: MlgCandidate[] = [
     validationAccuracyPct: 53.8,
     zeroFeatureRatePct: 0,
     selected: false,
-    outcome: "Robust but blunt on its own — it misses the word-level head nouns that carry the category.",
+    outcome: "Robust but blunt on its own: it misses the word-level head nouns that carry the category.",
   },
   {
     id: "G2",
@@ -215,11 +215,11 @@ export const MLG_LIMITATIONS = [
   },
   {
     title: "Brand names with no descriptive word cannot be placed from text",
-    body: "A description reading only ZENOVARA gives a text classifier nothing to work with. Those cases are deliberately left in the benchmark so the reported scores aren't flattering — and in the app they are exactly what abstention and your own corrections are for.",
+    body: "A description reading only ZENOVARA gives a text classifier nothing to work with. Those cases are deliberately left in the benchmark so the reported scores aren't flattering. In the app, they are exactly what abstention and your own corrections are for.",
   },
   {
     title: "Your real statements have no answer key",
-    body: "A private bank export carries no category labels, so no accuracy figure can be computed on your own data — only diagnostics like how much of each description the model could actually read.",
+    body: "A private bank export carries no category labels, so no accuracy figure can be computed on your own data. Only diagnostics, like how much of each description the model could actually read, are available.",
   },
   {
     title: "The model never learns from your corrections automatically",

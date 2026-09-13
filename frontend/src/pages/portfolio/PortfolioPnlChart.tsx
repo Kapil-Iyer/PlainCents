@@ -96,7 +96,7 @@ export function PortfolioPnlChart({ slices, totalHoldingsCount }: PortfolioPnlCh
 
             {excluded > 0 && (
               <p className="text-xs text-muted-foreground">
-                Cost basis unavailable for {excluded} other {excluded === 1 ? "holding" : "holdings"} —
+                Cost basis unavailable for {excluded} other {excluded === 1 ? "holding" : "holdings"};
                 excluded above, not shown as break-even.
               </p>
             )}

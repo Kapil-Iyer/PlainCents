@@ -54,7 +54,7 @@ export function ClearRealDataCard() {
         <CardContent className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">
             Permanently delete every imported transaction, holding, and forecast, and return the
-            app to empty — so you can start over or load demo data instead.
+            app to empty, so you can start over or load demo data instead.
           </p>
           <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
             <Trash2 className="h-4 w-4" />

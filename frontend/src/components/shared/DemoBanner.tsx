@@ -16,13 +16,27 @@ import { ApiError } from "@/types/common";
  * DemoConflictDialog (TRD §14.3/§14.4), not a new capability. It renders
  * full-width regardless of viewport, so it (and How It Works, via TopNav)
  * stays reachable on mobile even though Sidebar is desktop-only.
+ *
+ * Toast is only used inside DemoBannerActive (mounted when mode === DEMO).
+ * Calling useToast() in the outer gate would require ToastHost even when
+ * the banner renders nothing — and would violate Rules of Hooks if placed
+ * after the early return. The active child keeps hooks unconditional.
  */
 export function DemoBanner() {
   const { mode, clearDemo, isClearingDemo } = useAppState();
+  if (mode !== "DEMO") return null;
+  return <DemoBannerActive clearDemo={clearDemo} isClearingDemo={isClearingDemo} />;
+}
+
+function DemoBannerActive({
+  clearDemo,
+  isClearingDemo,
+}: {
+  clearDemo: () => Promise<unknown>;
+  isClearingDemo: boolean;
+}) {
   const { toast } = useToast();
   const [confirmOpen, setConfirmOpen] = useState(false);
-
-  if (mode !== "DEMO") return null;
 
   const handleClear = async () => {
     try {
@@ -39,10 +53,10 @@ export function DemoBanner() {
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 border-b border-warning/20 bg-warning/10 px-4 py-2 text-sm font-medium text-warning sm:gap-3">
+    <div className="flex shrink-0 flex-wrap items-center justify-center gap-2 border-b border-warning/20 bg-warning/10 px-4 py-2 text-sm font-medium text-warning sm:gap-3">
       <span className="flex items-center gap-2">
         <FlaskConical className="h-4 w-4 shrink-0" />
-        Demo Data — everything you see is sample data, not your own.
+        This is Demo Data. Everything you see is sample data, not your own.
       </span>
       <button
         type="button"
@@ -58,7 +72,7 @@ export function DemoBanner() {
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         title="Clear demo data?"
-        description="This resets the sample data and returns the app to its empty state. This can't be undone — you can always reload demo data afterward."
+        description="This resets the sample data and returns the app to its empty state. This can't be undone, but you can always reload demo data afterward."
         confirmLabel="Clear demo data"
         onConfirm={handleClear}
       />

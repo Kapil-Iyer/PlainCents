@@ -64,8 +64,8 @@ export function CategoryMoversCard({ month }: { month?: string }) {
         <CardTitle>{title}</CardTitle>
         <CardDescription>
           {data.is_current_incomplete
-            ? `${formatDayRangeLabel(data.current_month, data.comparable_day)} vs. ${formatDayRangeLabel(data.previous_month, data.comparable_day)} — each category's contribution`
-            : `${formatMonthLabel(data.current_month)} vs. ${formatMonthLabel(data.previous_month)}, full months — each category's contribution`}
+            ? `${formatDayRangeLabel(data.current_month, data.comparable_day)} vs. ${formatDayRangeLabel(data.previous_month, data.comparable_day)}, showing each category's contribution`
+            : `${formatMonthLabel(data.current_month)} vs. ${formatMonthLabel(data.previous_month)}, full months, showing each category's contribution`}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">

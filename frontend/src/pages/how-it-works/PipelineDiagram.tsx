@@ -67,7 +67,7 @@ function StageToken({ stageId }: { stageId: string }) {
     case "confirm":
       return (
         <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
-          <span>Kept or corrected by you —</span>
+          <span>Kept or corrected by you:</span>
           <Badge variant="confirmed">{EXAMPLE.category}</Badge>
         </div>
       );
@@ -115,7 +115,7 @@ export function PipelineDiagram() {
       <CardHeader>
         <CardTitle>PlainCents in one pipeline</CardTitle>
         <CardDescription>
-          One example transaction, followed stage by stage. Illustrative — not a real record.
+          One example transaction, followed stage by stage. This is illustrative, not a real record.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">

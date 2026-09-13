@@ -27,16 +27,16 @@ export const NOT_SUPPORTED_CLAIMS = [
 ] as const;
 
 export const CATEGORIZATION_EVIDENCE_QUALIFIER =
-  "0.58 macro-F1 on a privacy-safe, deployment-oriented benchmark: a sanitized, hand-authored corpus of Canadian-bank-style descriptions with fabricated merchant names, measured on merchants held out of training entirely — built this way because no real bank statement can be used or shared for evaluation. It is not a real-world accuracy figure, and no real-world figure can be computed: private bank exports carry no category labels to check against.";
+  "0.58 macro-F1 on a privacy-safe, deployment-oriented benchmark: a sanitized, hand-authored corpus of Canadian-bank-style descriptions with fabricated merchant names, measured on merchants held out of training entirely. It's built this way because no real bank statement can be used or shared for evaluation. It is not a real-world accuracy figure, and no real-world figure can be computed: private bank exports carry no category labels to check against.";
 
 export const FORECASTING_EVIDENCE_QUALIFIER =
   "The forecast method (a three-month average per category) was selected on a synthetic 24-month grid using walk-forward validation. That is a mechanism check, not a real-world accuracy figure.";
 
 export const THREE_MONTH_MINIMUM_QUALIFIER =
-  "Three completed months is the mathematical minimum for a three-month average — exactly one full window. It has not been shown to forecast as accurately as six, nine or twelve months; the history-length experiments never tested a three-month history at all.";
+  "Three completed months is the mathematical minimum for a three-month average: exactly one full window. It has not been shown to forecast as accurately as six, nine or twelve months; the history-length experiments never tested a three-month history at all.";
 
 export const BANK_IMPORT_QUALIFIER =
   "Import is tested against synthetic fixtures shaped like each bank's documented export columns, plus a read-only structural audit of real RBC and Scotiabank exports. Individual banks change their export format without notice.";
 
 export const RETRAINING_QUALIFIER =
-  "There is no online learning. A correction only ever writes your category for that merchant on that bank; the model artifact is fit offline and is byte-identical on every request — verified by tests asserting the inference path never calls fit().";
+  "There is no online learning. A correction only ever writes your category for that merchant on that bank; the model artifact is fit offline and is byte-identical on every request, verified by tests asserting the inference path never calls fit().";

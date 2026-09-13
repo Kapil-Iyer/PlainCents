@@ -44,7 +44,7 @@ export function DemoPriceNotice() {
       <p className="flex-1 leading-relaxed text-muted-foreground">
         Demo holdings start on a fixed sample price snapshot (dated Jan 1, 2024) so the demo
         works even without a market-data connection. Prices come from Yahoo Finance and are
-        cached for up to an hour — select{" "}
+        cached for up to an hour. Select{" "}
         <span className="font-medium text-foreground">Refresh prices</span> above to request the
         latest available quotes.
       </p>

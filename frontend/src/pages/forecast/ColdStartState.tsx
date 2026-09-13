@@ -22,7 +22,7 @@ export function ColdStartState({ monthsAvailable, monthsRequired }: ColdStartSta
     <EmptyState
       icon={Hourglass}
       title="Not enough history yet"
-      description={`Forecasting becomes available after ${monthsRequired} completed months — the minimum history the 3-month rolling-mean method needs. You have ${monthsAvailable} so far, so importing ${remaining === 1 ? "1 more month" : `${remaining} more months`} of statements will unlock it automatically.`}
+      description={`Forecasting becomes available after ${monthsRequired} completed months: the minimum history the 3-month rolling-mean method needs. You have ${monthsAvailable} so far, so importing ${remaining === 1 ? "1 more month" : `${remaining} more months`} of statements will unlock it automatically.`}
     />
   );
 }

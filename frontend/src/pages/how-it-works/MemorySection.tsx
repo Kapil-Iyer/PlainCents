@@ -22,7 +22,7 @@ interface Beat {
 const BEATS: Beat[] = [
   {
     id: "first",
-    when: "January — first time this merchant appears",
+    when: "January: first time this merchant appears",
     headline: "PlainCents makes a call",
     body: "It has never seen this merchant before. It reads the description, decides Healthcare, and files it. Nobody has looked at this row yet, and the record says so.",
     raw: "VISA DEBIT PURCHASE - 4821 CAREWELL PHARMACY",
@@ -32,9 +32,9 @@ const BEATS: Beat[] = [
   },
   {
     id: "correction",
-    when: "January — you disagree",
+    when: "January: you disagree",
     headline: "You correct it",
-    body: "You buy household goods there, not medication, so you file it under Shopping. Your choice is stored in its own column — the model's answer stays exactly where it was, untouched.",
+    body: "You buy household goods there, not medication, so you file it under Shopping. Your choice is stored in its own column, and the model's answer stays exactly where it was, untouched.",
     raw: "VISA DEBIT PURCHASE - 4821 CAREWELL PHARMACY",
     predicted: "Healthcare",
     confirmed: "Shopping",
@@ -42,7 +42,7 @@ const BEATS: Beat[] = [
   },
   {
     id: "reuse",
-    when: "February — the next statement",
+    when: "February: the next statement",
     headline: "Your correction is reused",
     body: "Different card number, different prefix, same merchant. PlainCents matches on the merchant identity underneath the noise and applies your category automatically. It still records what it would have said on its own.",
     raw: "CONTACTLESS INTERAC PURCHASE - 9137 CAREWELL PHARMACY",
@@ -52,9 +52,9 @@ const BEATS: Beat[] = [
   },
   {
     id: "change",
-    when: "March — you change your mind",
+    when: "March: you change your mind",
     headline: "The most recent decision wins",
-    body: "You reclassify it back to Healthcare. From here on that's what future imports use. There is no averaging and no voting — the last thing you said is what holds.",
+    body: "You reclassify it back to Healthcare. From here on that's what future imports use. There is no averaging and no voting: the last thing you said is what holds.",
     raw: "CAREWELL PHARMACY #0284",
     predicted: "Healthcare",
     confirmed: "Healthcare",
@@ -112,7 +112,7 @@ export function MemorySection() {
                   >
                     {b.actor === "human" ? <UserCheck className="h-3 w-3" /> : <Bot className="h-3 w-3" />}
                   </span>
-                  {b.when.split(" — ")[0]}
+                  {b.when.split(": ")[0]}
                 </button>
               </li>
             ))}
@@ -182,8 +182,8 @@ export function MemorySection() {
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
             <p className="max-w-lg text-xs leading-relaxed text-muted-foreground">
-              A category PlainCents assigns itself — including the ones it assigns because it
-              can&apos;t read the description — never counts as a correction, so it can never
+              A category PlainCents assigns itself, including the ones it assigns because it
+              can&apos;t read the description, never counts as a correction, so it can never
               teach the system a preference you didn&apos;t express.
             </p>
             <Button variant="outline" size="sm" onClick={() => setBeat(0)}>

@@ -27,10 +27,10 @@ describe("FileUploadCard bank selector (Phase 12B closure patch)", () => {
     render(<FileUploadCard onUpload={vi.fn()} pending={false} />);
     await user.click(screen.getByRole("combobox"));
 
-    const bmo = screen.getByRole("option", { name: "BMO — Coming Soon" });
+    const bmo = screen.getByRole("option", { name: "BMO (Coming Soon)" });
     expect(bmo).toHaveAttribute("aria-disabled", "true");
 
-    const national = screen.getByRole("option", { name: "National Bank — Coming Soon" });
+    const national = screen.getByRole("option", { name: "National Bank (Coming Soon)" });
     expect(national).toHaveAttribute("aria-disabled", "true");
   });
 
@@ -39,13 +39,13 @@ describe("FileUploadCard bank selector (Phase 12B closure patch)", () => {
     render(<FileUploadCard onUpload={vi.fn()} pending={false} />);
     await user.click(screen.getByRole("combobox"));
 
-    const bmo = screen.getByRole("option", { name: "BMO — Coming Soon" });
+    const bmo = screen.getByRole("option", { name: "BMO (Coming Soon)" });
     await user.click(bmo);
 
     // Radix disabled items don't close the popup or fire onSelect -- the
     // option is still present/disabled and the listbox is still open,
     // proving the click had no effect.
-    expect(screen.getByRole("option", { name: "BMO — Coming Soon" })).toHaveAttribute(
+    expect(screen.getByRole("option", { name: "BMO (Coming Soon)" })).toHaveAttribute(
       "aria-disabled",
       "true",
     );

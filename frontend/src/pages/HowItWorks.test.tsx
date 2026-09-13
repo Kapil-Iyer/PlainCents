@@ -355,7 +355,7 @@ describe("HowItWorksPage", () => {
       const evaluation = document.getElementById("evaluation")!;
       expect(within(evaluation).getByText("fabricated")).toBeInTheDocument();
       expect(
-        within(evaluation).getByText(/every merchant in it was invented for the benchmark/),
+        within(evaluation).getByText(/every merchant in it was invented for the benchmark/i),
       ).toBeInTheDocument();
     });
 

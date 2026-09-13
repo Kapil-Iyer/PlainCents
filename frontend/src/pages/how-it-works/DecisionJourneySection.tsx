@@ -50,7 +50,7 @@ const EXAMPLES: Example[] = [
     predicted: "Other",
     confirmed: null,
     modelCategory: null,
-    note: "Strip the boilerplate and there is nothing underneath. This row could be rent, a gift or a repayment — the description simply doesn't say. It's routed to Other before the model is ever asked, because guessing here isn't classification, it's invention.",
+    note: "Strip the boilerplate and there is nothing underneath. This row could be rent, a gift or a repayment; the description simply doesn't say. It's routed to Other before the model is ever asked, because guessing here isn't classification, it's invention.",
   },
   {
     id: "unknown",
@@ -60,7 +60,7 @@ const EXAMPLES: Example[] = [
     predicted: "Other",
     confirmed: null,
     modelCategory: "Shopping",
-    note: "A brand name with no descriptive word in it. The model produces an answer, but its top two categories are nearly tied — so instead of serving a coin flip dressed up as a decision, the system says Other and leaves it to you. Its raw guess isn't discarded, though: it's kept as an advisory suggestion you can accept with one click, or ignore.",
+    note: "A brand name with no descriptive word in it. The model produces an answer, but its top two categories are nearly tied, so instead of serving a coin flip dressed up as a decision, the system says Other and leaves it to you. Its raw guess isn't discarded, though: it's kept as an advisory suggestion you can accept with one click, or ignore.",
   },
   {
     id: "remembered",
@@ -70,7 +70,7 @@ const EXAMPLES: Example[] = [
     predicted: "Healthcare",
     confirmed: "Shopping",
     modelCategory: null,
-    note: "You previously filed this pharmacy under Shopping. Different card number, same merchant — your category is applied automatically, and the model's own answer is kept alongside it rather than overwritten.",
+    note: "You previously filed this pharmacy under Shopping. Different card number, same merchant: your category is applied automatically, and the model's own answer is kept alongside it rather than overwritten.",
   },
 ];
 
@@ -161,7 +161,7 @@ export function DecisionJourneySection() {
                 </code>
                 <p className="text-xs text-muted-foreground">
                   Card-rail prefixes, card numbers, store codes and reference numbers are removed.
-                  What&apos;s left is the merchant identity — and only ever a copy: your
+                  What&apos;s left is the merchant identity, and only ever a copy: your
                   transaction list still shows exactly what the bank sent.
                 </p>
               </Stage>
@@ -197,7 +197,7 @@ export function DecisionJourneySection() {
                   <ValueCard
                     label="What you decided"
                     sublabel="confirmed_category"
-                    value={example.confirmed ?? "— you haven't touched this row"}
+                    value={example.confirmed ?? "You haven't touched this row"}
                     tone={example.confirmed ? "human" : "empty"}
                   />
                 </div>
@@ -213,7 +213,7 @@ export function DecisionJourneySection() {
                     <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                       The classifier&apos;s raw opinion, kept even though the abstention policy
                       overrode it with Other above. Shown as a one-click &quot;Use{" "}
-                      {example.modelCategory}&quot; suggestion — never applied automatically, and
+                      {example.modelCategory}&quot; suggestion. It&apos;s never applied automatically, and
                       never shown as a confidence percentage (the abstention threshold is a
                       policy cutoff, not a calibrated probability).
                     </p>
@@ -235,7 +235,7 @@ export function DecisionJourneySection() {
             <Fact
               value={`${MLG_AMBIGUITY_ROUTING.coveragePct}%`}
               label="of no-name rows caught by the structural check"
-              detail={`with ${MLG_AMBIGUITY_ROUTING.falsePositiveRatePct}% false positives — down from ${MLG_AMBIGUITY_ROUTING.previousFalsePositiveRatePct}%, when the old rule was also swallowing legitimate transfers that did name a merchant`}
+              detail={`with ${MLG_AMBIGUITY_ROUTING.falsePositiveRatePct}% false positives, down from ${MLG_AMBIGUITY_ROUTING.previousFalsePositiveRatePct}%, when the old rule was also swallowing legitimate transfers that did name a merchant`}
             />
             <Fact
               value={`${MLG_ABSTENTION.wrongRescued} vs ${MLG_ABSTENTION.correctCost}`}

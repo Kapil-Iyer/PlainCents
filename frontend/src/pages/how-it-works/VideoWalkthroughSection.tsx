@@ -70,7 +70,7 @@ export function VideoWalkthroughSection() {
       <div>
         <h2 className="text-lg font-semibold">Video walkthrough</h2>
         <p className="text-sm text-muted-foreground">
-          A short recorded tour of the real interface, end to end — for when you'd rather
+          A short recorded tour of the real interface, end to end, for when you'd rather
           watch than click through it yourself.
         </p>
       </div>
@@ -106,7 +106,7 @@ export function VideoWalkthroughSection() {
                         <p className="text-sm font-medium">The walkthrough hasn&apos;t been recorded yet</p>
                         <p className="mx-auto max-w-sm text-sm text-muted-foreground">
                           This player is wired up and waiting. Drop an MP4 at the path below and it
-                          appears here on the next page load — nothing else to change.
+                          appears here on the next page load. Nothing else to change.
                         </p>
                       </div>
                       <code className="rounded bg-muted px-2 py-1 text-xs text-muted-foreground">
@@ -137,7 +137,7 @@ export function VideoWalkthroughSection() {
                 ))}
               </ol>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                The recording is served from this app, not from a video host — nothing on this page
+                The recording is served from this app, not from a video host. Nothing on this page
                 loads from a third party.
               </p>
             </div>

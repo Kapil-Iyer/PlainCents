@@ -98,18 +98,18 @@ export function ForecastExplainerSection() {
 
           <div className="grid grid-cols-1 gap-4 border-t border-border pt-4 sm:grid-cols-3">
             <Note title="Why three months">
-              Three is the fewest months this method can run on — it&apos;s exactly one full
+              Three is the fewest months this method can run on: it&apos;s exactly one full
               window. Below that there is nothing to average, so PlainCents tells you how many
               months are still needed instead of showing a number.
             </Note>
             <Note title="Why all three months are the same">
               The forecast never feeds itself. Next month, the month after and the one after that
-              are all the same average of the same three real months — so PlainCents shows the
+              are all the same average of the same three real months, so PlainCents shows the
               same figure rather than inventing a trend it hasn&apos;t measured.
             </Note>
             <Note title="What it can't do">
               It has no idea about a holiday, a move, or a one-off purchase. The &quot;one big
-              month&quot; example above drags the forecast up by roughly a third — that is the
+              month&quot; example above drags the forecast up by roughly a third. That is the
               method being honest about how simple it is.
             </Note>
           </div>

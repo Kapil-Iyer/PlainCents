@@ -19,7 +19,7 @@ const CAN_DO = [
   {
     icon: PieChart,
     title: "Sort your spending automatically",
-    body: "Every purchase is filed into one of eight categories from its description alone — no manual tagging to get started.",
+    body: "Every purchase is filed into one of eight categories from its description alone, with no manual tagging to get started.",
   },
   {
     icon: UserCheck,
@@ -35,7 +35,7 @@ const CAN_DO = [
 
 const WILL_NOT_DO = [
   "Connect to your bank. You export the file; PlainCents never sees a login.",
-  "Track income. Credits and deposits are recognized and skipped — this is a spending tool.",
+  "Track income. Credits and deposits are recognized and skipped, since this is a spending tool.",
   "Move money, pay bills, or touch an account in any way.",
   "Give financial advice, or tell you what you should have spent.",
   "Send your data anywhere. It stays in a local database on the machine running the app.",
@@ -85,7 +85,7 @@ export function IntroSection() {
             When it gets a merchant wrong, you fix it once and it remembers.
           </p>
           <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
-            It is built for one person looking at their own money — not a household budget system,
+            It is built for one person looking at their own money: not a household budget system,
             not an accounting package, and not a bank. Everything below explains exactly how it
             works and, just as importantly, where it falls short.
           </p>

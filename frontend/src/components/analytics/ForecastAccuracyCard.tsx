@@ -67,7 +67,7 @@ export function ForecastAccuracyCard() {
           <EmptyState
             icon={History}
             title="No forecast history yet"
-            description="This fills in once you've generated a forecast and the month it covered has finished. PlainCents only compares forecasts it actually made at the time — it won't re-run today's model on old months and call that a prediction."
+            description="This fills in once you've generated a forecast and the month it covered has finished. PlainCents only compares forecasts it actually made at the time. It won't re-run today's model on old months and call that a prediction."
           />
         </CardContent>
       </Card>
@@ -104,7 +104,7 @@ export function ForecastAccuracyCard() {
         <CardDescription>
           {data.months_covered.length} completed{" "}
           {data.months_covered.length === 1 ? "month" : "months"} with a forecast made beforehand
-          {data.wape !== null && ` — off by ${(data.wape * 100).toFixed(1)}% overall`}
+          {data.wape !== null && `, off by ${(data.wape * 100).toFixed(1)}% overall`}
         </CardDescription>
       </CardHeader>
       <CardContent>

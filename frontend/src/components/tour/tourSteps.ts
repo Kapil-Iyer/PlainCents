@@ -34,14 +34,14 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/dashboard",
     target: "topnav-mode-badge",
     title: "Welcome to PlainCents",
-    body: "This badge always shows the app's mode — no data yet, sample Demo data, or your own Real data. The two are never mixed. Let's walk through what each screen does.",
+    body: "This badge always shows the app's mode: no data yet, sample Demo data, or your own Real data. The two are never mixed. Let's walk through what each screen does.",
   },
   {
     id: "import",
     route: "/import",
     target: "page-header",
     title: "Bring in a bank CSV",
-    body: "Upload a Canadian bank export and preview every row before anything is saved. The categorization model suggests a category for each one — nothing is written until you confirm.",
+    body: "Upload a Canadian bank export and preview every row before anything is saved. The categorization model suggests a category for each one, and nothing is written until you confirm.",
   },
   {
     id: "transactions",
@@ -62,7 +62,7 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/dashboard",
     target: "spending-pace",
     title: "Spending Pace",
-    body: "Two cumulative lines, this month against last, day by day — tells you at a glance whether you're ahead of or behind last month's pace.",
+    body: "Two cumulative lines, this month against last, day by day, show at a glance whether you're ahead of or behind last month's pace.",
   },
   {
     id: "category-movers",
@@ -90,7 +90,7 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/forecast",
     target: "forecast-chart",
     title: "Forecasts, generated on demand",
-    body: "Your last three actual months next to the next three predicted ones, per category. Generated explicitly — never silently retrained — and marked stale the moment your data changes.",
+    body: "Your last three actual months next to the next three predicted ones, per category. Generated explicitly, never silently retrained, and marked stale the moment your data changes.",
   },
   {
     id: "portfolio-holdings",
@@ -104,7 +104,7 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/portfolio",
     target: "portfolio-analytics",
     title: "Portfolio analytics",
-    body: "Total value, allocation, and gain/loss — all computed from your current holdings. Unrealized P&L only uses holdings with a known cost basis; it's never guessed for the rest.",
+    body: "Total value, allocation, and gain/loss are all computed from your current holdings. Unrealized P&L only uses holdings with a known cost basis; it's never guessed for the rest.",
   },
   {
     id: "portfolio-how-it-works",
@@ -118,13 +118,13 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/dashboard",
     target: "export-powerbi",
     title: "Take it further in Power BI",
-    body: "Download a Power BI-ready snapshot of your current data, plus a setup guide. It's a snapshot, not a live connection — download a fresh one whenever your data changes.",
+    body: "Download a Power BI-ready snapshot of your current data, plus a setup guide. It's a snapshot, not a live connection, so download a fresh one whenever your data changes.",
   },
   {
     id: "how-it-works",
     route: "/how-it-works",
     target: "page-header",
     title: "Want the full picture?",
-    body: "This page explains exactly how categorization, forecasting, portfolio math, and the Power BI export work — including their honest limits. That's the whole tour — take a look around, or dive in here.",
+    body: "This page explains exactly how categorization, forecasting, portfolio math, and the Power BI export work, including their honest limits. That's the whole tour: take a look around, or dive in here.",
   },
 ];

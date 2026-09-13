@@ -43,7 +43,7 @@ const STEPS: Step[] = [
     id: "upload",
     title: "Upload a bank CSV",
     page: "Import",
-    body: "Export a statement from RBC, Scotiabank, TD or CIBC and drop the file in. You can name the bank, or leave it on Auto-detect — PlainCents matches the file's columns against each bank's known export shape and refuses the file outright rather than guessing wrong.",
+    body: "Export a statement from RBC, Scotiabank, TD or CIBC and drop the file in. You can name the bank, or leave it on Auto-detect: PlainCents matches the file's columns against each bank's known export shape and refuses the file outright rather than guessing wrong.",
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col gap-3">
@@ -72,7 +72,7 @@ const STEPS: Step[] = [
     id: "preview",
     title: "Check the preview before anything is saved",
     page: "Import",
-    body: "You see exactly what will be imported: how many purchases, how many rows are already in your account, and which were skipped because they were credits rather than spending. Every row shows the category PlainCents will save if you confirm — you can always correct it afterward, and a genuine correction is remembered for that merchant.",
+    body: "You see exactly what will be imported: how many purchases, how many rows are already in your account, and which were skipped because they were credits rather than spending. Every row shows the category PlainCents will save if you confirm. You can always correct it afterward, and a genuine correction is remembered for that merchant.",
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col gap-2">
@@ -109,7 +109,7 @@ const STEPS: Step[] = [
     id: "review",
     title: "When it's not confident enough, it says so",
     page: "Transactions",
-    body: "Some merchant text just doesn't give the model enough to go on. Rather than guess, PlainCents serves that row as Other and shows its best advisory guess alongside it — one click applies the suggestion, through the exact same correction path as any other fix.",
+    body: "Some merchant text just doesn't give the model enough to go on. Rather than guess, PlainCents serves that row as Other and shows its best advisory guess alongside it. One click applies the suggestion, through the exact same correction path as any other fix.",
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col justify-center gap-3">
@@ -159,7 +159,7 @@ const STEPS: Step[] = [
     id: "remember",
     title: "Watch it reuse your correction",
     page: "Import",
-    body: "The next time that merchant appears — even with a different card number or store code in the description — your category is applied automatically, on that bank. You fix a merchant once, not every month.",
+    body: "The next time that merchant appears, even with a different card number or store code in the description, your category is applied automatically, on that bank. You fix a merchant once, not every month.",
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col justify-center gap-2.5">
@@ -174,7 +174,7 @@ const STEPS: Step[] = [
     id: "dashboard",
     title: "Read the dashboard",
     page: "Dashboard",
-    body: "This month against last, whether you're ahead of your usual pace, and which categories account for the difference — all sharing one selected month, so the three never disagree about which period they mean. Partway through a month, the comparison is day-aligned (the 1st through today, on both sides) rather than a partial month against a full one, which would always read as a decline. Pick a fully-completed past month instead, and every card switches to a plain full-month comparison. Your corrections are already folded in — the charts and the transaction list never disagree.",
+    body: "This month against last, whether you're ahead of your usual pace, and which categories account for the difference: all three share one selected month, so they never disagree about which period they mean. Partway through a month, the comparison is day-aligned (the 1st through today, on both sides) rather than a partial month against a full one, which would always read as a decline. Pick a fully-completed past month instead, and every card switches to a plain full-month comparison. Your corrections are already folded in, so the charts and the transaction list never disagree.",
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col gap-2">
@@ -216,7 +216,7 @@ const STEPS: Step[] = [
     id: "export",
     title: "Export the current state for Power BI",
     page: "Dashboard",
-    body: "A short guided workflow, not one confusing button: download a Power BI-ready snapshot (four CSVs — transactions, category summary, portfolio, forecast — built fresh from the live database on the same request that downloads them), then open the included setup guide to load it into Power BI Desktop. It's a snapshot, not a live connection — download a fresh one and refresh Power BI whenever your data changes. Grouped by the same effective category every screen uses, and never includes the raw bank text or the model's internal advisory guess.",
+    body: "A short guided workflow, not one confusing button: download a Power BI-ready snapshot (four CSVs, transactions, category summary, portfolio, and forecast, built fresh from the live database on the same request that downloads them), then open the included setup guide to load it into Power BI Desktop. It's a snapshot, not a live connection, so download a fresh one and refresh Power BI whenever your data changes. Grouped by the same effective category every screen uses, and never includes the raw bank text or the model's internal advisory guess.",
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
@@ -296,7 +296,7 @@ const STEPS: Step[] = [
     id: "portfolio",
     title: "Track holdings, separately from spending",
     page: "Portfolio",
-    body: "A holding is a ticker and a share count → PlainCents looks up the latest known price → that gives market value. Average cost is optional; add it (or calculate it from your purchases) to also see cost basis and unrealized P&L. Portfolio Analytics below the table then shows total value, allocation, and gain/loss by holding — using only what's genuinely known, never a guessed cost basis. None of this touches your spending totals or forecasts.",
+    body: "A holding is a ticker and a share count → PlainCents looks up the latest known price → that gives market value. Average cost is optional; add it (or calculate it from your purchases) to also see cost basis and unrealized P&L. Portfolio Analytics below the table then shows total value, allocation, and gain/loss by holding, using only what's genuinely known and never a guessed cost basis. None of this touches your spending totals or forecasts.",
     visual: () => (
       <Screen>
         <div className="flex h-full flex-col gap-2">
@@ -380,7 +380,7 @@ export function AppWalkthroughSection() {
         <div>
           <h2 className="text-lg font-semibold">Using PlainCents, step by step</h2>
           <p className="text-sm text-muted-foreground">
-            What happens to your data, conceptually — from an empty install to a forecast. To
+            What happens to your data, conceptually, from an empty install to a forecast. To
             see the actual app instead, use the guided tour below.
           </p>
         </div>

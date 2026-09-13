@@ -8,7 +8,7 @@ export function StaleWarning() {
     <div className="flex items-start gap-2 rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning">
       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
       <p>
-        This forecast may be out of date — your transactions have changed since it was generated.
+        This forecast may be out of date because your transactions have changed since it was generated.
         Refresh it to see updated predictions.
       </p>
     </div>

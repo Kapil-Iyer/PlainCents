@@ -87,7 +87,7 @@ export function FileUploadCard({ onUpload, pending }: FileUploadCardProps) {
                  * this patch removes (Phase 12B closure). */}
                 {COMING_SOON_BANKS.map((name) => (
                   <SelectItem key={name} value={name} disabled>
-                    {name} — Coming Soon
+                    {name} (Coming Soon)
                   </SelectItem>
                 ))}
               </SelectContent>
