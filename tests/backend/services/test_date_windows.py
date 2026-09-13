@@ -15,6 +15,7 @@ from backend.services.date_windows import (
     elapsed_window,
     month_start,
     month_str,
+    resolve_default_analysis_month,
     shift_month,
 )
 
@@ -37,6 +38,46 @@ def test_month_str_and_month_start_are_zero_padded():
     assert month_str(2026, 3) == "2026-03"
     assert month_start(2026, 3) == "2026-03-01"
     assert month_str(2026, 12) == "2026-12"
+
+
+# -- resolve_default_analysis_month (current-month-default fix) -------------
+
+
+def test_current_month_populated_keeps_the_ordinary_default():
+    """Today's calendar month has data -> None (caller keeps its own
+    default, today's month) -- the ordinary, unchanged case."""
+    today = date(2026, 9, 13)
+    available = ["2026-09", "2026-08", "2026-07"]
+    assert resolve_default_analysis_month(today, available) is None
+
+
+def test_current_month_empty_falls_back_to_latest_populated_month():
+    """September has nothing imported; June/July/August do -> the latest
+    populated month (August) becomes the default instead of a $0 September."""
+    today = date(2026, 9, 13)
+    available = ["2026-08", "2026-07", "2026-06"]  # newest-first, per
+                                                    # TransactionRepository
+                                                    # .list_distinct_months()
+    assert resolve_default_analysis_month(today, available) == "2026-08"
+
+
+def test_no_data_at_all_keeps_the_ordinary_default():
+    """A totally fresh install (no months populated at all) -> None; today's
+    calendar month is still the only honest thing to show."""
+    assert resolve_default_analysis_month(date(2026, 9, 13), []) is None
+
+
+def test_current_month_empty_with_only_a_future_month_populated_keeps_default():
+    """Defensive: available_months should never contain a future month in
+    practice, but if it somehow did, it must never be preferred over the
+    current month -- only a fallback that is not the (missing) current
+    month is meaningful here, and the function's only job is "does
+    `available_months` contain today's month", so this documents that a
+    non-matching list still returns available_months[0] (the caller is
+    trusted to supply genuinely populated past months, per
+    TransactionRepository.list_distinct_months's own contract)."""
+    today = date(2026, 9, 13)
+    assert resolve_default_analysis_month(today, ["2026-08"]) == "2026-08"
 
 
 # -- elapsed_window -----------------------------------------------------------

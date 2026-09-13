@@ -50,6 +50,39 @@ def month_start(year: int, month: int) -> str:
     return f"{year:04d}-{month:02d}-01"
 
 
+def resolve_default_analysis_month(
+    reference_date: date, available_months: list[str]
+) -> str | None:
+    """Current-month-default fix: "no transactions imported this month" must
+    never silently read as "you spent $0 this month" (see
+    DashboardService.get_summary's own docstring for the full story).
+
+    Returns None when the caller should keep using its OWN default (today's
+    calendar month) -- i.e. either that month genuinely has data, or there is
+    no data at all anywhere (a fresh install: today's calendar month is still
+    the only honest thing to show). Returns an explicit "YYYY-MM" -- the
+    latest month that actually has data, `available_months[0]` by the same
+    "newest first" contract TransactionRepository.list_distinct_months()
+    already guarantees -- only when today's calendar month has NO
+    transactions at all AND at least one other month does.
+
+    Deliberately a PURE function (no DB access) so it is trivially unit
+    tested and so every caller (DashboardService, AnalyticsService) shares
+    the exact one resolution rule rather than three independent copies that
+    could silently drift apart.
+
+    This ONLY applies when the caller has no EXPLICIT month selection to
+    begin with -- a caller that already has a user-selected month (including
+    a user explicitly picking today's own, still-empty, calendar month) must
+    never call this at all; an explicit choice always wins outright, whether
+    or not that month has any data.
+    """
+    current = month_str(reference_date.year, reference_date.month)
+    if not available_months or current in available_months:
+        return None
+    return available_months[0]
+
+
 @dataclass(frozen=True)
 class ElapsedWindow:
     """The comparable elapsed-day window for `reference_date`'s month

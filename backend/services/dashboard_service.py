@@ -15,7 +15,7 @@ import sqlite3
 from datetime import date
 
 from backend.repositories.transaction_repository import TransactionRepository
-from backend.services.date_windows import analysis_window, shift_month
+from backend.services.date_windows import analysis_window, resolve_default_analysis_month, shift_month
 
 # PRD §11.7 only requires current-vs-previous calendar month; the trend chart
 # and recent-transactions list are additional visualizations the same section
@@ -64,7 +64,12 @@ def _category_breakdown(rows: list[dict], total_current: float) -> list[dict]:
     return items
 
 
-def _spending_trend(anchor_year: int, anchor_month: int, monthly_totals: dict[str, float]) -> list[dict]:
+def _spending_trend(
+    anchor_year: int,
+    anchor_month: int,
+    monthly_totals: dict[str, float],
+    no_data_month: str | None = None,
+) -> list[dict]:
     """Trailing `_TREND_MONTHS` months ENDING at the analysis month (the
     selected month, which defaults to the current calendar month), zero-filled
     for months with no transactions. This is real, computed information (a
@@ -77,12 +82,29 @@ def _spending_trend(anchor_year: int, anchor_month: int, monthly_totals: dict[st
     is the same as every other month's: a plain sum of whatever rows exist
     for it (never fabricated) -- honest by construction as long as no
     future-dated rows exist (see demo_seed_data.py's own day-of-month cap
-    for the current month)."""
+    for the current month).
+
+    `no_data_month` ("YYYY-MM" or None): the one exception to "zero-filled
+    means a genuine $0". It is set ONLY when the analysis month is the
+    still-in-progress current calendar month AND that exact month has NO
+    transactions imported at all (see get_summary's own resolution) --
+    "nothing has been imported this month" must never be presented as
+    "you spent $0 this month" (the whole point of this patch). That single
+    point gets `total_spend: None` / `has_data: False`, a genuine gap in the
+    line rather than a fabricated zero; every other point, completed
+    historical month or not, keeps its real computed total unchanged."""
     points = []
     for offset in range(_TREND_MONTHS - 1, -1, -1):
         year, month = _shift_month(anchor_year, anchor_month, -offset)
         m = f"{year:04d}-{month:02d}"
-        points.append({"month": m, "total_spend": round(monthly_totals.get(m, 0.0), 2)})
+        if m == no_data_month:
+            points.append({"month": m, "total_spend": None, "has_data": False})
+        else:
+            points.append({
+                "month": m,
+                "total_spend": round(monthly_totals.get(m, 0.0), 2),
+                "has_data": True,
+            })
     return points
 
 
@@ -114,7 +136,9 @@ class DashboardService:
         `analysis_month` ("YYYY-MM") is the ONE shared clock driving this
         card, Spending Pace, and Category Movers together (product decision:
         one selector, not one per card) -- defaults to `reference_date`'s own
-        month, reproducing prior behavior exactly. See
+        month, reproducing prior behavior exactly, UNLESS today's calendar
+        month has no transactions at all and an earlier month does (see
+        SPENDING-ELIGIBILITY / CURRENT-MONTH-DEFAULT FIX below). See
         backend.services.date_windows.analysis_window for the two resulting
         regimes: current-incomplete-month (day-aligned MTD vs MTD) or a
         fully-completed historical month (full month vs full month).
@@ -127,9 +151,32 @@ class DashboardService:
         symmetric with the (already-capped) `total_spend_previous_to_date`
         denominator, and with what Spending Pace / Category Movers show for
         the same analysis month.
+
+        CURRENT-MONTH-DEFAULT FIX: "no transactions imported this month"
+        must never read as "you spent $0 this month". Previously, with no
+        explicit `analysis_month`, this always defaulted to today's real
+        calendar month even when NOTHING had been imported for it yet -- on
+        a dataset imported only through, say, August, opening the Dashboard
+        in September showed a flat $0 / "-100%" / "behind pace", which is
+        mathematically consistent but misleading (it reads as "you spent
+        nothing" rather than "nothing has been imported yet"). `analysis_month
+        is None` (no EXPLICIT selection -- an explicit choice, including the
+        user deliberately picking today's own empty month from the selector,
+        always wins outright and skips this) now resolves through
+        date_windows.resolve_default_analysis_month: if today's calendar
+        month has no data AND an earlier month does, the latest POPULATED
+        month becomes the default instead. `available_months` is also
+        reused below to drive the Spending Trend's own no-data point (see
+        _spending_trend's docstring) and is returned so the frontend can
+        show honest "no data" copy rather than treat a resolved past month
+        as if it were today.
         """
         today = reference_date or date.today()
-        window = analysis_window(today, analysis_month)
+        available_months = self._repo.list_distinct_months(data_mode=data_mode)
+        resolved_month = analysis_month
+        if resolved_month is None:
+            resolved_month = resolve_default_analysis_month(today, available_months)
+        window = analysis_window(today, resolved_month)
         current_month = window.selected_month
         previous_month = window.previous_month
 
@@ -178,16 +225,32 @@ class DashboardService:
             data_mode=data_mode, sort="-date", limit=_RECENT_TRANSACTIONS_LIMIT
         )
 
+        # Spending Trend's one exception to "zero-filled means a genuine
+        # $0" (see _spending_trend's docstring): only when the SELECTED
+        # month is still the in-progress current calendar month AND it has
+        # no imported transactions of any kind yet (checked against
+        # `available_months`, not the spend-only `monthly_totals` -- a month
+        # with only internal-transfer rows genuinely did have an import, so
+        # it must not be presented as "no data" either).
+        no_data_month = (
+            current_month
+            if window.is_current_incomplete and current_month not in available_months
+            else None
+        )
+
         return {
             "period": {"current": current_month, "previous": previous_month},
             "is_current_incomplete": window.is_current_incomplete,
+            "current_month_has_data": current_month in available_months,
             "total_spend_current": total_spend_current,
             "total_spend_previous": total_spend_previous,
             "total_spend_previous_to_date": total_spend_previous_to_date,
             "comparable_day": window.comparable_day,
             "change_pct": _change_pct(total_spend_current, total_spend_previous_to_date),
             "category_breakdown": _category_breakdown(current_rows, total_spend_current),
-            "spending_trend": _spending_trend(trend_end_year, trend_end_month, monthly_totals),
+            "spending_trend": _spending_trend(
+                trend_end_year, trend_end_month, monthly_totals, no_data_month=no_data_month
+            ),
             "recent_transactions": recent_transactions,
             "forecast_summary": None,
             "portfolio_summary": None,

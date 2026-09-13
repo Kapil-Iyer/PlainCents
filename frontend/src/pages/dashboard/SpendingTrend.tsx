@@ -18,7 +18,16 @@ interface SpendingTrendProps {
 
 /** PRD §11.7: "a spending trend over time." A trailing multi-month area
  * chart, zero-filled for months with no transactions (real information, not
- * decoration — see DashboardService's docstring for why zero-fill is honest). */
+ * decoration — see DashboardService's docstring for why zero-fill is honest).
+ *
+ * CURRENT-MONTH-DEFAULT FIX: the one exception is a point with
+ * `has_data: false` (`total_spend: null`) — the current, still-in-progress
+ * calendar month when nothing has been imported for it yet. Recharts leaves
+ * a genuine gap in the line at a `null` data point rather than drawing it
+ * down to zero, which is exactly the honest behavior here: "nothing
+ * imported yet" must never look like "a confirmed $0". Every other point,
+ * including a completed month with genuinely $0 spend, still renders as a
+ * real value. */
 export function SpendingTrend({ points }: SpendingTrendProps) {
   const data = points.map((p) => ({ ...p, label: formatMonthLabel(p.month, "short") }));
 
@@ -58,7 +67,11 @@ export function SpendingTrend({ points }: SpendingTrendProps) {
                 borderRadius: "0.5rem",
                 fontSize: "0.75rem",
               }}
-              formatter={(value) => [formatCurrency(Number(value)), "Spend"]}
+              formatter={(value, _name, item) =>
+                item?.payload?.has_data === false
+                  ? ["Not imported yet", "Spend"]
+                  : [formatCurrency(Number(value)), "Spend"]
+              }
               labelFormatter={(_label, payload) =>
                 payload[0] ? formatMonthLabel(payload[0].payload.month) : ""
               }

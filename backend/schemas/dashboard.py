@@ -24,10 +24,19 @@ class CategoryBreakdownItem(BaseModel):
 
 
 class SpendingTrendPoint(BaseModel):
-    """One month's total spend in the trailing trend window."""
+    """One month's total spend in the trailing trend window.
+
+    `has_data=False` (`total_spend=None`) is the one exception: the current,
+    still-in-progress calendar month when NOTHING has been imported for it
+    yet. That is a genuine gap ("nothing imported"), not a computed $0, and
+    the frontend must render it as a gap/no-data marker rather than drawing
+    the line down to zero -- see DashboardService._spending_trend. Every
+    other point (including a fully-completed historical month with genuinely
+    $0 spend) keeps `has_data=True` with its real computed total."""
 
     month: str
-    total_spend: float
+    total_spend: float | None
+    has_data: bool = True
 
 
 class DashboardSummaryResponse(BaseModel):
@@ -47,6 +56,15 @@ class DashboardSummaryResponse(BaseModel):
     # this "day 1 through today" (MTD-aligned) or a full calendar-month
     # comparison -- see backend.services.date_windows.analysis_window.
     is_current_incomplete: bool
+    # Current-month-default fix: True when `period.current` actually has at
+    # least one imported transaction (of either transaction_type). False
+    # means the analysis month was EXPLICITLY selected (including the true
+    # current calendar month, by a user or by resolve_default_analysis_month
+    # finding no other populated month to fall back to) despite having no
+    # data at all -- the frontend must show honest "no transactions imported
+    # for {month} yet" copy in that case, never "$0 spent" / a pace
+    # comparison. See DashboardService.get_summary's own docstring.
+    current_month_has_data: bool = True
     total_spend_current: float
     total_spend_previous: float
     # Previous month's spend, capped at the SAME day-of-month the current

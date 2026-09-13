@@ -15,7 +15,13 @@ export interface CategoryBreakdownItem {
 
 export interface SpendingTrendPoint {
   month: string;
-  total_spend: number;
+  /** null only for the current, still-in-progress calendar month when
+   * nothing has been imported for it at all — a genuine gap ("no data"),
+   * never a computed $0. Every other point (including a completed month
+   * with genuinely $0 spend) is a real number. See `has_data`. */
+  total_spend: number | null;
+  /** false only for that same "nothing imported yet" gap point. */
+  has_data: boolean;
 }
 
 export interface DashboardSummaryResponse {
@@ -25,6 +31,12 @@ export interface DashboardSummaryResponse {
    * historical month the user selected via the analysis-month selector.
    * Drives "so far this month" vs. a plain full-month label. */
   is_current_incomplete: boolean;
+  /** False means `period.current` has NO imported transactions at all
+   * (either it was explicitly selected that way, or resolution found no
+   * other populated month to fall back to). The UI must show honest
+   * "no transactions imported yet" copy instead of "$0 spent" / a pace
+   * comparison whenever this is false — never imply a confirmed zero. */
+  current_month_has_data: boolean;
   total_spend_current: number;
   total_spend_previous: number;
   /** Previous month's spend capped at `comparable_day` — the fair basis

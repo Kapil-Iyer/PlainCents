@@ -36,6 +36,7 @@ function emptySummary(): DashboardSummaryResponse {
   return {
     period: { current: "2026-06", previous: "2026-05" },
     is_current_incomplete: true,
+    current_month_has_data: false,
     total_spend_current: 0,
     total_spend_previous: 0,
     total_spend_previous_to_date: 0,
@@ -43,8 +44,8 @@ function emptySummary(): DashboardSummaryResponse {
     change_pct: 0,
     category_breakdown: [],
     spending_trend: [
-      { month: "2026-01", total_spend: 0 },
-      { month: "2026-02", total_spend: 0 },
+      { month: "2026-01", total_spend: 0, has_data: true },
+      { month: "2026-02", total_spend: 0, has_data: true },
     ],
     recent_transactions: [],
     forecast_summary: null,
@@ -57,6 +58,7 @@ function realSummary(): DashboardSummaryResponse {
   return {
     period: { current: "2026-06", previous: "2026-05" },
     is_current_incomplete: true,
+    current_month_has_data: true,
     total_spend_current: 150.5,
     total_spend_previous: 100,
     total_spend_previous_to_date: 100,
@@ -66,8 +68,8 @@ function realSummary(): DashboardSummaryResponse {
       { category: "Food & Dining", total_spend: 150.5, pct_of_total: 100 },
     ],
     spending_trend: [
-      { month: "2026-05", total_spend: 100 },
-      { month: "2026-06", total_spend: 150.5 },
+      { month: "2026-05", total_spend: 100, has_data: true },
+      { month: "2026-06", total_spend: 150.5, has_data: true },
     ],
     recent_transactions: [baseTransaction],
     forecast_summary: null,
@@ -116,5 +118,25 @@ describe("DashboardPage", () => {
     expect(screen.getByText("$100.00")).toBeInTheDocument();
     expect(screen.getByText("50.5%")).toBeInTheDocument();
     expect(screen.getByText("Loblaws")).toBeInTheDocument();
+  });
+
+  it("shows honest 'not imported yet' copy instead of $0 when the current month has no data", async () => {
+    // CURRENT-MONTH-DEFAULT FIX: current_month_has_data=false must never
+    // render as "$0 spent" / a pace comparison -- this is the exact
+    // behavior "no transactions imported this month" != "you spent $0"
+    // guards against, at the component level.
+    const { getDashboardSummary } = await import("@/api/dashboard");
+    vi.mocked(getDashboardSummary).mockResolvedValue({
+      ...realSummary(),
+      total_spend_current: 0,
+      current_month_has_data: false,
+    });
+
+    renderWithProviders(<DashboardPage />);
+
+    expect(await screen.findByText("Not imported yet")).toBeInTheDocument();
+    expect(screen.getByText(/No transactions imported for/)).toBeInTheDocument();
+    expect(screen.queryByText("$0.00")).not.toBeInTheDocument();
+    expect(screen.queryByText(/^-?100(\.0)?%$/)).not.toBeInTheDocument();
   });
 });

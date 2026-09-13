@@ -34,7 +34,18 @@ def test_empty_database_returns_zero_shaped_summary(conn):
     assert summary["category_breakdown"] == []
     assert summary["recent_transactions"] == []
     assert len(summary["spending_trend"]) == 6
-    assert all(p["total_spend"] == 0 for p in summary["spending_trend"])
+    # Current-month-default fix: a totally fresh install has genuinely
+    # imported nothing for the anchor (current) month either -- that point
+    # is a "no data" gap, not a fabricated $0 (see _spending_trend's own
+    # docstring). Every OTHER point in the trailing window is still a real,
+    # zero-filled $0 (there truly is no data before this either, but they
+    # are not the still-in-progress current month, so a genuine historical
+    # $0 is the honest answer for them).
+    assert summary["current_month_has_data"] is False
+    trend = summary["spending_trend"]
+    assert trend[-1]["has_data"] is False
+    assert trend[-1]["total_spend"] is None
+    assert all(p["has_data"] is True and p["total_spend"] == 0 for p in trend[:-1])
     assert summary["data_mode"] == "EMPTY"
     assert summary["forecast_summary"] is None
     assert summary["portfolio_summary"] is None
@@ -288,3 +299,111 @@ def test_change_pct_handles_leap_year_february(conn):
 
     assert summary["comparable_day"] == 29
     assert summary["total_spend_previous_to_date"] == 6.0
+
+
+# -- current-month-default fix (spending-eligibility patch) ------------------
+
+
+def test_no_explicit_month_defaults_to_latest_populated_when_current_is_empty(conn):
+    """The headline scenario this fix exists for: June/July/August are
+    imported, "today" is September 13, nothing has been imported for
+    September yet. With NO explicit `analysis_month`, the summary must
+    default to August (the latest populated month) instead of a misleading
+    $0 September."""
+    repo = TransactionRepository(conn)
+    repo.create(_txn(date="2026-06-10", amount=100.0))
+    repo.create(_txn(date="2026-07-10", amount=200.0))
+    repo.create(_txn(date="2026-08-10", amount=300.0))
+    conn.commit()
+
+    service = DashboardService(conn)
+    summary = service.get_summary(
+        data_mode="real", app_mode="REAL", reference_date=date(2026, 9, 13), analysis_month=None,
+    )
+
+    assert summary["period"]["current"] == "2026-08"
+    assert summary["current_month_has_data"] is True
+    assert summary["total_spend_current"] == 300.0
+    # August is fully in the past relative to "today" (September) -- a
+    # completed-month comparison against July, not a day-aligned MTD one.
+    assert summary["is_current_incomplete"] is False
+
+
+def test_current_month_populated_keeps_the_ordinary_default_end_to_end(conn):
+    """When September itself already has data, nothing changes -- it stays
+    the default, exactly like before this patch."""
+    repo = TransactionRepository(conn)
+    repo.create(_txn(date="2026-08-10", amount=300.0))
+    repo.create(_txn(date="2026-09-05", amount=50.0))
+    conn.commit()
+
+    service = DashboardService(conn)
+    summary = service.get_summary(
+        data_mode="real", app_mode="REAL", reference_date=date(2026, 9, 13), analysis_month=None,
+    )
+
+    assert summary["period"]["current"] == "2026-09"
+    assert summary["current_month_has_data"] is True
+    assert summary["is_current_incomplete"] is True
+
+
+def test_user_can_still_explicitly_select_the_empty_current_month(conn):
+    """An EXPLICIT `analysis_month` always wins outright, even when it names
+    today's own empty calendar month -- the smart default must never
+    override a deliberate user choice. The honest "no data" signal
+    (`current_month_has_data=False`) is still surfaced so the frontend can
+    show truthful copy instead of implying "$0 spent"."""
+    repo = TransactionRepository(conn)
+    repo.create(_txn(date="2026-08-10", amount=300.0))
+    conn.commit()
+
+    service = DashboardService(conn)
+    summary = service.get_summary(
+        data_mode="real", app_mode="REAL", reference_date=date(2026, 9, 13), analysis_month="2026-09",
+    )
+
+    assert summary["period"]["current"] == "2026-09"
+    assert summary["current_month_has_data"] is False
+    assert summary["total_spend_current"] == 0.0
+    # The trend's own final point (September, the explicitly-selected
+    # anchor) is a genuine "no data" gap, not a fabricated $0.
+    september_point = next(p for p in summary["spending_trend"] if p["month"] == "2026-09")
+    assert september_point["has_data"] is False
+    assert september_point["total_spend"] is None
+
+
+def test_fresh_install_with_zero_months_anywhere_keeps_ordinary_default(conn):
+    """No data at all yet (nothing to fall back to) -- today's calendar
+    month is still the only honest thing to show, exactly like before this
+    patch, just now also flagged as `current_month_has_data=False`."""
+    service = DashboardService(conn)
+    summary = service.get_summary(
+        data_mode="real", app_mode="REAL", reference_date=date(2026, 9, 13), analysis_month=None,
+    )
+
+    assert summary["period"]["current"] == "2026-09"
+    assert summary["current_month_has_data"] is False
+    assert summary["total_spend_current"] == 0.0
+
+
+def test_internal_transfer_only_month_still_counts_as_populated(conn):
+    """A month with ONLY internal-transfer rows (no genuine spending) DID
+    have data imported -- it must still be treated as "populated" for the
+    current-month-default resolution (checked against ALL transactions, not
+    the spend-only trend aggregate), even though its own spend total is $0."""
+    repo = TransactionRepository(conn)
+    repo.create(_txn(date="2026-08-10", amount=300.0))
+    repo.create(_txn(date="2026-09-05", amount=500.0, transaction_type="internal_transfer"))
+    conn.commit()
+
+    service = DashboardService(conn)
+    summary = service.get_summary(
+        data_mode="real", app_mode="REAL", reference_date=date(2026, 9, 13), analysis_month=None,
+    )
+
+    assert summary["period"]["current"] == "2026-09"
+    assert summary["current_month_has_data"] is True
+    assert summary["total_spend_current"] == 0.0  # the transfer itself never counts as spend
+    september_point = next(p for p in summary["spending_trend"] if p["month"] == "2026-09")
+    assert september_point["has_data"] is True
+    assert september_point["total_spend"] == 0.0  # a genuine $0 spend month, not "no data"

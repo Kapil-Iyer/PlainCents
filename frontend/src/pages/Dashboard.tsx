@@ -39,7 +39,11 @@ export function DashboardPage() {
         </div>
         {data && data.data_mode !== "EMPTY" && (
           <div className="flex flex-wrap items-center gap-2">
-            <AnalysisMonthSelector value={analysisMonth} onChange={setAnalysisMonth} />
+            <AnalysisMonthSelector
+              value={analysisMonth}
+              resolvedMonth={data.period.current}
+              onChange={setAnalysisMonth}
+            />
             <ExportPowerBIButton />
           </div>
         )}

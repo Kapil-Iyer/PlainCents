@@ -23,11 +23,21 @@ interface SpendingOverviewProps {
  * is false), both sides are simply full calendar months, and the copy below
  * says so plainly rather than naming an elapsed-day range that no longer
  * applies.
+ *
+ * CURRENT-MONTH-DEFAULT FIX: when `current_month_has_data` is false (no
+ * transactions imported for `period.current` at all — either the user
+ * explicitly selected an empty month, or nothing has been imported for it
+ * yet), the "Total spend" and "Change" tiles show honest "not imported yet"
+ * copy instead of a $0 total and a -100%/"behind" comparison. $0 and -100%
+ * would both be mathematically consistent with an empty month, but they
+ * read as "you spent nothing", which is a different and false claim from
+ * "nothing has been imported yet".
  */
 export function SpendingOverview({ summary }: SpendingOverviewProps) {
   const {
     period,
     is_current_incomplete,
+    current_month_has_data,
     total_spend_current,
     total_spend_previous,
     comparable_day,
@@ -43,10 +53,21 @@ export function SpendingOverview({ summary }: SpendingOverviewProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-3xl font-bold tabular-nums">{formatCurrency(total_spend_current)}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {is_current_incomplete ? "Total spend so far" : "Total spend"}
-          </p>
+          {current_month_has_data ? (
+            <>
+              <p className="text-3xl font-bold tabular-nums">{formatCurrency(total_spend_current)}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {is_current_incomplete ? "Total spend so far" : "Total spend"}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-lg font-semibold text-muted-foreground">Not imported yet</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                No transactions imported for {formatMonthLabel(period.current)} yet
+              </p>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -69,12 +90,21 @@ export function SpendingOverview({ summary }: SpendingOverviewProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ChangeIndicator changePct={change_pct} />
-          <p className="mt-1 text-xs text-muted-foreground">
-            {is_current_incomplete
-              ? `Vs. ${formatDayRangeLabel(period.previous, comparable_day)}`
-              : `Vs. ${formatMonthLabel(period.previous)}`}
-          </p>
+          {current_month_has_data ? (
+            <>
+              <ChangeIndicator changePct={change_pct} />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {is_current_incomplete
+                  ? `Vs. ${formatDayRangeLabel(period.previous, comparable_day)}`
+                  : `Vs. ${formatMonthLabel(period.previous)}`}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-3xl font-bold text-muted-foreground">—</p>
+              <p className="mt-1 text-xs text-muted-foreground">No data to compare yet</p>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>
