@@ -1,371 +1,240 @@
 # PlainCents
 
-**A local-first personal finance MVP.** Import a bank CSV (or load sample
-demo data), get ML-assisted transaction categorization, a spending
-dashboard, on-demand category-level forecasts, and simple portfolio
-tracking — all running as a single app on your own machine.
+A full-stack personal finance analytics app: import Canadian bank CSVs, categorize spending with classical ML and human corrections, explore dashboards and forecasts, track a small portfolio, and export a Power BI–ready data pack.
 
-**PlainCents V2 is the current application.** V1 (the original batch ML
-pipeline) still lives in this repo for historical/regression reference —
-see [V1 — historical predecessor](#v1--historical-predecessor) below.
+**[Live app](https://plaincents.onrender.com)** · **[Watch the demo](https://www.youtube.com/watch?v=PxNN2qKE-b4)** · **[Architecture docs](docs/)**
+
+Deployed on Render (FastAPI serves `/api/*` and the built React SPA). Hosted SQLite is **ephemeral** portfolio/demo storage: no auth, not a production banking product.
 
 ---
 
-## V2 architecture
+## What PlainCents does
 
-```
-React + TypeScript (Vite)  →  FastAPI  →  service / repository layers  →  SQLite
-                                             ↑
-                              ML: TF-IDF + Logistic Regression categorizer
-                              (+ personalized correction memory + deterministic
-                              ambiguous-row routing), 3-month rolling-mean spend
-                              forecaster — selected via an evidence-based
-                              evaluation pipeline (see reports/ml/), integrated
-                              behind V2's service boundaries
-```
+1. **Ingest** RBC / Scotiabank / TD / CIBC CSV exports (Preview → Confirm, bank-aware dedup).
+2. **Classify spending eligibility** so clear same-owner account transfers are not counted as spend.
+3. **Categorize** merchant text with TF-IDF + Logistic Regression, conservative abstention when uncertain, and structural rules for purposeless rows.
+4. **Correct** categories in-app; **correction memory** reuses genuine human confirmations for the same merchant + bank.
+5. **Analyze** monthly spend, pace, movers, category breakdown, trends, and Insights.
+6. **Forecast** next-three-month category spend with a 3-month rolling mean (evidence-selected, not fancy ML).
+7. **Track holdings** with optional cost basis and Yahoo Finance quotes (1-hour cache).
+8. **Export** a point-in-time Power BI data pack (four CSVs + setup docs/theme).
 
-- **Frontend:** `frontend/` — React 19 + TypeScript + Vite, Tailwind, a
-  small shadcn/ui-style component set, Recharts, TanStack Query, React
-  Router.
-- **Backend:** `backend/` — FastAPI, with `api/routes` → `services` →
-  `repositories` → SQLite (`plaincents_v2.db`, separate from V1's
-  `plaincents.db`).
-- **ML:** categorization is TF-IDF + Logistic Regression
-  (`ml/categorization/candidates.py::TfidfLogRegCandidate`, merchant text
-  only, 200-word vocabulary), forecasting is a 3-month rolling-mean baseline
-  (`ml/forecasting/baselines.py::rolling_mean_predict`) — both selected over
-  several alternatives (K-Means/Linear SVM/character n-grams; Random
-  Forest/Ridge/Seasonal Naive/Naive/EWMA) through a merchant-grouped/temporal,
-  leakage-safe evaluation documented in `reports/ml/`.
-  `backend/services/categorization_service.py` and
-  `pipeline/forecast.py::train_and_predict` are the production integration
-  points; V1's original K-Means/Random Forest implementations and ML-C's
-  Naive forecaster remain in the repo untouched as historical/evaluation
-  baselines, no longer what the running app uses. A deterministic,
-  personalized correction-memory layer
-  (`backend/repositories/transaction_repository.py::find_latest_confirmed_category`)
-  reuses your own prior manual category corrections for the same recurring
-  merchant + bank on future imports, and a small deterministic rule
-  (`backend/services/ambiguity.py`) routes generic e-transfer/ATM/ABM rows —
-  which carry no spending-purpose signal at all — to "Other" instead of
-  guessing.
-
-Product surfaces: **Dashboard**, **Transactions**, **Import**, **Forecast**,
-**Portfolio** — plus a demo/onboarding flow for a brand-new, empty install.
+In-app: EMPTY / DEMO / REAL modes, a guided product tour, and a How It Works methodology walkthrough.
 
 ---
 
-## MVP / product status
+## Demo
 
-- **M5 — App-Demonstrable MVP: complete.** All five product surfaces work
-  end-to-end, packaged reviewer mode works, and the acceptance criteria in
-  the frozen V2 PRD (§19) pass under manual verification.
-- **ML scientific evaluation and production integration: complete.** A
-  leakage-safe evaluation (merchant-grouped splits for categorization,
-  temporal expanding-window validation for forecasting) benchmarked multiple
-  classical candidates per problem. Full methodology, evidence and exact
-  numbers — with their evidence-tier caveats — are in `reports/ml/`.
-  `ML_G_SELECTION_RECORD.json` is the current production record;
-  `ML_F_SELECTION_RECORD.json`, `ML_C_SELECTION_RECORD.json` and
-  `ML_E_FINAL_ML_REPORT.md` are preserved as historical evidence of the
-  decisions they document, and no longer describe what ships.
-- **ML-G: categorization rebuild. Complete.** Real RBC/Scotiabank import
-  testing showed almost everything collapsing into one category. The cause
-  was measured, not guessed: on the shipped artifact, 11 of 18 realistic
-  deployment-shaped probe strings vectorized to an all-zero feature row, and
-  a linear model on an all-zero row returns `argmax(intercept_)` — one fixed
-  class, forever, for every description it cannot read. That class was
-  Food & Dining.
-
-  Three root causes were fixed. **The corpus**: the previous benchmark gave
-  each descriptive word to exactly one merchant, so under a
-  merchant-isolated split a held-out merchant shared no feature at all with
-  training — generalization was impossible by construction. The rebuilt
-  corpus (`ml/data/build_deployment_benchmark_v2.py`, 970 rows / 199
-  merchants, up from 190 / 73) shares category-typical head nouns across
-  many distinct fabricated merchants, and draws boilerplate from one shared
-  pool so transaction-method text cannot act as a category shortcut. **The
-  representation**: word TF-IDF alone leaves truncated and run-together
-  descriptions unreadable; the selected model unions word and character
-  n-grams. **The decision**: the system now declines to answer when it has
-  no evidence or its top two categories are effectively tied, rather than
-  serving a confident-looking guess.
-
-  Sealed-test macro-F1 on merchants never seen in training went from
-  **0.174 to 0.593** (0.576 with the abstention policy applied); zero-feature
-  rate went to 0%. On the actual private exports the diagnostic script
-  reports 0% zero-feature rows. **The caveat, attached:** the benchmark is
-  hand-authored with fabricated merchant names. It supports no real-world
-  accuracy claim, and none can be computed — private exports carry no
-  category labels. Real brand names with no descriptive word in them remain
-  the honest weak point, which is what correction memory exists for.
-- **Human-in-the-loop, preview/commit agreement, and correction memory.**
-  One shared decision path (`backend/services/category_decision.py`) now
-  serves both Import Preview and Confirm, so the category shown before
-  importing is the category stored after. Correction memory keys on a stable
-  merchant identity rather than the raw description, so a card suffix or
-  store number changing every month no longer defeats it — and a description
-  naming nothing (a generic e-transfer) yields no key at all, so unrelated
-  transfers can never share one remembered category.
-- **Forecasting: available after three completed months.** The selected
-  method is a 3-month rolling mean, and three months is the minimum history
-  it needs to compute one full window. That is a mathematical floor, **not**
-  a finding that three months forecasts as accurately as six or twelve — the
-  history-length experiments never tested three months at all.
-- **CSV import supports four Canadian bank export formats.** PlainCents
-  currently supports transaction CSV imports for RBC, Scotiabank, TD, and
-  CIBC. RBC and Scotiabank formats were validated against actual exports;
-  TD support is project-verified, with headerless-format limitations
-  disclosed; CIBC support is research-backed and fail-closed. BMO and
-  National Bank support are coming soon. Do not read this as universal Big
-  Six coverage or as a claim that every product/account variant from a
-  supported bank is handled.
-- **On-demand Power BI export (current-state, V2).** The Dashboard's
-  "Export for Power BI" button generates a ZIP of four CSVs
-  (`transactions`, `category_summary`, `portfolio`, `forecast`) on the same
-  request that downloads it — no export job, nothing written to disk, no
-  stored artifact. It reads the live V2 database through the same
-  repositories every other screen uses, grouped by `effective_category`
-  (never a raw model guess), scoped to whichever data mode is currently
-  active. This is a full rewrite, not a reuse of V1's `viz/powerbi_export.py`
-  below, which depends on a `session_id` concept that doesn't exist in V2.
-  Field selection is privacy-conscious: the raw, untouched bank description
-  (which can carry masked account/reference numbers) and internal-only
-  columns (merchant-matching keys, the model's advisory-only category
-  guess) are never included.
+- **Video:** [https://www.youtube.com/watch?v=PxNN2qKE-b4](https://www.youtube.com/watch?v=PxNN2qKE-b4)
+- **Live:** [https://plaincents.onrender.com](https://plaincents.onrender.com) (cold start may take a moment on free Render)
+- **In-app Demo mode:** deterministic sample transactions, forecast, and holdings, clearly labeled Demo. Mutually exclusive with real imports.
 
 ---
 
-## Prerequisites
+## Architecture
 
-- Python 3.11+
-- Node.js 20+ and npm
-- (Windows/macOS/Linux — no Docker, no cloud account, no external database
-  required; everything runs locally against SQLite.)
-
-## Initial installation
-
-```bash
-# from the repo root
-pip install -r requirements.txt
-cp .env.example .env      # optional — defaults work out of the box
-cd frontend && npm install && cd ..
+```
+React + TypeScript (Vite)
+        ↓ REST
+FastAPI  (/api/* + built SPA in production)
+        ↓
+services → repositories → SQLite
+        ↘ ML categorizer + rolling-mean forecast + yfinance cache
 ```
 
-If you already have a trained categorizer at `models/categorizer_v3.pkl`,
-nothing else is needed. If not, run `python -m scripts.build_production_categorizer`
-once (see [Model artifact](#model-artifact) below) — or just use **Explore
-demo**, which doesn't need it at all.
-
-## Development workflow
-
-Two servers, with hot reload:
-
-```bash
-# terminal 1 — backend (http://localhost:8000)
-uvicorn backend.main:app --reload
-
-# terminal 2 — frontend (http://localhost:5173), proxies /api to :8000
-cd frontend && npm run dev
-```
-
-Open `http://localhost:5173`. Frontend tests: `cd frontend && npm test`.
-Backend tests: from the repo root, first build the deterministic test
-categorizer fixture (once per fresh clone), then run pytest:
-
-```bash
-python tests/fixtures/build_test_categorizer_model.py
-pytest
-```
-
-(`tests/fixtures/categorizer_model_test.pkl` is gitignored — see
-`tests/fixtures/README.md`. Production artifact:
-`python -m scripts.build_production_categorizer`.)
-
-## Reviewer / demo launch (one command)
-
-After the installation step above, this is the **one normal command** to
-run PlainCents as a reviewer would — one process, one port, no dev tooling
-required in a second terminal:
-
-```bash
-python -m backend.scripts.run_reviewer
-```
-
-This builds the frontend production bundle if it's missing or stale, then
-starts the FastAPI app, which serves the built frontend directly alongside
-the API — open **http://127.0.0.1:8000** and use the app normally,
-including deep links like `/dashboard` or `/portfolio`. `/api/*` continues
-to serve the API from the same process. Stop it with Ctrl+C.
-
-(Equivalently, if you've already run `npm run build` in `frontend/`
-yourself, `uvicorn backend.main:app` alone will serve the same packaged
-mode — `run_reviewer.py` is just a convenience wrapper that makes sure the
-build exists first.)
-
-## Explore the demo
-
-From an empty install (packaged mode or dev mode), the app's first screen
-offers **Explore demo** / **Load demo data**: a deterministic, clearly
-synthetic dataset (12 months of transactions, comfortably above the 3-month
-forecast eligibility floor, a prebuilt forecast, sample
-portfolio holdings) that populates every screen so you can see the product
-work without importing anything. Everything loaded this way is labeled
-**Demo** throughout the UI, is mutually exclusive with real imported data,
-and can be cleared at any time. A first-open recruiter/product walkthrough
-is also shown alongside this screen — a presentation-only preview of the
-five product areas that never touches app state (distinct from actually
-loading the interactive demo).
+| Layer | Location |
+|---|---|
+| Frontend | `frontend/` — React, TanStack Query, Recharts |
+| Backend | `backend/` — routes → services → repositories |
+| ML / eval | `ml/`, `reports/ml/`, artifact `models/categorizer_v3.pkl` (gitignored; build via script) |
+| Banks | `pipeline/ingest.py` adapters |
+| Power BI starter | `powerbi/v2/` |
 
 ---
 
-## Model artifact
+## Transaction pipeline
 
-The categorizer needs a trained artifact at `models/categorizer_v3.pkl`
-(gitignored — never committed): word TF-IDF (1–2 grams) unioned with
-character TF-IDF (2–6 grams) over normalized merchant text, feeding logistic
-regression, plus the abstention policy fitted on held-out data. All of it is
-frozen in `reports/ml/ML_G_SELECTION_RECORD.json`. To build it from the
-benchmark evidence committed in this repo:
-
-```bash
-python -m scripts.build_production_categorizer
+```
+Bank CSV
+  → normalize + bank fingerprint
+  → Preview / Confirm (dedup)
+  → spending eligibility (internal account transfer?)
+  → structural / e-transfer policy / gazetteer / ML
+  → abstain to Other + Suggested category when low confidence
+  → human confirm / correct
+  → correction memory on later imports
+  → effective_category drives analytics & forecast
 ```
 
-The artifact carries its own decision contract — which text normalizer it was
-fit with, and the margin below which it declines to answer — so what gets
-served is what was evaluated, rather than something the serving code has to
-assume.
+**Internal transfers:** clear bank account-to-account mechanism text with no residual recipient identity can be stored as `transaction_type = internal_transfer`. Those rows stay visible in Transactions as “Internal transfer,” but are excluded from spend totals, dashboard analytics, forecast inputs, and Power BI spending summaries. **Interac e-Transfers are not blanket-excluded** (a name is not proof of self-transfer).
 
-This fits on the frozen deployment-oriented TRAIN partition only (never on
-the held-out VALIDATION/FINAL_TEST rows scored during evaluation) and
-refuses to run if `reports/ml/ML_F_SELECTION_RECORD.json` doesn't name a
-winner. See `reports/ml/ML_E_REPRODUCIBILITY.md` for the original
-reproducibility workflow this one extends.
-
-If this file is missing, the app still runs: `/api/health` reports the
-categorizer as unavailable, real CSV import is blocked with a clear message
-until a model is present, and **Explore demo** is unaffected (its data is
-pre-labeled, not run through the categorizer).
-
-Forecasting has no equivalent artifact — the selected 3-month rolling-mean
-model is stateless code, recomputed fresh on every forecast run
-(`pipeline/forecast.py::train_and_predict`), nothing to build ahead of time.
+**Dashboard month:** if the calendar month has no imported rows, the UI defaults to the latest populated month instead of showing fake \$0 / −100% spend.
 
 ---
 
-## Data privacy
+## ML categorization
 
-- No real bank data is committed to this repo. `data/raw/`, `plaincents.db`,
-  and `plaincents_v2.db` are all gitignored.
-- The app makes exactly one kind of outbound network call: fetching a
-  current price from Yahoo Finance (`yfinance`), and only when you
-  explicitly click **Refresh Prices** on the Portfolio page. Simply opening
-  or reloading the Portfolio page never makes a network request — prices
-  shown are the last cached values.
-- Everything else — import, categorization, dashboard, forecast — runs
-  entirely against your local SQLite database.
+| | |
+|---|---|
+| Model | Word + character TF-IDF → Logistic Regression (`categorizer_v3.pkl`) |
+| Decision path | Shared `category_decision.decide()` for Import Preview, Confirm, and manual add |
+| Abstention | Low margin / no features → served as Other; advisory `model_category` may power Suggested / Use |
+| Human loop | `confirmed_category` wins; no online retraining from clicks |
 
----
+**Held-out, privacy-safe deployment-oriented benchmark** (fabricated merchants; not real-world accuracy):
 
-## Testing
-
-| Suite | Command | Count |
+| Metric | Value | Source |
 |---|---|---|
-| Backend (pytest) | `pytest` | 341 tests |
-| Frontend (Vitest) | `cd frontend && npm test` | 55 tests |
-| E2E (Playwright) | `npm run e2e:install` once, then `npm run e2e` | 5 flows (12 tests) |
+| Prior weak sealed macro-F1 | ~0.174 | `reports/ml/ML_F_SELECTION_RECORD.json` |
+| Current model sealed macro-F1 | ~0.593 | `reports/ml/ML_G_SELECTION_RECORD.json` |
+| With abstention policy | ~0.576 | same |
 
-E2E setup, from the repo root (separate from `frontend/`'s own `npm install`):
+Resume-safe line: improved held-out deployment-oriented categorization macro-F1 from about **0.17 to 0.59** by redesigning the privacy-safe training corpus and adding conservative abstention. Do not call this “accuracy” or production accuracy.
 
-```bash
-npm install          # repo root — installs @playwright/test
-npm run e2e:install  # once — downloads the Chromium browser
-npm run e2e          # runs the 5 flows
-```
-
-The 5 E2E flows (`tests/e2e/*.spec.ts`) are deliberately not exhaustive —
-they cover the demo lifecycle, a real CSV import, forecast staleness after
-a data correction, the portfolio refresh boundary, and multi-bank import
-detection (parameterized into several sub-tests, per the multi-bank flow's
-own file). Each spins up its
-own isolated backend against a temp SQLite database and never touches your
-real `plaincents_v2.db`. The Portfolio flow uses a deterministic offline
-stand-in for `yfinance` (`tests/e2e/fixtures/fake_yfinance/`, wired in only
-via `PYTHONPATH` for that test process) so it never depends on live market
-data being reachable — see that package's docstring for exactly how and why.
+Evidence and caveats: `reports/ml/`.
 
 ---
 
-## Repository layout
+## Forecasting
 
-```
-PlainCents/
-├── backend/            # V2 FastAPI app: api/, services/, repositories/, db/, scripts/
-├── frontend/            # V2 React app
-├── pipeline/            # ingest, features, cluster (V1 K-Means, retired), forecast (train_and_predict = selected 3-month rolling mean; V1 RF retained), portfolio
-├── ml/                   # ML-B/C evaluation: candidates, splitting, metrics, bake-offs, FINAL runners
-├── db/                  # V1 schema/seed (untouched) + db/migrations/ (V2 SQLite migrations)
-├── data/evaluation/      # Deployment-oriented categorization benchmark + split (primary, ML-F), Tier B benchmark + split (continuity, ML-C) — both committed, sanitized/synthetic evidence
-├── reports/ml/           # ML-B/C/E/F reports, selection records, claim matrix, results (committed evidence)
-├── docs/                 # Frozen V2 PRD / TRD / Build Plan / ML Spec
-├── tests/
-│   ├── backend/          # V2 backend unit + API tests
-│   ├── ml/               # ML evaluation-infrastructure tests
-│   ├── e2e/              # Playwright E2E (4 flows)
-│   └── fixtures/         # td_csv/ fixtures, deterministic test ML artifacts
-├── models/               # categorizer_v3.pkl (selected, production), tfidf_logreg_v2.pkl/kmeans_model.pkl/rf_model.pkl (retired) — all gitignored
-├── scripts/              # build_production_categorizer.py, diagnostics, re-categorization, V1 generators
-├── main.py, viz/, data/  # V1 — see below
-└── playwright.config.ts, package.json   # E2E tooling only (no app code here)
+Shipped method: **3-month rolling mean** of category spend (`mean` of up to the last three observed months per category). Same value for +1/+2/+3 horizons by design. Uses `effective_category` and **excludes internal transfers**.
+
+Selected over Naive / Ridge / Random Forest / EWMA via temporal validation on synthetic monthly series (`reports/ml/ML_F_SELECTION_RECORD.json`, `reports/ml/results/ml_f_final_forecasting.json`):
+
+| | Combined WAPE (sealed synthetic FINAL period) |
+|---|---|
+| Rolling mean (3) | ~0.178 |
+| Naive (ML-C FINAL reference) | ~0.189 |
+
+Not real-world forecast accuracy. The simple method was kept because evaluation supported it.
+
+---
+
+## Portfolio
+
+- Holdings with optional average cost; P&L is **null** when cost is unknown (never fabricated as \$0).
+- Quotes from **Yahoo Finance** (`yfinance`) only on **Refresh Prices**; backend cache TTL **3600s (1 hour)**.
+- Demo holdings use a labeled deterministic snapshot until a real refresh is requested.
+- Not real-time / streaming prices.
+
+---
+
+## Power BI export
+
+PlainCents does **not** embed a live Power BI report. Dashboard → **Export for Power BI** calls the API and downloads a **point-in-time** ZIP:
+
+| File | Role |
+|---|---|
+| `transactions.csv` | Rows including eligibility fields (`transaction_type`, `included_in_spending`) |
+| `category_summary.csv` | Spend summaries (internal transfers excluded) |
+| `portfolio.csv` | Holdings snapshot |
+| `forecast.csv` | Latest forecast (spending-only inputs) |
+
+Starter docs and theme: [`powerbi/v2/`](powerbi/v2/). Schema notes: [`powerbi/v2/SCHEMA.md`](powerbi/v2/SCHEMA.md).
+
+A Power BI Desktop dashboard was built from the **current PlainCents V2 demo export** (KPI cards, category spend, monthly trend, top merchants, portfolio allocation, next-month forecast):
+
+![Power BI dashboard built directly from the PlainCents V2 demo export](docs/images/plaincents-powerbi-demo.png)
+
+*Power BI dashboard built directly from the PlainCents V2 demo export.*
+
+---
+
+## Supported banks
+
+| Bank | Status |
+|---|---|
+| RBC | Actual-export verified |
+| Scotiabank | Actual-export verified |
+| TD | Project-verified (headerless-format limits disclosed) |
+| CIBC | Research-backed; fail-closed where ambiguous |
+| BMO | Coming soon |
+| National Bank | Coming soon |
+
+Not universal Big Six coverage; not every product/account variant of a supported bank.
+
+---
+
+## Demo / deployment notes
+
+- Modes: **EMPTY**, **DEMO**, **REAL**.
+- Render demo: Python 3.12 + Node 20 build; `GET /api/health` reports DB + categorizer + mode.
+- Hosted SQLite resets with the instance; treat the deploy as a **portfolio demo**, not persistent personal banking storage.
+- No signup / auth. Outbound network: Yahoo Finance on Portfolio refresh only (plus whatever the host needs to serve the app).
+
+---
+
+## Testing / validation
+
+| Suite | Command | Verified this audit |
+|---|---|---|
+| Backend + ML tests (pytest) | `.venv` + `pytest` (ignore untracked private_eval scripts) | **705 passed** |
+| Frontend (Vitest) | `cd frontend && npm test` | **181 tests** (one How It Works case flaked once under load; passed on re-run of that file) |
+| Categorizer bake-off | `reports/ml/ML_G_SELECTION_RECORD.json` | macro-F1 as above |
+| Forecast bake-off | `reports/ml/results/ml_f_final_forecasting.json` | WAPE as above |
+
+E2E (Playwright) lives at repo root (`npm run e2e`); not re-run in this README pass.
+
+```bash
+python tests/fixtures/build_test_categorizer_model.py   # once per clone
+pytest
+cd frontend && npm test
 ```
 
 ---
 
-## V1 — historical predecessor
+## Run locally
 
-PlainCents V1 was a Python batch pipeline: run a script, it ingests a CSV,
-categorizes and forecasts, writes to SQLite, and produces a PDF report /
-PowerBI export. It has no web UI. V2 superseded it with an interactive
-app, but V1's files remain in the repo, untouched, for historical reference
-and regression checking — its ML implementations (`pipeline/cluster.py`,
-`pipeline/forecast.py`, `pipeline/portfolio.py`) are also what V2 reuses.
-
-V1 entrypoints (all still runnable independently of V2, against V1's own
-`plaincents.db`):
+**Prerequisites:** Python 3.11+ (3.12 fine), Node 20+, npm.
 
 ```bash
-python main.py                      # full pipeline orchestration
-python -m pipeline.cluster          # train/evaluate the K-Means categorizer
-python -m pipeline.forecast         # train/evaluate the Random Forest forecaster
-python db/seed_synthetic_data.py    # seed V1's SQLite tables with synthetic data
-python viz/report.py                # generate a Matplotlib PDF report
-python viz/powerbi_export.py        # export CSVs for the PowerBI dashboard
+pip install -r requirements.txt
+cp .env.example .env    # optional
+cd frontend && npm install && cd ..
+
+# optional: production categorizer for real CSV import
+python -m scripts.build_production_categorizer
+
+# one-process reviewer mode (builds SPA if needed)
+python -m backend.scripts.run_reviewer
+# → http://127.0.0.1:8000
 ```
 
-`python -m pipeline.cluster` and `python -m pipeline.forecast` require
-`data/raw/synthetic_24mo.csv` (or regenerate it via `scripts/generate_synthetic_24mo.py`).
-`viz/report.py` and `viz/powerbi_export.py` require an existing V1
-`plaincents.db` (produced by `python main.py`).
+Dev (two terminals):
 
-### V1 model performance (synthetic data only — not real-world evidence)
+```bash
+uvicorn backend.main:app --reload          # :8000
+cd frontend && npm run dev                 # :5173, proxies /api
+```
 
-- K-Means categorization: 90% accuracy on a 40-transaction held-out set
-  (ARI = 0.81 on 779 transactions).
-- Forecast model MAPE: 15.7% against ground-truth labels; 29.4% end-to-end
-  pipeline MAPE (the gap is quantified clustering-label noise, not model
-  error).
-- All figures above come from a synthetic 24-month dataset generated for
-  development purposes — they characterize this codebase's behavior on
-  that synthetic data, not real-world forecasting accuracy, and should
-  never be read as either.
+---
+
+## Limitations
+
+- Categorization metrics are **deployment-oriented / privacy-safe**, not labeled real-world bank accuracy.
+- Many real e-transfers lack spend-purpose text and land in Other (still counted as spending unless they are clear internal account transfers).
+- Forecast is intentionally a **rolling mean**, not personalized deep learning.
+- Portfolio prices are **cached / latest-known**, not live streaming.
+- Hosted demo DB is **ephemeral**; no multi-user auth or bank-grade security claims.
+- Not investment, tax, or banking advice; no payment execution.
+
+---
+
+## Tech stack
+
+Python · TypeScript · React · FastAPI · scikit-learn · SQLite · Pandas · yfinance · Power BI · Render
+
+---
+
+## V1 note
+
+An older batch pipeline (`main.py`, K-Means / Random Forest diagnostics, `viz/`) remains in-repo for history. **V2 is the product.** V1 synthetic accuracy/MAPE figures are not claims about the shipped app.
 
 ---
 
 ## Author
 
-**Kapil Iyer**
-Bachelor of Honours Mathematics, University of Waterloo
-Applied Mathematics (Scientific ML) and Statistics, Computing Minor
+**Kapil Iyer**  
+BMath (Honours), University of Waterloo · Applied Mathematics (Scientific ML) & Statistics, Computing Minor
 
-[GitHub](https://github.com/Kapil-Iyer) · [LinkedIn](https://github.com/Kapil-Iyer) · [Portfolio](https://kapil-iyer-portfolio.vercel.app/)
+[GitHub](https://github.com/Kapil-Iyer) · [Portfolio](https://kapil-iyer-portfolio.vercel.app/)
